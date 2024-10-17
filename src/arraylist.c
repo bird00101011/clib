@@ -64,7 +64,7 @@ void arraylist_free(LPArrayList lp_arraylist)
 
 // 为数组扩（增加或减小）容
 // 成功返回TRUE，失败返回FALSE
-BOOL arraylist_reallocate(LPArrayList lp_arraylist, long new_capacity)
+int arraylist_reallocate(LPArrayList lp_arraylist, long new_capacity)
 {
     // 获取新容量的内存大小
     long new_mem_size = new_capacity * lp_arraylist->element_size;
@@ -87,7 +87,7 @@ BOOL arraylist_reallocate(LPArrayList lp_arraylist, long new_capacity)
         if (lp_arraylist->capacity < new_capacity)
         {
             // 如果设置内存失败
-            if (0 != memset(((char *)lpAl->elements) + lp_arraylist->capacity, 0, new_mem_size - old_mem_size))
+            if (0 != memset(((char *)lp_arraylist->elements) + lp_arraylist->capacity, 0, new_mem_size - old_mem_size))
             {
                 return FALSE;
             }
@@ -110,19 +110,19 @@ BOOL arraylist_reallocate(LPArrayList lp_arraylist, long new_capacity)
 }
 
 // 在指定位置后插入元素
-BOOL arraylist_insert(LPArrayList lp_arraylist, long position, void *element);
+int arraylist_insert(LPArrayList lp_arraylist, long position, void *element);
 
 // 删除指定位置的元素
-BOOL arraylist_delete_element_by_position(LPArrayList lp_arraylist, long position);
+int arraylist_delete_element_by_position(LPArrayList lp_arraylist, long position);
 
 // 删除指定元素内容的元素
-BOOL arraylist_delete_element_by_element(LPArrayList lp_arraylist, void *element);
+int arraylist_delete_element_by_element(LPArrayList lp_arraylist, void *element);
 
 // 编辑指定位置的元素
-BOOL arraylist_edit_element_by_position(LPArrayList lp_arraylist, long position, void *element);
+int arraylist_edit_element_by_position(LPArrayList lp_arraylist, long position, void *element);
 
 // 编辑指定元素内容的元素
-BOOL arraylist_edit_element_by_element(LPArrayList lp_arraylist, BOOL *old_element, BOOL *new_element);
+int arraylist_edit_element_by_element(LPArrayList lp_arraylist, int *old_element, int *new_element);
 
 // 获取指定位置的元素
 void *arraylist_get_element_by_position(LPArrayList lp_arraylist, long position);
@@ -131,7 +131,7 @@ void *arraylist_get_element_by_position(LPArrayList lp_arraylist, long position)
 long arraylist_get_position_by_element(LPArrayList lp_arraylist, void *element);
 
 // 右边追加元素
-BOOL arraylist_lappend(LPArrayList lp_arraylist, void *element);
+int arraylist_lappend(LPArrayList lp_arraylist, void *element);
 
 // 左边追加元素
-BOOL arraylist_rappend(LPArrayList lp_arraylist, void *element);
+int arraylist_rappend(LPArrayList lp_arraylist, void *element);
