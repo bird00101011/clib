@@ -153,6 +153,11 @@ int arraylist_insert(LPArrayList lp_arraylist, long position, void *element)
         if (0 != memcpy((char *)lp_arraylist->elements + position * lp_arraylist->element_size,
                         element, lp_arraylist->element_size))
         {
+            // 复制都失败了，恢复刚才扩容的内存
+            if (FALSE == arraylist_reallocate(lp_arraylist, lp_arraylist->capacity / 2))
+            {
+                return FALSE;
+            }
             return FALSE;
         }
     }
