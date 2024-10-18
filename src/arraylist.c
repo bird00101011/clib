@@ -100,6 +100,7 @@ int arraylist_reallocate(LPArrayList lp_arraylist, long new_capacity)
 
     lp_arraylist->capacity = new_capacity;
     // 如何列表存储的元素个数大于新的容量，则列表存储的元素个数等于新的容量
+    // TODO 那这里有个问题，被遗弃的数组元素内存没有释放，变成野内存了
     // 如果列表存储的元素 个数小于新的容量，则列表存储的元素个数不变
     if (lp_arraylist->elements_num > lp_arraylist->capacity)
     {
@@ -110,7 +111,57 @@ int arraylist_reallocate(LPArrayList lp_arraylist, long new_capacity)
 }
 
 // 在指定位置后插入元素
-int arraylist_insert(LPArrayList lp_arraylist, long position, void *element);
+int arraylist_insert(LPArrayList lp_arraylist, long position, void *element)
+{
+    // PS. 内存是从0 开始的，所以，插入末端的时候，你看pos=数组实际元素个数的时候不是pos等于索引
+    //     所以，插入的末端的时候，不需要移动，都没数据移动啥呢？
+    // 如果插入位置大于数组实际存储元素个数，则插入失败
+    if (position > lp_arraylist->elements_num)
+        return FALSE;
+
+    else if (position < lp_arraylist->elements_num)
+    {
+        // 将插入点后面的数据全部向右偏移元素字节数
+        if (0 != memmove(((char *)lp_arraylist->elements) + (position + 1) * lp_arraylist->element_size,
+                         (char *)lp_arraylist->elements + position * lp_arraylist->element_size,
+                         (lp_arraylist->elements_num - position) * lp_arraylist->element_size))
+        {
+            return FALSE;
+        }
+
+        // 将元素所指向的内存复制到插入节点上
+        if (0 != memcpy((char *)lp_arraylist->elements + position * lp_arraylist->element_size,
+                        element, lp_arraylist->element_size))
+        {
+            // TODO 恢复之前被移动的元素内存
+            return FALSE;
+        }
+    }
+    else
+    {
+        // 如果元素个数即将超过容量
+        if (lp_arraylist->elements_num = lp_arraylist->capacity)
+        {
+            // 分配2倍大小的容量
+            if (FALSE == arraylist_reallocate(lp_arraylist, 2 * lp_arraylist->capacity))
+            {
+                return FALSE;
+            }
+        }
+
+        // 将元素所指向的内存复制到数组末端
+        if (0 != memcpy((char *)lp_arraylist->elements + position * lp_arraylist->element_size,
+                        element, lp_arraylist->element_size))
+        {
+            return FALSE;
+        }
+    }
+
+    // 然后将实际元素个数+1
+    lp_arraylist->elements_num = lp_arraylist->elements_num + 1; // 也可以用++
+
+    return TRUE;
+}
 
 // 删除指定位置的元素
 int arraylist_delete_element_by_position(LPArrayList lp_arraylist, long position);

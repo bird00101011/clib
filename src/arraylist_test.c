@@ -5,7 +5,7 @@ int main()
 {
     LPArrayList lpAl = arraylist_new(10, sizeof(int));
     arraylist_free(lpAl);
-    printf("Ok\n");
+    printf("ok.\n");
 
     return 0;
 }
