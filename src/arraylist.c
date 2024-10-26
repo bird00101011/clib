@@ -2,17 +2,24 @@
 #if defined(WINDOWS)
 #include <windows.h>
 #endif
+
+#include <types.h>
 #include <arraylist.h>
 
-// 初始化一个ArrayList
-// 成功返回ArrayList指针，失败返回NULL指针
-LPArrayList arraylist_new(long elements_num, long element_size)
+StatusDataError *arraylist_new(long elements_num, long element_size)
 {
-    LPArrayList lpAl = malloc(sizeof(ArrayList));
-    // 若分配失败返回NULL指针
-    if (lpAl == NULL)
+    StatusDataError *lde = malloc(sizeof(StatusDataError));
+    CLIBError *error = malloc(sizeof(CLIBError));
+    lde->error = error;
+
+    ArrayList *lpAl = malloc(sizeof(ArrayList));
+    // 若分配失败返回NULL_POINTER指针
+    if (lpAl == NULL_POINTER)
     {
-        return NULL;
+        lde->data = NULL_POINTER;
+        lde->status = NOTOK;
+        lde->error->error_malloc = YES;
+        return lde;
     }
 
     lpAl->elements_num = elements_num;
@@ -23,49 +30,70 @@ LPArrayList arraylist_new(long elements_num, long element_size)
 
     // 为数组分配内存
     lpAl->elements = malloc(lpAl->capacity * lpAl->element_size);
-    // 分配失败，则返回NULL指针，同时释放分配的lpAl内存，并且避免lpAl野指针，由于前面已经分配成功lpAl
-    if (lpAl->elements == NULL)
+    // 分配失败，则返回NULL_POINTER指针，同时释放分配的lpAl内存，并且避免lpAl野指针，由于前面已经分配成功lpAl
+    if (lpAl->elements == NULL_POINTER)
     {
         free(lpAl);
-        lpAl = NULL;
+        lpAl = NULL_POINTER;
 
-        return NULL;
+        lde->status = NOTOK;
+        lde->error->error_malloc = YES;
+        lde->data = NULL_POINTER;
+
+        return lde;
     }
-    // 所有成员初始化为0，如果初始化失败，则返回NULL指针，并释放分配的数组和列表内存
+    // 所有成员初始化为0，如果初始化失败，则返回NULL_POINTER指针，并释放分配的数组和列表内存
     if (0 != memset(lpAl->elements, 0, lpAl->capacity * lpAl->element_size))
     {
         free(lpAl->elements);
-        lpAl->elements = NULL;
+        lpAl->elements = NULL_POINTER;
         free(lpAl);
-        lpAl = NULL;
+        lpAl = NULL_POINTER;
 
-        return NULL;
+        lde->data = NULL_POINTER;
+        lde->status = NOTOK;
+        lde->error->error_memset = YES;
+
+        return lde;
     }
 
-    return lpAl;
+    return lde;
 }
 
-// 释放一个ArrayList
-// 如果释放失败，就是操作系统内核负责的事情了
-void arraylist_free(LPArrayList lp_arraylist)
+StatusDataError *arraylist_free(ArrayList *lp_arraylist)
 {
-    if (lp_arraylist != NULL)
+    StatusDataError *lde = malloc(sizeof(StatusDataError));
+    CLIBError *error = malloc(sizeof(CLIBError));
+    lde->error = error;
+
+    if (lp_arraylist != NULL_POINTER)
     {
-        if (lp_arraylist->elements != NULL)
+        if (lp_arraylist->elements != NULL_POINTER)
         {
             free(lp_arraylist->elements);
-            lp_arraylist->elements = NULL; // 防止野指针
+            lp_arraylist->elements = NULL_POINTER; // 防止野指针
         }
 
         free(lp_arraylist);
-        lp_arraylist = NULL; // 防止野指针
+        lp_arraylist = NULL_POINTER; // 防止野指针
+
+        lde->status = OK;
+        lde->data = NULL_POINTER;
     }
+    else
+    {
+        lde->error->error_not_necessarily_operate = YES;
+    }
+
+    return lde;
 }
 
-// 为数组扩（增加或减小）容
-// 成功返回TRUE，失败返回FALSE
-int arraylist_reallocate(LPArrayList lp_arraylist, long new_capacity)
+StatusDataError *arraylist_reallocate(ArrayList *lp_arraylist, long new_capacity)
 {
+    StatusDataError *lde = malloc(sizeof(StatusDataError));
+    CLIBError *error = malloc(sizeof(CLIBError));
+    lde->error = error;
+
     // 获取新容量的内存大小
     long new_mem_size = new_capacity * lp_arraylist->element_size;
 
@@ -76,7 +104,7 @@ int arraylist_reallocate(LPArrayList lp_arraylist, long new_capacity)
     void *new_elements = realloc(lp_arraylist->elements, new_mem_size);
 
     // 分配成功
-    if (new_elements != NULL)
+    if (new_elements != NULL_POINTER)
     {
         // 使列表数组指针指向新的
         lp_arraylist->elements = new_elements;
@@ -89,13 +117,20 @@ int arraylist_reallocate(LPArrayList lp_arraylist, long new_capacity)
             // 如果设置内存失败
             if (0 != memset(((char *)lp_arraylist->elements) + lp_arraylist->capacity, 0, new_mem_size - old_mem_size))
             {
-                return FALSE;
+                lde->data = lp_arraylist;
+                lde->error->error_memset = YES;
+                lde->status = NOTOK;
+                return lde;
             }
         }
     }
     else
     {
-        return FALSE;
+        lde->data = lp_arraylist;
+        lde->error->error_realloc = YES;
+        lde->status = NOTOK;
+
+        return lde;
     }
 
     lp_arraylist->capacity = new_capacity;
@@ -107,17 +142,28 @@ int arraylist_reallocate(LPArrayList lp_arraylist, long new_capacity)
         lp_arraylist->elements_num = lp_arraylist->capacity;
     }
 
-    return TRUE;
+    lde->data = lp_arraylist;
+    lde->status = OK;
+
+    return lde;
 }
 
-// 在指定位置后插入元素
-int arraylist_insert(LPArrayList lp_arraylist, long position, void *element)
+StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *element)
 {
+    StatusDataError *lde = malloc(sizeof(StatusDataError));
+    CLIBError *error = malloc(sizeof(CLIBError));
+    lde->error = error;
+
     // PS. 内存是从0 开始的，所以，插入末端的时候，你看pos=数组实际元素个数的时候不是pos等于索引
     //     所以，插入的末端的时候，不需要移动，都没数据移动啥呢？
     // 如果插入位置大于数组实际存储元素个数，则插入失败
     if (position > lp_arraylist->elements_num)
-        return FALSE;
+    {
+        lde->status = NOTOK;
+        lde->data = lp_arraylist;
+
+        return lde;
+    }
 
     else if (position < lp_arraylist->elements_num)
     {
@@ -126,26 +172,49 @@ int arraylist_insert(LPArrayList lp_arraylist, long position, void *element)
                          (char *)lp_arraylist->elements + position * lp_arraylist->element_size,
                          (lp_arraylist->elements_num - position) * lp_arraylist->element_size))
         {
-            return FALSE;
+            lde->status = NOTOK;
+            lde->data = lp_arraylist;
+            lde->error->error_memove = YES;
+
+            return lde;
         }
 
         // 将元素所指向的内存复制到插入节点上
         if (0 != memcpy((char *)lp_arraylist->elements + position * lp_arraylist->element_size,
                         element, lp_arraylist->element_size))
         {
-            // TODO 恢复之前被移动的元素内存
-            return FALSE;
+            // TODO 恢复之前被移动的元素内存，火车抛出异常
+            lde->status = NOTOK;
+            lde->data = lp_arraylist;
+            lde->error->error_memcpy = YES;
+
+            return lde;
         }
     }
     else
     {
+        int rc;
         // 如果元素个数即将超过容量
         if (lp_arraylist->elements_num = lp_arraylist->capacity)
         {
             // 分配2倍大小的容量
-            if (FALSE == arraylist_reallocate(lp_arraylist, 2 * lp_arraylist->capacity))
+            StatusDataError *ar_lde = arraylist_reallocate(lp_arraylist, 2 * lp_arraylist->capacity);
+            if (ar_lde->status != OK)
             {
-                return FALSE;
+                free(error);
+                free(lde);
+                error = NULL_POINTER;
+                lde = NULL_POINTER;
+
+                return ar_lde;
+            }
+            else
+            {
+                free(ar_lde->error);
+                ar_lde->error = NULL_POINTER;
+
+                free(ar_lde);
+                ar_lde = NULL_POINTER;
             }
         }
 
@@ -153,41 +222,35 @@ int arraylist_insert(LPArrayList lp_arraylist, long position, void *element)
         if (0 != memcpy((char *)lp_arraylist->elements + position * lp_arraylist->element_size,
                         element, lp_arraylist->element_size))
         {
+            StatusDataError *ar_lde = arraylist_reallocate(lp_arraylist, lp_arraylist->capacity / 2);
             // 复制都失败了，恢复刚才扩容的内存
-            if (FALSE == arraylist_reallocate(lp_arraylist, lp_arraylist->capacity / 2))
+            if (ar_lde->status != OK)
             {
-                return FALSE;
+                // 这里打印日志或者返回其它值，如果只返回这一个值，那复制内存失败的信息就不能返回
+                free(error);
+                free(lde);
+
+                error = NULL_POINTER;
+                lde = NULL_POINTER;
+
+                return ar_lde;
             }
-            return FALSE;
+            else
+            {
+                free(ar_lde->error);
+                ar_lde->error = NULL_POINTER;
+
+                free(ar_lde);
+                ar_lde = NULL_POINTER;
+            }
         }
     }
 
     // 然后将实际元素个数+1
     lp_arraylist->elements_num = lp_arraylist->elements_num + 1; // 也可以用++
 
-    return TRUE;
+    lde->data = lp_arraylist;
+    lde->status = OK;
+
+    return lde;
 }
-
-// 删除指定位置的元素
-int arraylist_delete_element_by_position(LPArrayList lp_arraylist, long position);
-
-// 删除指定元素内容的元素
-int arraylist_delete_element_by_element(LPArrayList lp_arraylist, void *element);
-
-// 编辑指定位置的元素
-int arraylist_edit_element_by_position(LPArrayList lp_arraylist, long position, void *element);
-
-// 编辑指定元素内容的元素
-int arraylist_edit_element_by_element(LPArrayList lp_arraylist, int *old_element, int *new_element);
-
-// 获取指定位置的元素
-void *arraylist_get_element_by_position(LPArrayList lp_arraylist, long position);
-
-// 获取指定元素的位置
-long arraylist_get_position_by_element(LPArrayList lp_arraylist, void *element);
-
-// 右边追加元素
-int arraylist_lappend(LPArrayList lp_arraylist, void *element);
-
-// 左边追加元素
-int arraylist_rappend(LPArrayList lp_arraylist, void *element);
