@@ -6,11 +6,21 @@
 #include <types.h>
 #include <arraylist.h>
 
-StatusDataError *arraylist_new(long elements_num, long element_size)
+StatusDataError *arraylist_new(long capacity, long element_size)
 {
     StatusDataError *lde = malloc(sizeof(StatusDataError));
-    CLIBError *error = malloc(sizeof(CLIBError));
-    lde->error = error;
+    if (lde == NULL_POINTER)
+    {
+        return lde;
+    }
+
+    lde->error = malloc(sizeof(CLIBError));
+    if (lde->error == NULL_POINTER)
+    {
+        free(lde);
+        lde = NULL_POINTER;
+        return lde;
+    }
 
     ArrayList *lpAl = malloc(sizeof(ArrayList));
     // 若分配失败返回NULL_POINTER指针
@@ -21,12 +31,13 @@ StatusDataError *arraylist_new(long elements_num, long element_size)
         lde->error->error_malloc = YES;
         return lde;
     }
+    lde->data = lpAl;
 
-    lpAl->elements_num = elements_num;
+    lpAl->elements_num = 0;
     lpAl->element_size = element_size;
 
     // 若元素个数小于5，将分配5个元素大小的实际容量
-    lpAl->capacity = elements_num > 5 ? elements_num : 5;
+    lpAl->capacity = capacity > 5 ? capacity : 5;
 
     // 为数组分配内存
     lpAl->elements = malloc(lpAl->capacity * lpAl->element_size);
@@ -43,7 +54,7 @@ StatusDataError *arraylist_new(long elements_num, long element_size)
         return lde;
     }
     // 所有成员初始化为0，如果初始化失败，则返回NULL_POINTER指针，并释放分配的数组和列表内存
-    if (0 != memset(lpAl->elements, 0, lpAl->capacity * lpAl->element_size))
+    if (NULL_POINTER == memset(lpAl->elements, 0, lpAl->capacity * lpAl->element_size))
     {
         free(lpAl->elements);
         lpAl->elements = NULL_POINTER;
@@ -63,8 +74,18 @@ StatusDataError *arraylist_new(long elements_num, long element_size)
 StatusDataError *arraylist_free(ArrayList *lp_arraylist)
 {
     StatusDataError *lde = malloc(sizeof(StatusDataError));
-    CLIBError *error = malloc(sizeof(CLIBError));
-    lde->error = error;
+    if (lde == NULL_POINTER)
+    {
+        return lde;
+    }
+
+    lde->error = malloc(sizeof(CLIBError));
+    if (lde->error == NULL_POINTER)
+    {
+        free(lde);
+        lde = NULL_POINTER;
+        return lde;
+    }
 
     if (lp_arraylist != NULL_POINTER)
     {
@@ -91,8 +112,18 @@ StatusDataError *arraylist_free(ArrayList *lp_arraylist)
 StatusDataError *arraylist_reallocate(ArrayList *lp_arraylist, long new_capacity)
 {
     StatusDataError *lde = malloc(sizeof(StatusDataError));
-    CLIBError *error = malloc(sizeof(CLIBError));
-    lde->error = error;
+    if (lde == NULL_POINTER)
+    {
+        return lde;
+    }
+
+    lde->error = malloc(sizeof(CLIBError));
+    if (lde->error == NULL_POINTER)
+    {
+        free(lde);
+        lde = NULL_POINTER;
+        return lde;
+    }
 
     // 获取新容量的内存大小
     long new_mem_size = new_capacity * lp_arraylist->element_size;
@@ -115,7 +146,7 @@ StatusDataError *arraylist_reallocate(ArrayList *lp_arraylist, long new_capacity
         if (lp_arraylist->capacity < new_capacity)
         {
             // 如果设置内存失败
-            if (0 != memset(((char *)lp_arraylist->elements) + lp_arraylist->capacity, 0, new_mem_size - old_mem_size))
+            if (NULL_POINTER == memset(((char *)lp_arraylist->elements) + lp_arraylist->capacity, 0, new_mem_size - old_mem_size))
             {
                 lde->data = lp_arraylist;
                 lde->error->error_memset = YES;
@@ -151,26 +182,36 @@ StatusDataError *arraylist_reallocate(ArrayList *lp_arraylist, long new_capacity
 StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *element)
 {
     StatusDataError *lde = malloc(sizeof(StatusDataError));
-    CLIBError *error = malloc(sizeof(CLIBError));
-    lde->error = error;
+    if (lde == NULL_POINTER)
+    {
+        return lde;
+    }
+
+    lde->error = malloc(sizeof(CLIBError));
+    if (lde->error == NULL_POINTER)
+    {
+        free(lde);
+        lde = NULL_POINTER;
+        return lde;
+    }
 
     // PS. 内存是从0 开始的，所以，插入末端的时候，你看pos=数组实际元素个数的时候不是pos等于索引
     //     所以，插入的末端的时候，不需要移动，都没数据移动啥呢？
     // 如果插入位置大于数组实际存储元素个数，则插入失败
-    if (position > lp_arraylist->elements_num)
+    // position的取值范围为[0, lp_arraylist->elements_num]
+    if (position > lp_arraylist->elements_num && position < 0)
     {
         lde->status = NOTOK;
         lde->data = lp_arraylist;
 
         return lde;
     }
-
     else if (position < lp_arraylist->elements_num)
     {
         // 将插入点后面的数据全部向右偏移元素字节数
-        if (0 != memmove(((char *)lp_arraylist->elements) + (position + 1) * lp_arraylist->element_size,
-                         (char *)lp_arraylist->elements + position * lp_arraylist->element_size,
-                         (lp_arraylist->elements_num - position) * lp_arraylist->element_size))
+        if (NULL_POINTER == memmove(((char *)lp_arraylist->elements) + (position + 1) * lp_arraylist->element_size,
+                                    (char *)lp_arraylist->elements + position * lp_arraylist->element_size,
+                                    (lp_arraylist->elements_num - position) * lp_arraylist->element_size))
         {
             lde->status = NOTOK;
             lde->data = lp_arraylist;
@@ -180,10 +221,10 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
         }
 
         // 将元素所指向的内存复制到插入节点上
-        if (0 != memcpy((char *)lp_arraylist->elements + position * lp_arraylist->element_size,
-                        element, lp_arraylist->element_size))
+        if (NULL_POINTER == memcpy((char *)lp_arraylist->elements + position * lp_arraylist->element_size,
+                                   element, lp_arraylist->element_size))
         {
-            // TODO 恢复之前被移动的元素内存，火车抛出异常
+            // TODO 恢复之前被移动的元素内存，或者抛出异常
             lde->status = NOTOK;
             lde->data = lp_arraylist;
             lde->error->error_memcpy = YES;
@@ -193,17 +234,16 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
     }
     else
     {
-        int rc;
         // 如果元素个数即将超过容量
-        if (lp_arraylist->elements_num = lp_arraylist->capacity)
+        if (lp_arraylist->elements_num == lp_arraylist->capacity)
         {
             // 分配2倍大小的容量
             StatusDataError *ar_lde = arraylist_reallocate(lp_arraylist, 2 * lp_arraylist->capacity);
             if (ar_lde->status != OK)
             {
-                free(error);
+                free(lde->error);
+                lde->error = NULL_POINTER;
                 free(lde);
-                error = NULL_POINTER;
                 lde = NULL_POINTER;
 
                 return ar_lde;
@@ -219,18 +259,17 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
         }
 
         // 将元素所指向的内存复制到数组末端
-        if (0 != memcpy((char *)lp_arraylist->elements + position * lp_arraylist->element_size,
-                        element, lp_arraylist->element_size))
+        if (NULL_POINTER == memcpy((char *)lp_arraylist->elements + position * lp_arraylist->element_size,
+                                   element, lp_arraylist->element_size))
         {
             StatusDataError *ar_lde = arraylist_reallocate(lp_arraylist, lp_arraylist->capacity / 2);
             // 复制都失败了，恢复刚才扩容的内存
             if (ar_lde->status != OK)
             {
                 // 这里打印日志或者返回其它值，如果只返回这一个值，那复制内存失败的信息就不能返回
-                free(error);
+                free(lde->error);
+                lde->error = NULL_POINTER;
                 free(lde);
-
-                error = NULL_POINTER;
                 lde = NULL_POINTER;
 
                 return ar_lde;

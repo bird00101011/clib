@@ -1,7 +1,7 @@
 #include <types.h>
 
 // 初始化一个ArrayList
-StatusDataError *arraylist_new(long elements_num, long element_size);
+StatusDataError *arraylist_new(long capacity, long element_size);
 
 // 释放一个ArrayList
 StatusDataError *arraylist_free(ArrayList *lp_arraylist);

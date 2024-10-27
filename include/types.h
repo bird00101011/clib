@@ -7,14 +7,14 @@ typedef unsigned char Byte;
 
 typedef enum
 {
-    OK,
-    NOTOK
+    OK = 1,
+    NOTOK = 0
 } OkOrNotOk;
 
 typedef enum
 {
-    YES,
-    NO
+    YES =1,
+    NO=0
 } YesOrNo;
 
 typedef struct
