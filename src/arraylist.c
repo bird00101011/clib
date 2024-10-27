@@ -198,8 +198,8 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
     // PS. 内存是从0 开始的，所以，插入末端的时候，你看pos=数组实际元素个数的时候不是pos等于索引
     //     所以，插入的末端的时候，不需要移动，都没数据移动啥呢？
     // 如果插入位置大于数组实际存储元素个数，则插入失败
-    // position的取值范围为[0, lp_arraylist->elements_num]
-    if (position > lp_arraylist->elements_num && position < 0)
+    // position的取值范围为[0, lp_arraylist->elements_num)
+    if (position > lp_arraylist->elements_num || position < 0)
     {
         lde->status = NOTOK;
         lde->data = lp_arraylist;
@@ -232,7 +232,7 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
             return lde;
         }
     }
-    else
+    else // 等于 position = elements_num
     {
         // 如果元素个数即将超过容量
         if (lp_arraylist->elements_num == lp_arraylist->capacity)
