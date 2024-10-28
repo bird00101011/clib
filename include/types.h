@@ -13,8 +13,8 @@ typedef enum
 
 typedef enum
 {
-    YES =1,
-    NO=0
+    YES = 1,
+    NO = 0
 } YesOrNo;
 
 typedef struct
@@ -24,7 +24,8 @@ typedef struct
     Byte error_memset;
     Byte error_memove;
     Byte error_memcpy;
-    Byte error_not_necessarily_operate;
+    Byte error_index_out;
+    Byte error_null_pointer;
 } CLIBError;
 
 typedef struct

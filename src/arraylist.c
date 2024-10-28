@@ -103,7 +103,9 @@ StatusDataError *arraylist_free(ArrayList *lp_arraylist)
     }
     else
     {
-        lde->error->error_not_necessarily_operate = YES;
+        lde->error->error_null_pointer = YES;
+        lde->status = NOTOK;
+        lde->data = NULL_POINTER;
     }
 
     return lde;
@@ -122,6 +124,14 @@ StatusDataError *arraylist_reallocate(ArrayList *lp_arraylist, long new_capacity
     {
         free(lde);
         lde = NULL_POINTER;
+        return lde;
+    }
+
+    if (lp_arraylist == NULL_POINTER)
+    {
+        lde->error->error_null_pointer = YES;
+        lde->status = NOTOK;
+        lde->data = NULL_POINTER;
         return lde;
     }
 
@@ -195,14 +205,24 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
         return lde;
     }
 
+    if (lp_arraylist == NULL_POINTER)
+    {
+        lde->error->error_null_pointer = YES;
+        lde->status = NOTOK;
+        lde->data = NULL_POINTER;
+        return lde;
+    }
+
     // PS. 内存是从0 开始的，所以，插入末端的时候，你看pos=数组实际元素个数的时候不是pos等于索引
     //     所以，插入的末端的时候，不需要移动，都没数据移动啥呢？
     // 如果插入位置大于数组实际存储元素个数，则插入失败
-    // position的取值范围为[0, lp_arraylist->elements_num)
+    // position的取值范围为[0, lp_arraylist->elements_num]
+    // 0则是左边插入，lp_arraylist->elements_num则是追加
     if (position > lp_arraylist->elements_num || position < 0)
     {
         lde->status = NOTOK;
         lde->data = lp_arraylist;
+        lde->error->error_index_out = YES;
 
         return lde;
     }
@@ -211,7 +231,7 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
         // 将插入点后面的数据全部向右偏移元素字节数
         if (NULL_POINTER == memmove(((char *)lp_arraylist->elements) + (position + 1) * lp_arraylist->element_size,
                                     (char *)lp_arraylist->elements + position * lp_arraylist->element_size,
-                                    (lp_arraylist->elements_num - position) * lp_arraylist->element_size))
+                                    (lp_arraylist->elements_num - position - 1) * lp_arraylist->element_size))
         {
             lde->status = NOTOK;
             lde->data = lp_arraylist;
@@ -290,6 +310,82 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
 
     lde->data = lp_arraylist;
     lde->status = OK;
+
+    return lde;
+}
+
+StatusDataError *arraylist_delete_element_by_position(ArrayList *lp_arraylist, long position)
+{
+    StatusDataError *lde = malloc(sizeof(StatusDataError));
+    if (lde == NULL_POINTER)
+    {
+        return lde;
+    }
+
+    lde->error = malloc(sizeof(CLIBError));
+    if (lde->error == NULL_POINTER)
+    {
+        free(lde);
+        lde = NULL_POINTER;
+        return lde;
+    }
+
+    if (lp_arraylist == NULL_POINTER)
+    {
+        lde->error->error_null_pointer = YES;
+        lde->status = NOTOK;
+        lde->data = NULL_POINTER;
+
+        return lde;
+    }
+
+    lde->data = lp_arraylist;
+
+    if (lp_arraylist->elements_num == 0)
+    {
+        lde->error->error_index_out = YES;
+        lde->status = NOTOK;
+
+        return lde;
+    }
+
+    if (position >= lp_arraylist->elements_num || position < 0)
+    {
+        lde->status = NOTOK;
+        lde->error->error_index_out = YES;
+        return lde;
+    }
+    else
+    {
+        if (lp_arraylist->elements_num >= 1)
+        {
+            // 将删除点后面的数据全部向左偏移元素字节数
+            if (NULL_POINTER == memmove(((char *)lp_arraylist->elements) + position * lp_arraylist->element_size,
+                                        (char *)lp_arraylist->elements + (position + 1) * lp_arraylist->element_size,
+                                        (lp_arraylist->elements_num - position - 1) * lp_arraylist->element_size))
+            {
+                lde->status = NOTOK;
+                lde->data = lp_arraylist;
+                lde->error->error_memove = YES;
+
+                return lde;
+            }
+        }
+
+        // 将末尾移动后的位置所指向的内存设置为0
+        if (NULL_POINTER == memset((char *)lp_arraylist->elements + (lp_arraylist->elements_num - 1) * lp_arraylist->element_size,
+                                   0, lp_arraylist->element_size))
+        {
+            // TODO 恢复之前被移动的元素内存，或者抛出异常
+            lde->status = NOTOK;
+            lde->data = lp_arraylist;
+            lde->error->error_memset = YES;
+
+            return lde;
+        }
+    }
+
+    lp_arraylist->elements_num--;
 
     return lde;
 }
