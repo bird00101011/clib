@@ -1,4 +1,5 @@
 #include <types.h>
+#include <stdlib.h>
 
 void init_error(CLIBError *ce)
 {
@@ -42,9 +43,8 @@ void free_status_data_error(StatusDataError *sde)
     {
         if (sde->error != NULL_POINTER)
             free(sde->error);
-        if (sde->data != NULL_POINTER)
-            free(sde->data);
 
+        // 由于data不知是不是用malloc创建的，所以需要用户自己决定如何释放
         sde->data = NULL_POINTER;
         sde->error = NULL_POINTER;
 

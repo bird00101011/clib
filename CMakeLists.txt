@@ -11,4 +11,4 @@ include
 aux_source_directory(${PROJECT_SOURCE_DIR}/src src)
 
 #添加要编译的可执行文件
-ADD_EXECUTABLE(arraylist_test src/arraylist_test.c src/arraylist.c)
+ADD_EXECUTABLE(arraylist_test src/arraylist_test.c src/arraylist.c src/types.c)

@@ -351,6 +351,7 @@ StatusDataError *arraylist_iter(ArrayList *lp_arraylist)
     {
         sde->data = NULL_POINTER;
         sde->error->error_iter_stop = YES;
+        lp_arraylist->iter_index = 0;
         return sde;
     }
 
@@ -370,6 +371,26 @@ StatusDataError *arraylist_stop_iter(ArrayList *lp_arraylist)
         sde->error->error_null_pointer = YES;
     else
         lp_arraylist->iter_index = 0;
+
+    return sde;
+}
+
+StatusDataError *arraylist_get_element_by_position(ArrayList *al, long position)
+{
+    StatusDataError *sde = init_status_data_error();
+    if (sde == NULL_POINTER)
+        return sde;
+
+    if (al == NULL_POINTER)
+    {
+        sde->error->error_null_pointer = YES;
+        return sde;
+    }
+
+    if (position >= 0 && position < al->elements_num)
+        sde->data = (char *)al->elements + position * al->element_size;
+    else
+        sde->error->error_index_out = YES;
 
     return sde;
 }

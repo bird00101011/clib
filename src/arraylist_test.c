@@ -68,7 +68,7 @@ int main()
         printf("1 %d, %d, iter: %d\n", al->iter_index - 1, element, *element);
         isde = arraylist_iter(al);
     }
-    arraylist_stop_iter(al);
+    // arraylist_stop_iter(al);
 
     lde = arraylist_delete_element_by_position(al, 0);
     if (lde == NULL_POINTER)
@@ -76,7 +76,7 @@ int main()
         return -1;
     }
 
-    printf("1 al elements_num: %d, capacity: %d\n", al->elements_num, al->capacity);
+    printf("After deleted al elements_num: %d, capacity: %d\n", al->elements_num, al->capacity);
 
     if (lde->status == NOTOK)
     {
@@ -98,6 +98,14 @@ int main()
         isde = arraylist_iter(al);
     }
 
+    lde = arraylist_get_element_by_position(al, 1);
+    if (lde == NULL_POINTER)
+        return -1;
+
+    element = (int *)lde->data;
+    printf("al 1 element: %d\n", *element);
+
+    free(al);
     free_status_data_error(lde);
     free_status_data_error(isde);
     return 0;
