@@ -13,6 +13,7 @@ void init_error(CLIBError *ce)
         ce->error_memset = NO;
         ce->error_null_pointer = NO;
         ce->error_realloc = NO;
+        ce->error_memcmp = NO;
     }
 }
 
@@ -26,6 +27,7 @@ StatusDataError *init_status_data_error()
 
     lde->error = malloc(sizeof(CLIBError));
     init_error(lde->error);
+    lde->data = NULL_POINTER;
 
     if (lde->error == NULL_POINTER)
     {
@@ -49,6 +51,5 @@ void free_status_data_error(StatusDataError *sde)
         sde->error = NULL_POINTER;
 
         free(sde);
-        sde = NULL_POINTER;
     }
 }

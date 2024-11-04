@@ -12,7 +12,7 @@ typedef struct
     long elements_num; // 列表存储的元素个数
     long element_size; // 单个元素字节数
     long capacity;     // 列表容量
-    long iter_index; // 迭代器的位置
+    long iter_index;   // 迭代器的位置
 #if defined(WINDOWS)
     HANDLE g_mutex; // Windows下的互斥锁
 #endif
@@ -46,18 +46,12 @@ StatusDataError *arraylist_delete_element_by_element(ArrayList *lp_arraylist, vo
 StatusDataError *arraylist_edit_element_by_position(ArrayList *lp_arraylist, long position, void *element);
 
 // 编辑指定元素内容的元素
-StatusDataError *arraylist_edit_element_by_element(ArrayList *lp_arraylist, int *old_element, int *new_element);
+StatusDataError *arraylist_edit_element_by_element(ArrayList *lp_arraylist, void *old_element, void *new_element);
 
 // 获取指定位置的元素
 StatusDataError *arraylist_get_element_by_position(ArrayList *lp_arraylist, long position);
 
 // 获取指定元素的位置
 StatusDataError *arraylist_get_position_by_element(ArrayList *lp_arraylist, void *element);
-
-// 右边追加元素
-StatusDataError *arraylist_lappend(ArrayList *lp_arraylist, void *element);
-
-// 左边追加元素
-StatusDataError *arraylist_rappend(ArrayList *lp_arraylist, void *element);
 
 #endif

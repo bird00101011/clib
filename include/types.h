@@ -24,6 +24,7 @@ typedef struct
     Byte error_memset;
     Byte error_memove;
     Byte error_memcpy;
+    Byte error_memcmp;
     Byte error_index_out;
     Byte error_null_pointer;
     Byte error_iter_stop;
