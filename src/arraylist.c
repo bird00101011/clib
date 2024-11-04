@@ -8,19 +8,9 @@
 
 StatusDataError *arraylist_new(long capacity, long element_size)
 {
-    StatusDataError *lde = malloc(sizeof(StatusDataError));
+    StatusDataError *lde = init_status_data_error();
     if (lde == NULL_POINTER)
-    {
         return lde;
-    }
-
-    lde->error = malloc(sizeof(CLIBError));
-    if (lde->error == NULL_POINTER)
-    {
-        free(lde);
-        lde = NULL_POINTER;
-        return lde;
-    }
 
     ArrayList *lpAl = malloc(sizeof(ArrayList));
     // 若分配失败返回NULL_POINTER指针
@@ -35,6 +25,7 @@ StatusDataError *arraylist_new(long capacity, long element_size)
 
     lpAl->elements_num = 0;
     lpAl->element_size = element_size;
+    lpAl->iter_index = 0;
 
     // 若元素个数小于5，将分配5个元素大小的实际容量
     lpAl->capacity = capacity > 5 ? capacity : 5;
@@ -73,19 +64,9 @@ StatusDataError *arraylist_new(long capacity, long element_size)
 
 StatusDataError *arraylist_free(ArrayList *lp_arraylist)
 {
-    StatusDataError *lde = malloc(sizeof(StatusDataError));
+    StatusDataError *lde = init_status_data_error();
     if (lde == NULL_POINTER)
-    {
         return lde;
-    }
-
-    lde->error = malloc(sizeof(CLIBError));
-    if (lde->error == NULL_POINTER)
-    {
-        free(lde);
-        lde = NULL_POINTER;
-        return lde;
-    }
 
     if (lp_arraylist != NULL_POINTER)
     {
@@ -113,19 +94,9 @@ StatusDataError *arraylist_free(ArrayList *lp_arraylist)
 
 StatusDataError *arraylist_reallocate(ArrayList *lp_arraylist, long new_capacity)
 {
-    StatusDataError *lde = malloc(sizeof(StatusDataError));
+    StatusDataError *lde = init_status_data_error();
     if (lde == NULL_POINTER)
-    {
         return lde;
-    }
-
-    lde->error = malloc(sizeof(CLIBError));
-    if (lde->error == NULL_POINTER)
-    {
-        free(lde);
-        lde = NULL_POINTER;
-        return lde;
-    }
 
     if (lp_arraylist == NULL_POINTER)
     {
@@ -191,19 +162,9 @@ StatusDataError *arraylist_reallocate(ArrayList *lp_arraylist, long new_capacity
 
 StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *element)
 {
-    StatusDataError *lde = malloc(sizeof(StatusDataError));
+    StatusDataError *lde = init_status_data_error();
     if (lde == NULL_POINTER)
-    {
         return lde;
-    }
-
-    lde->error = malloc(sizeof(CLIBError));
-    if (lde->error == NULL_POINTER)
-    {
-        free(lde);
-        lde = NULL_POINTER;
-        return lde;
-    }
 
     if (lp_arraylist == NULL_POINTER)
     {
@@ -316,19 +277,9 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
 
 StatusDataError *arraylist_delete_element_by_position(ArrayList *lp_arraylist, long position)
 {
-    StatusDataError *lde = malloc(sizeof(StatusDataError));
+    StatusDataError *lde = init_status_data_error();
     if (lde == NULL_POINTER)
-    {
         return lde;
-    }
-
-    lde->error = malloc(sizeof(CLIBError));
-    if (lde->error == NULL_POINTER)
-    {
-        free(lde);
-        lde = NULL_POINTER;
-        return lde;
-    }
 
     if (lp_arraylist == NULL_POINTER)
     {
@@ -357,7 +308,7 @@ StatusDataError *arraylist_delete_element_by_position(ArrayList *lp_arraylist, l
     }
     else
     {
-        if (lp_arraylist->elements_num >= 1)
+        if (lp_arraylist->elements_num > 1)
         {
             // 将删除点后面的数据全部向左偏移元素字节数
             if (NULL_POINTER == memmove(((char *)lp_arraylist->elements) + position * lp_arraylist->element_size,
@@ -388,4 +339,37 @@ StatusDataError *arraylist_delete_element_by_position(ArrayList *lp_arraylist, l
     lp_arraylist->elements_num--;
 
     return lde;
+}
+
+StatusDataError *arraylist_iter(ArrayList *lp_arraylist)
+{
+    StatusDataError *sde = init_status_data_error();
+    if (sde == NULL_POINTER)
+        return sde;
+
+    if (lp_arraylist->iter_index >= lp_arraylist->elements_num)
+    {
+        sde->data = NULL_POINTER;
+        sde->error->error_iter_stop = YES;
+        return sde;
+    }
+
+    sde->data = (char *)lp_arraylist->elements + lp_arraylist->iter_index * lp_arraylist->element_size;
+    lp_arraylist->iter_index++;
+
+    return sde;
+}
+
+StatusDataError *arraylist_stop_iter(ArrayList *lp_arraylist)
+{
+    StatusDataError *sde = init_status_data_error();
+    if (sde == NULL_POINTER)
+        return sde;
+
+    if (lp_arraylist == NULL_POINTER)
+        sde->error->error_null_pointer = YES;
+    else
+        lp_arraylist->iter_index = 0;
+
+    return sde;
 }

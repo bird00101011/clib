@@ -5,6 +5,9 @@
 int main()
 {
     StatusDataError *lde = arraylist_new(10, sizeof(int));
+    if (lde == NULL_POINTER)
+        return -1;
+
     if (lde->status == NOTOK)
     {
         printf("[E] arraylist_new, Error List: error_malloc:%d, error_memcpy:%d, error_memove:%d, \
@@ -18,18 +21,24 @@ int main()
     }
 
     ArrayList *al = (ArrayList *)(lde->data);
+    if (al == NULL_POINTER)
+        return -1;
+
     printf("al elements_num: %d, capacity: %d\n", al->elements_num, al->capacity);
 
     int n1 = 1;
-    int n2 = 1;
-    int n3 = 1;
-    int n4 = 1;
-    int n5 = 1;
-    int n6 = 1;
-    int n7 = 1;
-    int n8 = 1;
+    int n2 = 2;
+    int n3 = 3;
+    int n4 = 4;
+    int n5 = 5;
+    int n6 = 6;
+    int n7 = 7;
+    int n8 = 8;
 
     lde = arraylist_insert(al, 0, &n1);
+    if (lde == NULL_POINTER)
+        return -1;
+
     if (lde->status == NOTOK)
     {
         printf("[E] arraylist_insert, Error List: error_malloc:%d, error_memcpy:%d, error_memove:%d,\
@@ -51,8 +60,23 @@ int main()
     arraylist_insert(al, 7, &n8);
     printf("al elements_num: %d, capacity: %d\n", al->elements_num, al->capacity);
 
+    StatusDataError *isde = arraylist_iter(al);
+    int *element;
+    while (isde != NULL_POINTER && isde->error->error_iter_stop != YES)
+    {
+        element = (int *)(isde->data);
+        printf("1 %d, %d, iter: %d\n", al->iter_index - 1, element, *element);
+        isde = arraylist_iter(al);
+    }
+    arraylist_stop_iter(al);
+
     lde = arraylist_delete_element_by_position(al, 0);
-    printf("al elements_num: %d, capacity: %d\n", al->elements_num, al->capacity);
+    if (lde == NULL_POINTER)
+    {
+        return -1;
+    }
+
+    printf("1 al elements_num: %d, capacity: %d\n", al->elements_num, al->capacity);
 
     if (lde->status == NOTOK)
     {
@@ -66,10 +90,15 @@ int main()
         return -1;
     }
 
-    arraylist_free(al);
-    free(lde->error);
-    lde->data = NULL_POINTER;
-    lde->error = NULL_POINTER;
+    isde = arraylist_iter(al);
+    while (isde != NULL_POINTER && isde->error->error_iter_stop != YES)
+    {
+        element = (int *)(isde->data);
+        printf("2 %d, %d, iter: %d\n", al->iter_index - 1, element, *element);
+        isde = arraylist_iter(al);
+    }
 
+    free_status_data_error(lde);
+    free_status_data_error(isde);
     return 0;
 }

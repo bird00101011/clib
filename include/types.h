@@ -26,6 +26,7 @@ typedef struct
     Byte error_memcpy;
     Byte error_index_out;
     Byte error_null_pointer;
+    Byte error_iter_stop;
 } CLIBError;
 
 typedef struct
@@ -35,19 +36,8 @@ typedef struct
     CLIBError *error;
 } StatusDataError;
 
-#if defined(WINDOWS)
-#include <windows.h>
-#endif
-
-typedef struct
-{
-    void *elements;    // 保存数据的数组
-    long elements_num; // 列表存储的元素个数
-    long element_size; // 单个元素字节数
-    long capacity;     // 列表容量
-#if defined(WINDOWS)
-    HANDLE g_mutex; // Windows下的互斥锁
-#endif
-} ArrayList;
+StatusDataError *init_status_data_error();
+void free_status_data_error(StatusDataError *sde);
+void init_error(CLIBError *ce);
 
 #endif
