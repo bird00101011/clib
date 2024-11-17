@@ -3,7 +3,6 @@
 #include <stdio.h>
 
 void test_arraylist();
-void test_hashmap();
 
 int main()
 {
