@@ -1,7 +1,7 @@
 #include <types.h>
 #include <stdlib.h>
 
-void init_error(CLIBError *ce)
+void cliberror_init(CLIBError *ce)
 {
     if (ce != NULL_POINTER)
     {
@@ -17,7 +17,7 @@ void init_error(CLIBError *ce)
     }
 }
 
-StatusDataError *init_status_data_error()
+StatusDataError *status_data_error_new()
 {
     StatusDataError *lde = malloc(sizeof(StatusDataError));
     if (lde == NULL_POINTER)
@@ -26,7 +26,7 @@ StatusDataError *init_status_data_error()
     }
 
     lde->error = malloc(sizeof(CLIBError));
-    init_error(lde->error);
+    cliberror_init(lde->error);
     lde->data = NULL_POINTER;
 
     if (lde->error == NULL_POINTER)
@@ -39,7 +39,7 @@ StatusDataError *init_status_data_error()
     return lde;
 }
 
-void free_status_data_error(StatusDataError *sde)
+void status_data_error_free(StatusDataError *sde)
 {
     if (sde != NULL_POINTER)
     {

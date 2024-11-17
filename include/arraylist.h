@@ -37,7 +37,7 @@ StatusDataError *arraylist_delete_element_by_position(ArrayList *lp_arraylist, l
 StatusDataError *arraylist_iter(ArrayList *lp_arraylist);
 
 // 停止迭代
-StatusDataError *arraylist_stop_iter(ArrayList *lp_arraylist);
+StatusDataError *arraylist_iter_stop(ArrayList *lp_arraylist);
 
 // 删除指定元素内容的元素
 StatusDataError *arraylist_delete_element_by_element(ArrayList *lp_arraylist, void *element);

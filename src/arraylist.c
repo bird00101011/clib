@@ -4,15 +4,20 @@
 #if defined(WINDOWS)
 #include <windows.h>
 #endif
-
-#include <types.h>
 #include <arraylist.h>
 
 StatusDataError *arraylist_new(long capacity, long element_size)
 {
-    StatusDataError *lde = init_status_data_error();
+    StatusDataError *lde = status_data_error_new();
     if (lde == NULL_POINTER)
         return lde;
+
+    if (capacity <= 0 || element_size <= 0)
+    {
+        lde->error->error_index_out = YES;
+        lde->status = NOTOK;
+        return lde;
+    }
 
     ArrayList *lpAl = malloc(sizeof(ArrayList));
     // 若分配失败返回NULL_POINTER指针
@@ -65,7 +70,7 @@ StatusDataError *arraylist_new(long capacity, long element_size)
 
 StatusDataError *arraylist_free(ArrayList *lp_arraylist)
 {
-    StatusDataError *lde = init_status_data_error();
+    StatusDataError *lde = status_data_error_new();
     if (lde == NULL_POINTER)
         return lde;
 
@@ -80,13 +85,11 @@ StatusDataError *arraylist_free(ArrayList *lp_arraylist)
         free(lp_arraylist);
 
         lde->status = OK;
-        lde->data = NULL_POINTER;
     }
     else
     {
         lde->error->error_null_pointer = YES;
         lde->status = NOTOK;
-        lde->data = NULL_POINTER;
     }
 
     return lde;
@@ -94,7 +97,7 @@ StatusDataError *arraylist_free(ArrayList *lp_arraylist)
 
 StatusDataError *arraylist_reallocate(ArrayList *lp_arraylist, long new_capacity)
 {
-    StatusDataError *lde = init_status_data_error();
+    StatusDataError *lde = status_data_error_new();
     if (lde == NULL_POINTER)
         return lde;
 
@@ -177,7 +180,7 @@ StatusDataError *arraylist_reallocate(ArrayList *lp_arraylist, long new_capacity
 
 StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *element)
 {
-    StatusDataError *lde = init_status_data_error();
+    StatusDataError *lde = status_data_error_new();
     if (lde == NULL_POINTER)
         return lde;
 
@@ -197,12 +200,12 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
             StatusDataError *ar_lde = arraylist_reallocate(lp_arraylist, 2 * lp_arraylist->capacity);
             if (ar_lde->status != OK)
             {
-                free_status_data_error(lde);
+                status_data_error_free(lde);
 
                 return ar_lde;
             }
 
-            free_status_data_error(ar_lde);
+            status_data_error_free(ar_lde);
         }
 
         if (position < lp_arraylist->elements_num)
@@ -239,12 +242,12 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
                 if (ar_lde->status != OK)
                 {
                     // 这里打印日志或者返回其它值，如果只返回这一个值，那复制内存失败的信息就不能返回
-                    free_status_data_error(lde);
+                    status_data_error_free(lde);
 
                     return ar_lde;
                 }
 
-                free_status_data_error(ar_lde);
+                status_data_error_free(ar_lde);
             }
         }
     }
@@ -268,7 +271,7 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
 
 StatusDataError *arraylist_delete_element_by_position(ArrayList *lp_arraylist, long position)
 {
-    StatusDataError *lde = init_status_data_error();
+    StatusDataError *lde = status_data_error_new();
     if (lde == NULL_POINTER)
         return lde;
 
@@ -334,7 +337,7 @@ StatusDataError *arraylist_delete_element_by_position(ArrayList *lp_arraylist, l
 
 StatusDataError *arraylist_iter(ArrayList *lp_arraylist)
 {
-    StatusDataError *sde = init_status_data_error();
+    StatusDataError *sde = status_data_error_new();
     if (sde == NULL_POINTER)
         return sde;
 
@@ -355,9 +358,9 @@ StatusDataError *arraylist_iter(ArrayList *lp_arraylist)
     return sde;
 }
 
-StatusDataError *arraylist_stop_iter(ArrayList *lp_arraylist)
+StatusDataError *arraylist_iter_stop(ArrayList *lp_arraylist)
 {
-    StatusDataError *sde = init_status_data_error();
+    StatusDataError *sde = status_data_error_new();
     if (sde == NULL_POINTER)
         return sde;
 
@@ -376,7 +379,7 @@ StatusDataError *arraylist_stop_iter(ArrayList *lp_arraylist)
 
 StatusDataError *arraylist_get_element_by_position(ArrayList *al, long position)
 {
-    StatusDataError *sde = init_status_data_error();
+    StatusDataError *sde = status_data_error_new();
     if (sde == NULL_POINTER)
         return sde;
 
@@ -402,7 +405,7 @@ StatusDataError *arraylist_get_element_by_position(ArrayList *al, long position)
 
 StatusDataError *arraylist_edit_element_by_position(ArrayList *lp_arraylist, long position, void *element)
 {
-    StatusDataError *sde = init_status_data_error();
+    StatusDataError *sde = status_data_error_new();
     if (sde == NULL_POINTER)
         return sde;
 
@@ -441,7 +444,7 @@ StatusDataError *arraylist_edit_element_by_position(ArrayList *lp_arraylist, lon
 
 StatusDataError *arraylist_edit_element_by_element(ArrayList *lp_arraylist, void *old_element, void *new_element)
 {
-    StatusDataError *sde = init_status_data_error();
+    StatusDataError *sde = status_data_error_new();
     if (sde == NULL_POINTER)
         return sde;
 
@@ -452,13 +455,13 @@ StatusDataError *arraylist_edit_element_by_element(ArrayList *lp_arraylist, void
         return sde;
     }
 
-    StatusDataError *isde = arraylist_stop_iter(lp_arraylist);
+    StatusDataError *isde = arraylist_iter_stop(lp_arraylist);
     if (isde == NULL_POINTER || isde->status == NOTOK)
     {
-        free_status_data_error(sde);
+        status_data_error_free(sde);
         return isde;
     }
-    free_status_data_error(isde);
+    status_data_error_free(isde);
     isde = arraylist_iter(lp_arraylist);
 
     while (isde != NULL_POINTER && isde->error->error_iter_stop != YES)
@@ -474,19 +477,19 @@ StatusDataError *arraylist_edit_element_by_element(ArrayList *lp_arraylist, void
                 sde->status = OK;
         }
 
-        free_status_data_error(isde);
+        status_data_error_free(isde);
 
         isde = arraylist_iter(lp_arraylist);
     }
 
-    free_status_data_error(isde);
+    status_data_error_free(isde);
 
     return sde;
 }
 
 StatusDataError *arraylist_delete_element_by_element(ArrayList *lp_arraylist, void *old_element)
 {
-    StatusDataError *lde = init_status_data_error();
+    StatusDataError *lde = status_data_error_new();
     if (lde == NULL_POINTER)
         return lde;
 
@@ -507,13 +510,13 @@ StatusDataError *arraylist_delete_element_by_element(ArrayList *lp_arraylist, vo
         return lde;
     }
 
-    StatusDataError *isde = arraylist_stop_iter(lp_arraylist);
+    StatusDataError *isde = arraylist_iter_stop(lp_arraylist);
     if (isde == NULL_POINTER || isde->status == NOTOK)
     {
-        free_status_data_error(lde);
+        status_data_error_free(lde);
         return isde;
     }
-    free_status_data_error(isde);
+    status_data_error_free(isde);
 
     isde = arraylist_iter(lp_arraylist);
     StatusDataError *dsde;
@@ -525,18 +528,18 @@ StatusDataError *arraylist_delete_element_by_element(ArrayList *lp_arraylist, vo
             dsde = arraylist_delete_element_by_position(lp_arraylist, lp_arraylist->iter_index - 1);
             if (dsde == NULL_POINTER || dsde->status == NOTOK)
             {
-                free_status_data_error(isde);
-                free_status_data_error(lde);
+                status_data_error_free(isde);
+                status_data_error_free(lde);
                 return dsde;
             }
-            free_status_data_error(dsde);
+            status_data_error_free(dsde);
         }
 
-        free_status_data_error(isde);
+        status_data_error_free(isde);
         isde = arraylist_iter(lp_arraylist);
     }
 
-    free_status_data_error(isde);
+    status_data_error_free(isde);
 
     lde->data = lp_arraylist;
     lde->status = OK;

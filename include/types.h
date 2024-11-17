@@ -37,8 +37,8 @@ typedef struct
     CLIBError *error;
 } StatusDataError;
 
-StatusDataError *init_status_data_error();
-void free_status_data_error(StatusDataError *sde);
-void init_error(CLIBError *ce);
+StatusDataError *status_data_error_new();
+void status_data_error_free(StatusDataError *sde);
+void cliberror_init(CLIBError *ce);
 
 #endif

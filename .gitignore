@@ -3,4 +3,4 @@
 *.lib
 *.dll
 .vscode
-learn
+.ninja_log
