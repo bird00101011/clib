@@ -4,3 +4,4 @@
 *.dll
 .vscode
 .ninja_log
+build/

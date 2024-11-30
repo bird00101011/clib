@@ -208,7 +208,8 @@ void test_arraylist()
     while (lde != NULL_POINTER && lde->error->error_iter_stop == NO)
     {
         element = (int *)(lde->data);
-        printf("4 %d, %p, iter: %d\n", al->iter_index - 1, element, *element);
+        StatusDataError *nde = arraylist_get_element_by_position(al, al->iter_index - 1);
+        printf("4 %d, %p, iter: %d, %d\n", al->iter_index - 1, element, *element, *(int *)(nde->data));
         status_data_error_free(lde);
         lde = arraylist_iter(al);
     }

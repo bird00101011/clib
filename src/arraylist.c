@@ -120,7 +120,7 @@ StatusDataError *arraylist_reallocate(ArrayList *lp_arraylist, long new_capacity
     long new_mem_size = new_capacity * lp_arraylist->element_size;
 
     // 获取老容量的内存大小
-    long old_mem_size = lp_arraylist->capacity * lp_arraylist->element_size;
+long old_mem_size = lp_arraylist->capacity * lp_arraylist->element_size;
 
     // 为保存数据的数组分配新的大小的内存空间
     void *new_elements = realloc(lp_arraylist->elements, new_mem_size);
@@ -194,8 +194,10 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
     if (position >= 0 && position <= lp_arraylist->elements_num)
     {
         // 如果元素个数即将超过容量
+        char sig = 0;
         if (lp_arraylist->elements_num == lp_arraylist->capacity)
         {
+            sig = 1;
             // 分配2倍大小的容量
             StatusDataError *ar_lde = arraylist_reallocate(lp_arraylist, 2 * lp_arraylist->capacity);
             if (ar_lde->status != OK)
@@ -232,22 +234,32 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
                 return lde;
             }
         }
-        else // 等于 position = elements_num
+        else // position == elements_num
         {
             // 将元素所指向的内存复制到数组末端
             if (NULL_POINTER == memcpy((char *)lp_arraylist->elements + position * lp_arraylist->element_size,
                                        element, lp_arraylist->element_size))
             {
-                StatusDataError *ar_lde = arraylist_reallocate(lp_arraylist, lp_arraylist->capacity / 2);
-                if (ar_lde->status != OK)
+                if (sig == 1)
                 {
-                    // 这里打印日志或者返回其它值，如果只返回这一个值，那复制内存失败的信息就不能返回
-                    status_data_error_free(lde);
+                    StatusDataError *ar_lde = arraylist_reallocate(lp_arraylist, lp_arraylist->capacity / 2);
+                    if (ar_lde->status != OK)
+                    {
+                        // 这里打印日志或者返回其它值，如果只返回这一个值，那复制内存失败的信息就不能返回
+                        status_data_error_free(lde);
 
-                    return ar_lde;
+                        return ar_lde;
+                    }
+
+                    status_data_error_free(ar_lde);
                 }
-
-                status_data_error_free(ar_lde);
+                else
+                {
+                    lde->error->error_memcpy = YES;
+                    lde->status = NOTOK;
+                    lde->data = lp_arraylist;
+                    return lde;
+                }
             }
         }
     }
@@ -292,6 +304,16 @@ StatusDataError *arraylist_delete_element_by_position(ArrayList *lp_arraylist, l
         return lde;
     }
 
+    if (lp_arraylist->elements_num < lp_arraylist->capacity / 2)
+    {
+        StatusDataError *rsde = arraylist_reallocate(lp_arraylist, lp_arraylist->capacity / 2);
+        if (rsde->status == NOTOK)
+        {
+            status_data_error_free(lde);
+            return rsde;
+        }
+    }
+
     if (position >= 0 && position < lp_arraylist->elements_num)
     {
         if (lp_arraylist->elements_num > 1)
@@ -329,7 +351,9 @@ StatusDataError *arraylist_delete_element_by_position(ArrayList *lp_arraylist, l
     }
 
     lp_arraylist->elements_num--;
-    lde->data = lp_arraylist;
+
+    if (lp_arraylist->elements_num < lp_arraylist->capacity / 2)
+        lde->data = lp_arraylist;
     lde->status = OK;
 
     return lde;
