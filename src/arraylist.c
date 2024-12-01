@@ -120,7 +120,7 @@ StatusDataError *arraylist_reallocate(ArrayList *lp_arraylist, long new_capacity
     long new_mem_size = new_capacity * lp_arraylist->element_size;
 
     // 获取老容量的内存大小
-long old_mem_size = lp_arraylist->capacity * lp_arraylist->element_size;
+    long old_mem_size = lp_arraylist->capacity * lp_arraylist->element_size;
 
     // 为保存数据的数组分配新的大小的内存空间
     void *new_elements = realloc(lp_arraylist->elements, new_mem_size);
