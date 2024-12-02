@@ -143,7 +143,7 @@ StatusDataError *arraylist_reallocate(ArrayList *lp_arraylist, long new_capacity
     if (lp_arraylist->capacity < new_capacity)
     {
         // 如果设置内存失败
-        if (NULL_POINTER == memset((char *)lp_arraylist->elements + (lp_arraylist->capacity - 1) * lp_arraylist->element_size,
+        if (NULL_POINTER == memset((char *)lp_arraylist->elements + lp_arraylist->capacity * lp_arraylist->element_size,
                                    0, new_mem_size - old_mem_size))
         {
             // 恢复扩展的内存到开始大小
@@ -184,7 +184,7 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
     if (lde == NULL_POINTER)
         return lde;
 
-    if (lp_arraylist == NULL_POINTER)
+    if (lp_arraylist == NULL_POINTER || element == NULL_POINTER)
     {
         lde->error->error_null_pointer = YES;
         lde->status = NOTOK;
@@ -203,7 +203,6 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
             if (ar_lde->status != OK)
             {
                 status_data_error_free(lde);
-
                 return ar_lde;
             }
 
@@ -215,7 +214,7 @@ StatusDataError *arraylist_insert(ArrayList *lp_arraylist, long position, void *
             // 将插入点后面的数据全部向右偏移元素字节数
             if (NULL_POINTER == memmove(((char *)lp_arraylist->elements) + (position + 1) * lp_arraylist->element_size,
                                         (char *)lp_arraylist->elements + position * lp_arraylist->element_size,
-                                        (lp_arraylist->elements_num - position - 1) * lp_arraylist->element_size))
+                                        (lp_arraylist->elements_num - position) * lp_arraylist->element_size))
             {
                 lde->status = NOTOK;
                 lde->error->error_memove = YES;

@@ -194,11 +194,11 @@ void test_arraylist()
     }
 
     // 扩容测试
-    int ns[10];
-    for (int i = 0; i < 10; i++)
+    int ns[100];
+    for (int i = 0; i < 100; i++)
     {
         ns[i] = i;
-        lde = arraylist_insert(al, al->elements_num, &ns[i]);
+            lde = arraylist_insert(al, al->elements_num, &ns[i]);
         status_data_error_free(lde);
     }
 
@@ -208,7 +208,7 @@ void test_arraylist()
     StatusDataError* nde;
     while (lde != NULL_POINTER && lde->error->error_iter_stop == NO)
     {
-        element = (int *)(lde->data);
+        element = (int *)(lde->data);   
         nde = arraylist_get_element_by_position(al, al->iter_index - 1);
         printf("4 %d, %p, iter: %d, %d, %d\n", al->iter_index - 1, element, *element, *(int *)(nde->data), *((int *)al->elements+al->iter_index-1));
         status_data_error_free(lde);
