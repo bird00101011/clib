@@ -16,6 +16,7 @@ LPStatusDataException exception_new()
         lp_e->error_realloc = False;
         lp_e->error_memcmp = False;
     }
+    LPStatusDataException lp_sde = 
     return lp_e;
 }
 
