@@ -3,42 +3,37 @@
 
 #define NULL_POINTER ((void *)0)
 
-typedef unsigned char Byte;
+typedef(void *) Object;
 
 typedef enum
 {
-    OK = 1,
-    NOTOK = 0
-} OkOrNotOk;
-
-typedef enum
-{
-    YES = 1,
-    NO = 0
-} YesOrNo;
+    True = 1,
+    False = 0
+} Boolean;
 
 typedef struct
 {
-    Byte error_malloc;
-    Byte error_realloc;
-    Byte error_memset;
-    Byte error_memove;
-    Byte error_memcpy;
-    Byte error_memcmp;
-    Byte error_index_out;
-    Byte error_null_pointer;
-    Byte error_iter_stop;
-} CLIBError;
+    Boolean error_malloc;
+    Boolean error_realloc;
+    Boolean error_memset;
+    Boolean error_memove;
+    Boolean error_memcpy;
+    Boolean error_memcmp;
+    Boolean error_index_out;
+    Boolean error_null_pointer;
+    Boolean error_iter_stop;
+} Exception, LPExcepiton *;
 
 typedef struct
 {
-    OkOrNotOk status;
-    void *data;
-    CLIBError *error;
-} StatusDataError;
+    Boolean status;
+    Object data;
+    LPException lp_exception;
+} StatusDataException, LPStatusDataException *;
 
-StatusDataError *status_data_error_new();
-void status_data_error_free(StatusDataError *sde);
-void cliberror_init(CLIBError *ce);
+LPStatusDataException status_data_excepiton_new();
+LPStatusDataException status_data_exception_free(LPStatusDataException lp_sde);
+LPException exception_new();
+LPStatusDataException exception_free(Exception *e);
 
 #endif

@@ -1,20 +1,22 @@
 #include <types.h>
 #include <stdlib.h>
 
-void cliberror_init(CLIBError *ce)
+LPStatusDataException exception_new()
 {
-    if (ce != NULL_POINTER)
+    LPExcepiton lp_e = malloc(sizeof(Exception));
+    if (lp_e != NULL_POINTER)
     {
-        ce->error_index_out = NO;
-        ce->error_iter_stop = NO;
-        ce->error_malloc = NO;
-        ce->error_memcpy = NO;
-        ce->error_memove = NO;
-        ce->error_memset = NO;
-        ce->error_null_pointer = NO;
-        ce->error_realloc = NO;
-        ce->error_memcmp = NO;
+        lp_e->error_index_out = False;
+        lp_e->error_iter_stop = False;
+        lp_e->error_malloc = False;
+        lp_e->error_memcpy = False;
+        lp_e->error_memove = False;
+        lp_e->error_memset = False;
+        lp_e->error_null_pointer = False;
+        lp_e->error_realloc = False;
+        lp_e->error_memcmp = False;
     }
+    return lp_e;
 }
 
 StatusDataError *status_data_error_new()
@@ -26,7 +28,7 @@ StatusDataError *status_data_error_new()
     }
 
     lde->error = malloc(sizeof(CLIBError));
-    cliberror_init(lde->error);
+    exception_init(lde->error);
     lde->data = NULL_POINTER;
 
     if (lde->error == NULL_POINTER)

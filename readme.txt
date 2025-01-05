@@ -8,6 +8,8 @@ ninja构建: 编译: `ninja`，测试: `test.exe`，清除: `ninja -t clean`
 
 CMake构建: VSCode编写完CMakeLists.txt后按`Ctrl + s`就会自动生成build目录，再用VS打开build目录中的.sln文件即可构建，更多VS的使用请参考搜索引擎。
 
+注意：改代码可能不能编译，每天都会做修改优化，使其以达到一个理想的状态，目前很多设计都不合理，所以进度不能过快，等哪天觉得设计比较合理了，再快速推进项目的进度也不迟，这样到最后返工修改的几率也会小一些，最糟糕的情况是编写了大量的篇幅却发现了新的更好的设计，到那时候再修改工作量就很大了。
+
 ## author status
 
 phping，lazarusing，cing
