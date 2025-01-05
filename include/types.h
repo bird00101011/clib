@@ -1,9 +1,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#define NULL_POINTER ((void *)0)
-
 typedef(void *) Object;
+#define NULL_POINTER (Object 0)
 
 typedef enum
 {
