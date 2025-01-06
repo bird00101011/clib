@@ -5,3 +5,4 @@
 .vscode
 .ninja_log
 build/
+*.md
