@@ -355,8 +355,6 @@ LPStatusDataException ArrayList_iter(LPArrayList lp_arraylist)
         return sde;
     }
 
-    sde->data = lp_arraylist;
-
     if (lp_arraylist->iter_index >= lp_arraylist->elements_num)
     {
         sde->lp_exception->error_iter_stop = True;
@@ -391,7 +389,7 @@ LPStatusDataException ArrayList_iter_stop(LPArrayList lp_arraylist)
     return sde;
 }
 
-LPStatusDataException ArrayList_delete_element_by_element(LPArrayList lp_arraylist, Object element)
+LPStatusDataException ArrayList_get_element_by_position(LPArrayList lp_arraylist, long position)
 {
     LPStatusDataException sde = StatusDataException_new();
     if (sde == NULL_POINTER)
@@ -501,7 +499,7 @@ LPStatusDataException ArrayList_edit_element_by_element(LPArrayList lp_arraylist
     return sde;
 }
 
-LPStatusDataException ArrayList_get_element_by_position(LPArrayList lp_arraylist, long position)
+LPStatusDataException ArrayList_delete_element_by_element(LPArrayList lp_arraylist, long position)
 {
     LPStatusDataException lde = StatusDataException_new();
     if (lde == NULL_POINTER)
@@ -565,5 +563,65 @@ LPStatusDataException ArrayList_get_element_by_position(LPArrayList lp_arraylist
 
 LPStatusDataException ArrayList_get_position_by_element(LPArrayList lp_arraylist, Object element)
 {
-    return NULL_POINTER;
+    LPStatusDataException lde = StatusDataException_new();
+    if (lde == NULL_POINTER)
+        return lde;
+
+    if (lp_arraylist == NULL_POINTER || old_element == NULL_POINTER)
+    {
+        lde->lp_exception->error_null_pointer = True;
+        lde->status = False;
+        lde->data = NULL_POINTER;
+
+        return lde;
+    }
+
+    lde->data = lp_arraylist;
+
+    if (lp_arraylist->elements_num == 0)
+    {
+        lde->lp_exception->error_index_out = True;
+        lde->status = False;
+
+        return lde;
+    }
+
+    LPStatusDataException isde = ArrayList_iter_stop(lp_arraylist);
+    if (isde == NULL_POINTER || isde->status == False)
+    {
+        StatusDataException_free(lde);
+        return isde;
+    }
+    StatusDataException_free(isde);
+
+    isde = ArrayList_iter(lp_arraylist);
+    LPStatusDataException dsde;
+    Boolean sig = False;
+    while (isde != NULL_POINTER && isde->lp_exception->error_iter_stop != True)
+    {
+        StatusDataException_free(isde);
+
+        if (memcmp((char *)isde->data, (char *)old_element, lp_arraylist->element_size) == 0)
+        {
+            sig = True;
+            break;
+        }
+
+        isde = ArrayList_iter(lp_arraylist);
+    }
+
+    if (sig)
+    {
+        char long_size = sizeof(long);
+        lde->data = malloc(long_size);
+        if (NULL_POINTER == ((char *)lde->data, &(lp_arraylist->iter_index - 1), long_size))
+        {
+            sde->lp_exception->error_memcpy = True;
+            sde->status = False;
+        }
+    }
+    else
+        lde->status = False;
+
+    return lde;
 }
