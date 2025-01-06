@@ -21,18 +21,18 @@ typedef struct
     Boolean error_index_out;
     Boolean error_null_pointer;
     Boolean error_iter_stop;
-} Exception, LPExcepiton *;
+} Exception, *LPExcepiton;
 
 typedef struct
 {
     Boolean status;
     Object data;
     LPException lp_exception;
-} StatusDataException, LPStatusDataException *;
+} StatusDataException, *LPStatusDataException;
 
-LPStatusDataException status_data_excepiton_new();
-LPStatusDataException status_data_exception_free(LPStatusDataException lp_sde);
-LPException exception_new();
-LPStatusDataException exception_free(Exception *e);
+LPStatusDataException StatusDataException_new();
+void StatusDataException_free(LPStatusDataException lp_sde);
+LPException Exception_new();
+void Exception_free(LPException e);
 
 #endif

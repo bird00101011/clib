@@ -1,7 +1,7 @@
 #include <types.h>
 #include <stdlib.h>
 
-LPStatusDataException exception_new()
+LPExcepiton exception_new()
 {
     LPExcepiton lp_e = malloc(sizeof(Exception));
     if (lp_e != NULL_POINTER)
@@ -16,43 +16,45 @@ LPStatusDataException exception_new()
         lp_e->error_realloc = False;
         lp_e->error_memcmp = False;
     }
-    LPStatusDataException lp_sde = 
+
     return lp_e;
 }
 
-StatusDataError *status_data_error_new()
+void Exception_free(LPException e)
 {
-    StatusDataError *lde = malloc(sizeof(StatusDataError));
-    if (lde == NULL_POINTER)
+    if (e != NULL_POINTER)
     {
-        return lde;
+        free(e);
     }
-
-    lde->error = malloc(sizeof(CLIBError));
-    exception_init(lde->error);
-    lde->data = NULL_POINTER;
-
-    if (lde->error == NULL_POINTER)
-    {
-        free(lde);
-        lde = NULL_POINTER;
-        return lde;
-    }
-
-    return lde;
 }
 
-void status_data_error_free(StatusDataError *sde)
+LPStatusDataException StatusDataException_new()
 {
-    if (sde != NULL_POINTER)
+    LPStatusDataException lp_sde = malloc(sizeof(StatusDataException));
+    if (lp_sde == NULL_POINTER)
     {
-        if (sde->error != NULL_POINTER)
-            free(sde->error);
+        return lp_sde;
+    }
+
+    lp_sde->lp_exception = Exception_new();
+    if (lp_sde->lp_exception == NULL_POINTER)
+    {
+        free(lp_sde);
+        return lp_sde;
+    }
+
+    lp_sde->data = NULL_POINTER;
+    lp_sde->status = True;
+    return lp_sde;
+}
+
+void StatusDataException_free(LPStatusDataException lp_sde)
+{
+    if (lp_sde != NULL_POINTER)
+    {
+        Exception_free(lp_sde->lp_exception);
 
         // 由于data不知是不是用malloc创建的，所以需要用户自己决定如何释放
-        sde->data = NULL_POINTER;
-        sde->error = NULL_POINTER;
-
-        free(sde);
+        free(lp_sde);
     }
 }
