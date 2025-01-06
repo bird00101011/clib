@@ -2,10 +2,6 @@
 #ifndef ArrayList_H
 #define ArrayList_H
 
-#if defined(WINDOWS)
-#include <windows.h>
-#endif
-
 typedef struct
 {
     Object elements;
@@ -13,9 +9,6 @@ typedef struct
     long element_size;
     long capacity;
     long iter_index;
-#if defined(WINDOWS)
-    HANDLE g_mutex;
-#endif
 } ArrayList, *LPArrayList;
 
 LPStatusDataException ArrayList_new(long capacity, long element_size);

@@ -1,9 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-
-#if defined(WINDOWS)
-#include <windows.h>
-#endif
 #include <arraylist.h>
 
 LPStatusDataException ArrayList_new(long capacity, long element_size)
