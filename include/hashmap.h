@@ -8,7 +8,6 @@ typedef struct
 {
     Object key;
     Object value;
-    long value_size;
 } HashMapNode, *LPHashMapNode;
 
 typedef struct
