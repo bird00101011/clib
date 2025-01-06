@@ -23,6 +23,9 @@ typedef struct
     Boolean error_iter_stop;
 } Exception, *LPExcepiton;
 
+LPException Exception_new();
+void Exception_free(LPException e);
+
 typedef struct
 {
     Boolean status;
@@ -32,7 +35,5 @@ typedef struct
 
 LPStatusDataException StatusDataException_new();
 void StatusDataException_free(LPStatusDataException lp_sde);
-LPException Exception_new();
-void Exception_free(LPException e);
 
 #endif
