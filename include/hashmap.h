@@ -5,34 +5,34 @@
 
 typedef struct
 {
-    void *key;
-    void *value;
+    Object key;
+    Object value;
     long value_size;
-} HashMapNode;
+} HashMapNode, *LPHashMapNode;
 
 typedef struct
 {
-    ArrayList *lp_hashmap_nodes;
-} HashMap;
+    LPArrayList lp_al_hashmap_nodes;
+} HashMap, *LPHashMap;
 
-StatusDataError *hashmap_new(long capacity);
+LPStatusDataException HashMap_new(long capacity);
 
-StatusDataError *hashmap_gen_hashcode(HashMap *lp_hashmap, void *key);
+LPStatusDataException HashMap_gen_hashcode(LPHashMap lp_hashmap, Object key);
 
-StatusDataError *hashmap_free(HashMap *lp_hashmap);
+LPStatusDataException HashMap_free(LPHashMap lp_hashmap);
 
-StatusDataError *hashmap_put(HashMap *lp_hashmap, HashMapNode *lp_hashmap_node);
+LPStatusDataException HashMap_put(LPHashMap lp_hashmap, LPHashMapNode lp_hashmap_node);
 
-StatusDataError *hashmap_del(HashMap *lp_hashmap, HashMapNode *lp_hashmap_node);
+LPStatusDataException HashMap_del(LPHashMap lp_hashmap, LPHashMapNode lp_hashmap_node);
 
-StatusDataError *hashmap_get(HashMap *lp_hashmap, void *key);
+LPStatusDataException HashMap_get(LPHashMap lp_hashmap, Object key);
 
-StatusDataError *hashmap_keys(HashMap *lp_hashmap);
+LPStatusDataException HashMap_keys(LPHashMap lp_hashmap);
 
-StatusDataError *hashmap_values(HashMap *lp_hashmap);
+LPStatusDataException HashMap_values(LPHashMap lp_hashmap);
 
-StatusDataError *hashmap_iter(HashMap *lp_hashmap);
+LPStatusDataException HashMap_iter(LPHashMap lp_hashmap);
 
-StatusDataError *hashmap_iter_stop(HashMap *lp_hashmap);
+LPStatusDataException HashMap_iter_stop(LPHashMap lp_hashmap);
 
 #endif
