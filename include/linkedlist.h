@@ -6,7 +6,6 @@ typedef struct Node
 {
     Object element;
     struct Node *next;
-    long elements_num;
 } LinkedList, *LPLinkedList;
 
 LPStatusDataException LinkedList_new();
