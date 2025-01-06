@@ -188,7 +188,7 @@ LPStatusDataException ArrayList_insert(LPArrayList lp_arraylist, long position, 
         {
             sig = 1;
             // 分配2倍大小的容量
-            LPStatusDataException ar_lde = arraylist_reallocate(lp_arraylist, 2 * lp_arraylist->capacity);
+            LPStatusDataException ar_lde = ArrayList_reallocate(lp_arraylist, 2 * lp_arraylist->capacity);
             if (ar_lde->status != True)
             {
                 StatusDataException_free(lde);
@@ -230,7 +230,7 @@ LPStatusDataException ArrayList_insert(LPArrayList lp_arraylist, long position, 
             {
                 if (sig == 1)
                 {
-                    LPStatusDataException ar_lde = arraylist_reallocate(lp_arraylist, lp_arraylist->capacity / 2);
+                    LPStatusDataException ar_lde = ArrayList_reallocate(lp_arraylist, lp_arraylist->capacity / 2);
                     if (ar_lde->status != True)
                     {
                         // 这里打印日志或者返回其它值，如果只返回这一个值，那复制内存失败的信息就不能返回
@@ -289,7 +289,7 @@ LPStatusDataException ArrayList_delete_element_by_position(LPArrayList lp_arrayl
 
     if (lp_arraylist->elements_num < lp_arraylist->capacity / 2)
     {
-        LPStatusDataException rsde = arraylist_reallocate(lp_arraylist, lp_arraylist->capacity / 2);
+        LPStatusDataException rsde = ArrayList_reallocate(lp_arraylist, lp_arraylist->capacity / 2);
         if (rsde->status == False)
         {
             StatusDataException_free(lde);
@@ -400,9 +400,9 @@ LPStatusDataException ArrayList_get_element_by_position(LPArrayList lp_arraylist
 
     sde->data = lp_arraylist;
 
-    if (position >= 0 && position < al->elements_num)
+    if (position >= 0 && position < lp_arraylist->elements_num)
     {
-        sde->data = (char *)al->elements + position * al->element_size;
+        sde->data = (char *)lp_arraylist->elements + position * lp_arraylist->element_size;
     }
     else
     {
@@ -495,7 +495,7 @@ LPStatusDataException ArrayList_edit_element_by_element(LPArrayList lp_arraylist
     return sde;
 }
 
-LPStatusDataException ArrayList_delete_element_by_element(LPArrayList lp_arraylist, long position)
+LPStatusDataException ArrayList_delete_element_by_element(LPArrayList lp_arraylist, Object old_element)
 {
     LPStatusDataException lde = StatusDataException_new();
     if (lde == NULL_POINTER)
@@ -563,7 +563,7 @@ LPStatusDataException ArrayList_get_position_by_element(LPArrayList lp_arraylist
     if (lde == NULL_POINTER)
         return lde;
 
-    if (lp_arraylist == NULL_POINTER || old_element == NULL_POINTER)
+    if (lp_arraylist == NULL_POINTER || element == NULL_POINTER)
     {
         lde->lp_exception->error_null_pointer = True;
         lde->status = False;
@@ -591,13 +591,12 @@ LPStatusDataException ArrayList_get_position_by_element(LPArrayList lp_arraylist
     StatusDataException_free(isde);
 
     isde = ArrayList_iter(lp_arraylist);
-    LPStatusDataException dsde;
     Boolean sig = False;
     while (isde != NULL_POINTER && isde->lp_exception->error_iter_stop != True)
     {
         StatusDataException_free(isde);
 
-        if (memcmp((char *)isde->data, (char *)old_element, lp_arraylist->element_size) == 0)
+        if (memcmp((char *)isde->data, (char *)element, lp_arraylist->element_size) == 0)
         {
             sig = True;
             break;
@@ -610,10 +609,11 @@ LPStatusDataException ArrayList_get_position_by_element(LPArrayList lp_arraylist
     {
         char long_size = sizeof(long);
         lde->data = malloc(long_size);
-        if (NULL_POINTER == ((char *)lde->data, &(lp_arraylist->iter_index - 1), long_size))
+        char pos = (lp_arraylist->iter_index - 1);
+        if (NULL_POINTER == memcpy((char *)lde->data, &pos, long_size))
         {
-            sde->lp_exception->error_memcpy = True;
-            sde->status = False;
+            lde->lp_exception->error_memcpy = True;
+            lde->status = False;
         }
     }
     else

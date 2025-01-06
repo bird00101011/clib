@@ -1,8 +1,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-typedef(void *) Object;
-#define NULL_POINTER (Object 0)
+typedef void* Object;
+#define NULL_POINTER (Object)0
 
 typedef enum
 {
@@ -21,7 +21,7 @@ typedef struct
     Boolean error_index_out;
     Boolean error_null_pointer;
     Boolean error_iter_stop;
-} Exception, *LPExcepiton;
+} Exception, * LPException;
 
 LPException Exception_new();
 void Exception_free(LPException e);

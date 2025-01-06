@@ -1,9 +1,9 @@
 #include <types.h>
 #include <stdlib.h>
 
-LPExcepiton exception_new()
+LPException Exception_new()
 {
-    LPExcepiton lp_e = malloc(sizeof(Exception));
+    LPException lp_e = malloc(sizeof(Exception));
     if (lp_e != NULL_POINTER)
     {
         lp_e->error_index_out = False;
