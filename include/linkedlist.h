@@ -5,7 +5,13 @@
 typedef struct Node
 {
     Object element;
+    struct Node *prev;
     struct Node *next;
+} LinkedListNode, *LPLinkedListNode;
+
+typedef struct{
+    LPLinkedListNode lp_head;
+    long elements_num;
 } LinkedList, *LPLinkedList;
 
 LPStatusDataException LinkedList_new();
