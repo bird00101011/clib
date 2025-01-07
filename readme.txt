@@ -39,15 +39,14 @@ CMake构建: VSCode编写完CMakeLists.txt后按`Ctrl + s`就会自动生成buil
 
 效率 > 规定，也就是解决问题的方式上，当效率的收益大于规则所的收益时，就选则使用效率的方式解决问题，反之逆然。
 
-## 测试
+## 状态
 
-[✔] ArrayList
-
-## CODING
-
-[ ] LinkedList
-[ ] HashMap
-
+------------------------------------------------------
+|       NAME       |      CODING     |    TESTING   | 
+       ArrayList            ❌              ❌ 
+       LinkedList           ✔               ❌
+       HashMap              ❌              ❌
+-----------------------------------------------------
 ## 鸣谢
 
 * VSCode
