@@ -83,6 +83,7 @@ LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object eleme
 
     lp_new->element = element;
     lp_new->next = lp_next->next;
+    lp_new->prev = lp_next;
     lp_next->next = lp_new;
 
     lp_linkedlist->elements_num++;
