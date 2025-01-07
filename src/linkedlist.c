@@ -92,7 +92,36 @@ LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object eleme
     return lpsde;
 }
 
-LPStatusDataException LinkedList_delete_element_by_position(LPLinkedList lp_linkedlist, long position);
+LPStatusDataException LinkedList_delete_element_by_position(LPLinkedList lp_linkedlist, long position)
+{
+    LPStatusDataException lpsde = StatusDataException_new();
+    if (lpsde == NULL_POINTER)
+        return lpsde;
+
+    if (lp_linkedlist == NULL_POINTER)
+    {
+        lpsde->lp_exception->error_null_pointer = True;
+        lpsde->status = False;
+        return lpsde;
+    }
+    lpsde->data = lp_linkedlist;
+    if (position < 0 && position > lp_linkedlist->elements_num - 1)
+    {
+        lpsde->lp_exception->error_index_out = True;
+        lpsde->status = False;
+    }
+    else
+    {
+        LPLinkedListNode lp_node = lp_linkedlist->lp_head;
+        for (long i = 1; i <= position; i++)
+        {
+            lp_node = lp_node->next;
+        }
+        free(lp_node->element);
+        free(lp_node);
+    }
+    return lpsde;
+}
 
 LPStatusDataException LinkedList_delete_element_by_element(LPLinkedList lp_linkedlist, Object element);
 

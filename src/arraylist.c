@@ -594,23 +594,27 @@ LPStatusDataException ArrayList_get_position_by_element(LPArrayList lp_arraylist
     Boolean sig = False;
     while (isde != NULL_POINTER && isde->lp_exception->error_iter_stop != True)
     {
-        StatusDataException_free(isde);
-
         if (memcmp((char *)isde->data, (char *)element, lp_arraylist->element_size) == 0)
         {
             sig = True;
             break;
         }
-
+        StatusDataException_free(isde);
         isde = ArrayList_iter(lp_arraylist);
     }
 
     if (sig)
     {
-        char long_size = sizeof(long);
+        int long_size = sizeof(long);
         lde->data = malloc(long_size);
-        char pos = (lp_arraylist->iter_index - 1);
-        if (NULL_POINTER == memcpy((char *)lde->data, &pos, long_size))
+        if (lde->data == NULL_POINTER)
+        {
+            lde->lp_exception->error_malloc = True;
+            lde->status = False;
+            return lde;
+        }
+        long pos = lp_arraylist->iter_index - 1;
+        if (NULL_POINTER == memcpy((char *)lde->data, (char *)&pos, long_size))
         {
             lde->lp_exception->error_memcpy = True;
             lde->status = False;

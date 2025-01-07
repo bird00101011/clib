@@ -1,6 +1,23 @@
 #include <types.h>
 #include <arraylist.h>
 #include <stdio.h>
+/*
+printf格式化选项
+%d 十进制有符号整数
+%u 十进制无符号整数
+%f 浮点数
+%s 字符串
+%c 单个字符
+%p 指针的值
+%e 指数形式的浮点数
+%x, %X 无符号以十六进制表示的整数
+%o 无符号以八进制表示的整数
+%g 把输出的值按照 %e 或者 %f 类型中输出长度较小的方式输出
+%p 输出地址符
+%lu 32位无符号整数
+%llu 64位无符号整数
+%% 输出百分号字符本身。
+*/
 
 void test_arraylist();
 
@@ -208,12 +225,15 @@ void test_arraylist()
     LPStatusDataException nde;
     while (lde != NULL_POINTER && lde->lp_exception->error_iter_stop == False)
     {
-        element = (int *)(lde->data);   
+        element = (int *)(lde->data);
         nde = ArrayList_get_element_by_position(al, al->iter_index - 1);
-        printf("4 %d, %p, iter: %d, %d, %d\n", al->iter_index - 1, element, *element, *(int *)(nde->data), *((int *)al->elements+al->iter_index-1));
+        printf("4 %d, %p, iter: %d, %d, %d\n", al->iter_index - 1, element, *element, *(int *)(nde->data), *((int *)al->elements + al->iter_index - 1));
         StatusDataException_free(lde);
         lde = ArrayList_iter(al);
     }
+
+    lde = ArrayList_get_position_by_element(al, &n1);
+    printf("n1 pos: %lu\n", *(long *)(lde->data));
 
     StatusDataException_free(lde);
     ArrayList_free(al);
