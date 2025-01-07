@@ -42,7 +42,7 @@ CMake构建: VSCode编写完CMakeLists.txt后按`Ctrl + s`就会自动生成buil
 ## 状态
 
 ------------------------------------------------------------------
-|       NAME       |      CODING     |    TESTING   |  COMPLETED
+        NAME       |      CODING     |    TESTING   |  COMPLETED
        ArrayList                                          ✔
        LinkedList           ✔                          
        HashMap                                          
