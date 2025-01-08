@@ -1,9 +1,9 @@
 ninja_required_version = 1.5
 rule compile_test
   command = cl /c /utf-8 $in
-build arraylist.obj types.obj test.obj : compile_test src/arraylist.c src/types.c src/test.c
+build arraylist.obj types.obj test.obj : compile_test src/dynaarray.c src/types.c src/test.c
 rule link_test
   command = link /out:$out $in
-build test.exe : link_test arraylist.obj types.obj test.obj
+build test.exe : link_test dynaarray.obj types.obj test.obj
 build all: phony test.exe
 default all

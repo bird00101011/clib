@@ -1,5 +1,4 @@
 #include <types.h>
-#include <arraylist.h>
 #include <linkedlist.h>
 #ifndef HASHMAP_H
 #define HASHMAP_H
@@ -12,7 +11,6 @@ typedef struct
 
 typedef struct
 {
-    LPArrayList lp_al_hashmap_linkedlists;
 } HashMap, *LPHashMap;
 
 LPStatusDataException HashMap_new(long capacity);

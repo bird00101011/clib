@@ -7,7 +7,7 @@ LPException Exception_new()
     if (lp_e != NULL_POINTER)
     {
         lp_e->error_index_out = False;
-        lp_e->error_iter_stop = False;
+        lp_e->error_some = 0;
         lp_e->error_malloc = False;
         lp_e->error_memcpy = False;
         lp_e->error_memove = False;

@@ -1,5 +1,5 @@
 #include <types.h>
-#include <arraylist.h>
+#include <dynaarray.h>
 #include <stdio.h>
 /*
 printf格式化选项
@@ -29,22 +29,22 @@ int main()
 
 void test_arraylist()
 {
-    LPStatusDataException lde = ArrayList_new(10, sizeof(int));
+    LPStatusDataException lde = DynaArray_new(10, sizeof(int));
     if (lde == NULL_POINTER)
         return;
 
     if (lde->status == False)
     {
         StatusDataException_free(lde);
-        printf("[E] ArrayList_new\n");
+        printf("[E] DynaArray_new\n");
         return;
     }
 
-    ArrayList *al = (ArrayList *)(lde->data);
+    DynaArray *al = (DynaArray *)(lde->data);
     if (al == NULL_POINTER)
     {
         StatusDataException_free(lde);
-        printf("[E] ArrayList_new\n");
+        printf("[E] DynaArray_new\n");
         return;
     }
 
@@ -61,67 +61,66 @@ void test_arraylist()
 
     StatusDataException_free(lde);
     lde = NULL_POINTER;
-    lde = ArrayList_insert(al, 0, &n1);
+    lde = DynaArray_insert(al, 0, &n1);
     if (lde == NULL_POINTER)
     {
-        ArrayList_free(al);
+        DynaArray_free(al);
         StatusDataException_free(lde);
 
-        printf("[E] ArrayList_insert\n");
+        printf("[E] DynaArray_insert\n");
         return;
     }
 
     if (lde->status == False)
     {
         StatusDataException_free(lde);
-        ArrayList_free(al);
+        DynaArray_free(al);
 
-        printf("[E] ArrayList_insert\n");
+        printf("[E] DynaArray_insert\n");
         return;
     }
 
     StatusDataException_free(lde);
 
-    lde = ArrayList_insert(al, 1, &n2);
+    lde = DynaArray_insert(al, 1, &n2);
     StatusDataException_free(lde);
 
-    lde = ArrayList_insert(al, 2, &n3);
+    lde = DynaArray_insert(al, 2, &n3);
     StatusDataException_free(lde);
 
-    lde = ArrayList_insert(al, 3, &n4);
+    lde = DynaArray_insert(al, 3, &n4);
     StatusDataException_free(lde);
 
-    lde = ArrayList_insert(al, 4, &n5);
+    lde = DynaArray_insert(al, 4, &n5);
     StatusDataException_free(lde);
 
-    lde = ArrayList_insert(al, 5, &n6);
+    lde = DynaArray_insert(al, 5, &n6);
     StatusDataException_free(lde);
 
-    lde = ArrayList_insert(al, 6, &n7);
+    lde = DynaArray_insert(al, 6, &n7);
     StatusDataException_free(lde);
 
-    lde = ArrayList_insert(al, 7, &n8);
+    lde = DynaArray_insert(al, 7, &n8);
     StatusDataException_free(lde);
 
     printf("al elements_num: %d, capacity: %d\n", al->elements_num, al->capacity);
 
-    lde = ArrayList_iter(al);
     int *element;
-    while (lde != NULL_POINTER && lde->lp_exception->error_iter_stop != True)
+    for (long index = 0; index < al->elements_num; index++)
     {
+        lde = DynaArray_get_by_position(al, index);
         element = (int *)(lde->data);
-        printf("1 %d, %p, iter: %d\n", al->iter_index - 1, element, *element);
+        printf("1 %d, %p, iter: %d\n", index, element, *element);
         StatusDataException_free(lde);
-        lde = ArrayList_iter(al);
     }
-    // ArrayList_iter_stop(al);
+    // DynaArray_iter_stop(al);
 
     StatusDataException_free(lde);
 
-    lde = ArrayList_delete_element_by_position(al, 0);
+    lde = DynaArray_delete_by_position(al, 0);
     if (lde == NULL_POINTER)
     {
-        ArrayList_free(al);
+        DynaArray_free(al);
         StatusDataException_free(lde);
         lde = NULL_POINTER;
 
@@ -134,27 +133,24 @@ void test_arraylist()
     if (lde->status == False)
     {
         StatusDataException_free(lde);
-        ArrayList_free(al);
+        DynaArray_free(al);
 
         printf("[E] arraylist_delete_element_by_position\n");
         return;
     }
     StatusDataException_free(lde);
-
-    lde = ArrayList_iter(al);
-    while (lde != NULL_POINTER && lde->lp_exception->error_iter_stop == False)
+    for (long index = 0; index < al->elements_num; index++)
     {
+        lde = DynaArray_get_by_position(al, index);
         element = (int *)(lde->data);
-        printf("2 %d, %p, iter: %d\n", al->iter_index - 1, element, *element);
+        printf("2 %d, %p, iter: %d\n", index, element, *element);
         StatusDataException_free(lde);
-
-        lde = ArrayList_iter(al);
     }
 
-    lde = ArrayList_get_element_by_position(al, 8);
+    lde = DynaArray_get_by_position(al, 8);
     if (lde == NULL_POINTER)
     {
-        ArrayList_free(al);
+        DynaArray_free(al);
 
         printf("[E] arraylist_get_element_by_position\n");
         return;
@@ -169,45 +165,38 @@ void test_arraylist()
 
     printf("After edit by position\n");
     int n = 100;
-    lde = ArrayList_edit_element_by_position(al, 1, &n);
+    lde = DynaArray_edit_by_position(al, 1, &n);
     StatusDataException_free(lde);
     n = 101;
 
-    lde = ArrayList_iter(al);
-    while (lde != NULL_POINTER && lde->lp_exception->error_iter_stop == False)
+    for (long index = 0; index < al->elements_num; index++)
     {
+        lde = DynaArray_get_by_position(al, index);
         element = (int *)(lde->data);
-        printf("2 %d, %p, iter: %d\n", al->iter_index - 1, element, *element);
-        StatusDataException_free(lde);
-        lde = ArrayList_iter(al);
+        printf("2 %d, %p, iter: %d\n", index, element, *element);
     }
 
-    lde = ArrayList_edit_element_by_element(al, &n8, &n);
+    lde = DynaArray_edit_by_element(al, &n8, &n);
     printf("After edit by element, elements_num: %d\n", al->elements_num);
 
     StatusDataException_free(lde);
 
-    lde = ArrayList_iter(al);
-    while (lde != NULL_POINTER && lde->lp_exception->error_iter_stop == False)
+    for (long index = 0; index < al->elements_num; index++)
     {
+        lde = DynaArray_get_by_position(al, index);
         element = (int *)(lde->data);
-        printf("3 %d, %p, iter: %d\n", al->iter_index - 1, element, *element);
-        StatusDataException_free(lde);
-        lde = ArrayList_iter(al);
+        printf("3 %d, %p, iter: %d\n", index, element, *element);
     }
 
-    lde = ArrayList_delete_element_by_element(al, &n);
+    lde = DynaArray_delete_by_element(al, &n);
     printf("After del by element, elements_num: %d\n", al->elements_num);
 
     StatusDataException_free(lde);
-
-    lde = ArrayList_iter(al);
-    while (lde != NULL_POINTER && lde->lp_exception->error_iter_stop == False)
+    for (long index = 0; index < al->elements_num; index++)
     {
+        lde = DynaArray_get_by_position(al, index);
         element = (int *)(lde->data);
-        printf("4 %d, %p, iter: %d\n", al->iter_index - 1, element, *element);
-        StatusDataException_free(lde);
-        lde = ArrayList_iter(al);
+        printf("4 %d, %p, iter: %d\n", index, element, *element);
     }
 
     // 扩容测试
@@ -215,28 +204,26 @@ void test_arraylist()
     for (int i = 0; i < 100; i++)
     {
         ns[i] = i;
-        lde = ArrayList_insert(al, al->elements_num, &ns[i]);
+        lde = DynaArray_insert(al, al->elements_num, &ns[i]);
         StatusDataException_free(lde);
     }
 
     printf("After add 10 elements, elements_num: %d, %p\n", al->elements_num, lde->lp_exception);
 
-    lde = ArrayList_iter(al);
-    LPStatusDataException nde;
-    while (lde != NULL_POINTER && lde->lp_exception->error_iter_stop == False)
+    StatusDataException_free(lde);
+    for (long index = 0; index < al->elements_num; index++)
     {
+        lde = DynaArray_get_by_position(al, index);
         element = (int *)(lde->data);
-        nde = ArrayList_get_element_by_position(al, al->iter_index - 1);
-        printf("4 %d, %p, iter: %d, %d, %d\n", al->iter_index - 1, element, *element, *(int *)(nde->data), *((int *)al->elements + al->iter_index - 1));
+        printf("4 %d, %p, iter: %d, %d\n", index, element, *element,  *((int *)al->elements + index));
         StatusDataException_free(lde);
-        lde = ArrayList_iter(al);
     }
 
-    lde = ArrayList_get_position_by_element(al, &n1);
+    lde = DynaArray_get_position_by_element(al, &n1);
     printf("n1 pos: %lu\n", *(long *)(lde->data));
 
     StatusDataException_free(lde);
-    ArrayList_free(al);
+    DynaArray_free(al);
     al = NULL_POINTER;
     lde = NULL_POINTER;
 }

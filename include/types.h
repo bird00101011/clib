@@ -20,7 +20,7 @@ typedef struct
     Boolean error_memcmp;
     Boolean error_index_out;
     Boolean error_null_pointer;
-    Boolean error_iter_stop;
+    long error_some;
 } Exception, * LPException;
 
 LPException Exception_new();
