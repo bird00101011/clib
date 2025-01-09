@@ -19,16 +19,16 @@ LPStatusDataException LinkedList_free(LPLinkedList lp_linkedlist);
 
 LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object element, long position);
 
-LPStatusDataException LinkedList_delete_element_by_position(LPLinkedList lp_linkedlist, long position);
+LPStatusDataException LinkedList_delete_by_position(LPLinkedList lp_linkedlist, long position);
 
-LPStatusDataException LinkedList_delete_element_by_element(LPLinkedList lp_linkedlist, Object element);
+LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, Object element);
 
-LPStatusDataException LinkedList_get_element_by_position(LPLinkedList lp_linkedlist, long position);
+LPStatusDataException LinkedList_get_by_position(LPLinkedList lp_linkedlist, long position);
 
 LPStatusDataException LinkedList_get_position_by_element(LPLinkedList lp_linkedlist, Object element);
 
-LPStatusDataException LinkedList_edit_element_by_position(LPLinkedList lp_linkedlist, long position);
+LPStatusDataException LinkedList_edit_by_position(LPLinkedList lp_linkedlist, long position);
 
-LPStatusDataException LinkedList_edit_element_by_element(LPLinkedList lp_linkedlist, Object element);
+LPStatusDataException LinkedList_edit_by_element(LPLinkedList lp_linkedlist, Object element);
 
 #endif

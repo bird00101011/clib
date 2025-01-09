@@ -1,6 +1,4 @@
 # clib
-
-                                                                 
         _____   _____              ____________ ______  ______   
    _____\    \_|\    \            /            \\     \|\     \  
   /     /|     |\\    \          |\___/\  \\___/||     |\|     | 
@@ -11,35 +9,37 @@
 | \_____\|    |   /_____/\_____/||____________/|/_____/|/_____/| 
 | |     /____/|  |      | |    |||           | /|    |||     | | 
  \|_____|    ||  |______|/|____|/|___________|/ |____|/|_____|/  
-        |____|/                                                  
+        |____|/                               
 
-维护一个c语言的项目的起点就是看懂它是如何构建的，对于文件有点多的项目看懂构建文件就是个大工程，对于没有相关规模的c语言新手来说，这几乎就是一种徒劳，所以进步最快的一种方式就是自己写一个类似的项目，写完之后再回头看出名的开源项目就会容易些。
+I want to create a C library similar to glib.
 
-这个项目采用了两种构建工具ninja和CMake，前者用于代码无bug时的构建，后者用于调试bug时使用。
+The starting point for maintaining a C project is to understand how it's built, and for a project with a lot of files, it's a big job, and it's almost a futile task for a novice to C without the scale, so one of the quickest ways to make progress is to write a similar project yourself, and then it's easier to look back at a famous open source project.
 
-ninja构建: 编译: `ninja`，测试: `test.exe`，清除: `ninja -t clean`
+This project uses two build tools, ninja and CMake, the former for building when the code is bug-free, and the latter for debugging bugs.
 
-CMake构建: VSCode编写完CMakeLists.txt后按`Ctrl + s`就会自动生成build目录，再用VS打开build目录中的.sln文件即可构建，更多VS的使用请参考搜索引擎。
+ninja build: compile: 'ninja', test: 'test.exe', clear: 'ninja -t clean'
 
-## 注意
+CMake build: After VSCode writes the CMakeLists.txt, press 'Ctrl + s' to automatically generate the build directory, and then use VS to open the .sln file in the build directory to build, please refer to the search engine for more VS use.
 
-该代码可能不能编译，每天都会做修改优化，使其以达到一个理想的状态，目前很多设计都不合理，所以进度不能过快，等哪天觉得设计比较合理了，再快速推进项目的进度也不迟，这样到最后返工修改的几率也会小一些，最糟糕的情况是编写了大量的篇幅却发现了新的更好的设计，到那时候再修改工作量就很大了。
+## Note
 
-## 其它
+The code may not be compiled, and it will be modified and optimized every day to achieve an ideal state, and many designs are unreasonable at present, so the progress can not be too fast, and so on one day I feel that the design is more reasonable, and then it is not too late to quickly advance the progress of the project, so that the probability of rework and modification in the end will be smaller, and the worst case is to write a lot of space but find a new and better design, and then the workload of modification will be very large.
 
-有实力的可以直接去维护和修改glib来达到自己开发需求，但对于我这样的c语言新手，从头开发一个才是最快速的进步方式。然后这是个完全没有任何企图赚钱的项目，因为之前的母项目几乎要黄了，遇到了非常大的困难，以至于我几个月毫无进展，我不知道这种状态会持续多久，所以这个项目的进度恐怕会很缓慢，完全看心情。
+## Miscellaneous
 
-## 符号
+Those who have the strength can directly maintain and modify the glib to meet their own development needs, but for a C novice like me, developing one from scratch is the fastest way to progress. And then this is a project that has no attempt to make money at all, because the previous parent project is almost yellow, and it has encountered so many difficulties that I have not made any progress for several months, and I don't know how long this state will last, so the progress of this project will probably be very slow, it depends on the mood.
 
-[*] ~ 修改功能，[*] + 增加功能，[*] - 删减功能，[*] ^ 编写文档，[/d./d./d] * 新版本发布
+## symbols
 
-其中/d为数字[0-9]，第一个/d为版本，第二个/d为功能数，第三个/d为原来功能数所迭代的次数。原则是当功能数超过10个的时候，版本号就要加1，除第一个/d可以大于9，后面的/d都不能大于9。
+[*] ~ Modify function, [*] + add function, [*] - delete function, [*] ^ Write document, [/d./d./d] * New version released
 
-## 原则
+where /d is the number [0-9], the first /d is the version, the second /d is the number of functions, and the third /d is the number of iterations of the original number of functions. The principle is that when the number of functions exceeds 10, the version number should be increased by 1, except for the first /d can be greater than 9, and the subsequent /d cannot be greater than 9.
 
-效率 > 规定，也就是解决问题的方式上，当效率的收益大于规则所的收益时，就选则使用效率的方式解决问题，反之逆然。
+## Principles
 
-## 状态
+Efficiency > stipulates, that is, in the way of solving problems, when the benefits of efficiency are greater than the benefits of the rules, then use the efficiency method to solve the problem, and vice versa.
+
+## Status
 
 -------------------------------------------------------------------------------
     NAME   |  CODING  |  TESTING  |  Python Like  |  COMPLETED
@@ -49,8 +49,8 @@ CMake构建: VSCode编写完CMakeLists.txt后按`Ctrl + s`就会自动生成buil
  HashMap                                          
 -------------------------------------------------------------------------------
 
-解释: 什么是Python Like，在Python中一个List实例是可以插入不同类型的，既可以插入int也可以插入class，那在c语言中，我们通常看到的数据结构与算法里面说的都是所谓的一个List实例只能插入同一种类型，这显然不够好，用过别的例如Pascal语言里的数据结构，也都是只能插入同一种类型，那么C如何实现这种特性就是要去做的需求。
+Explanation: What is Python Like, in Python a List instance can be inserted into different types, both int and class, then in the c language, we usually see that the data structure and algorithm are the so-called List instance can only be inserted into the same type, which is obviously not good enough, used in other data structures such as Pascal language, but also can only insert the same type, So how C implements this feature is the requirement to do.
 
-## 使用
+## Use
 
-关于如何使用请查看tests.c里的源代码，里面有大量的实践。
+For more information on how to use it, check out the source code in tests.c, which has a lot of hands-on practice.
