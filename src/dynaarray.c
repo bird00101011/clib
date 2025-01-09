@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <string.h>
 #include <dynaarray.h>
 
 LPStatusDataException DynaArray_new(long capacity, long element_size)
@@ -138,9 +137,7 @@ LPStatusDataException DynaArray_reallocate(LPDynaArray lp_dyna_array, long new_c
 
     lp_dyna_array->capacity = new_capacity;
     if (lp_dyna_array->elements_num > lp_dyna_array->capacity)
-    {
         lp_dyna_array->elements_num = lp_dyna_array->capacity;
-    }
 
     return lp_sde;
 }
@@ -360,9 +357,7 @@ LPStatusDataException DynaArray_edit_by_position(LPDynaArray lp_dyna_array, long
             sde->lp_exception->error_memcpy = True;
         }
         else
-        {
             sde->data = lp_dyna_array;
-        }
     }
     else
     {
@@ -406,9 +401,7 @@ LPStatusDataException DynaArray_edit_by_element(LPDynaArray lp_dyna_array, Objec
             StatusDataException_free(lp_sde_iter);
             lp_sde_iter = DynaArray_edit_by_position(lp_dyna_array, i, new_element);
             if (lp_sde_iter == NULL_POINTER || lp_sde_iter->status == False)
-            {
                 lp_sde->lp_exception->error_some++;
-            }
         }
         StatusDataException_free(lp_sde_iter);
     }
@@ -462,9 +455,7 @@ LPStatusDataException DynaArray_delete_by_element(LPDynaArray lp_dyna_array, Obj
             StatusDataException_free(lp_sde_iter);
             lp_sde_iter = DynaArray_delete_by_position(lp_dyna_array, i);
             if (lp_sde_iter == NULL_POINTER || lp_sde_iter->status == False)
-            {
                 lp_sde->lp_exception->error_some++;
-            }
             else
                 i--;
         }
@@ -500,42 +491,50 @@ LPStatusDataException DynaArray_get_position_by_element(LPDynaArray lp_dyna_arra
         return lp_sde;
     }
 
-    LPStatusDataException lp_sde_iter;
     int long_size = sizeof(long);
+    LPStatusDataException lp_sde_pos = DynaArray_new(10, long_size);
+    if (lp_sde_pos == NULL_POINTER)
+    {
+        lp_sde->lp_exception->error_null_pointer = True;
+        lp_sde->status = False;
+        lp_sde->data = lp_dyna_array;
+        return lp_sde;
+    }
+    if (lp_sde_pos->status == False)
+    {
+        StatusDataException_free(lp_sde);
+        return lp_sde_pos;
+    }
+    StatusDataException_free(lp_sde);
+    LPDynaArray lp_dn_l = (LPDynaArray)lp_sde_pos->data;
+
+    LPStatusDataException lp_sde_iter;
     for (long i = 0; i < lp_dyna_array->elements_num; i++)
     {
-        lp_sde_iter = DynaArray_delete_by_position(lp_dyna_array, i);
+        lp_sde_iter = DynaArray_get_by_position(lp_dyna_array, i);
         if (lp_sde_iter == NULL_POINTER)
         {
-            lp_sde->lp_exception->error_null_pointer = True;
-            lp_sde->status = False;
-            StatusDataException_free(lp_sde_iter);
-            lp_sde->data = lp_dyna_array;
-            return lp_sde;
+            lp_sde_pos->lp_exception->error_some++;
+            continue;
         }
         if (lp_sde_iter->status == False)
         {
-            StatusDataException_free(lp_sde);
-            return lp_sde_iter;
+            lp_sde_pos->lp_exception->error_some++;
+            StatusDataException_free(lp_sde_iter);
+            continue;
+        }
+        if (memcmp((char *)lp_sde_iter->data, (char *)element, lp_dyna_array->element_size) == 0)
+        {
+            StatusDataException_free(lp_sde_iter);
+            lp_sde_iter = DynaArray_insert(lp_dn_l, lp_dn_l->elements_num, &i);
+    
+            if (lp_sde_iter == NULL_POINTER)
+                lp_sde_pos->lp_exception->error_some++;
+            if (lp_sde_iter->status == False)
+                lp_sde_pos->lp_exception->error_some++;
         }
         StatusDataException_free(lp_sde_iter);
-
-        if (memcmp((char *)isde->data, (char *)element, lp_dyna_array->element_size) == 0)
-        {
-            lp_sde->data = malloc(long_size);
-            if (lp_sde->data == NULL_POINTER)
-            {
-                lp_sde->lp_exception->error_malloc = True;
-                lp_sde->status = False;
-                return lp_sde;
-            }
-            if (NULL_POINTER == memcpy((char *)lp_sde->data, (char *)&i, long_size))
-            {
-                lp_sde->lp_exception->error_memcpy = True;
-                lp_sde->status = False;
-            }
-        }
     }
 
-    return lp_sde;
+    return lp_sde_pos;
 }

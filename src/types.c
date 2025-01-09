@@ -23,9 +23,7 @@ LPException Exception_new()
 void Exception_free(LPException e)
 {
     if (e != NULL_POINTER)
-    {
         free(e);
-    }
 }
 
 LPStatusDataException StatusDataException_new()
@@ -40,7 +38,7 @@ LPStatusDataException StatusDataException_new()
     if (lp_sde->lp_exception == NULL_POINTER)
     {
         free(lp_sde);
-        return lp_sde;
+        return NULL_POINTER;
     }
 
     lp_sde->data = NULL_POINTER;
@@ -52,7 +50,8 @@ void StatusDataException_free(LPStatusDataException lp_sde)
 {
     if (lp_sde != NULL_POINTER)
     {
-        Exception_free(lp_sde->lp_exception);
+        if (lp_sde->lp_exception != NULL_POINTER)
+            Exception_free(lp_sde->lp_exception);
 
         // 由于data不知是不是用malloc创建的，所以需要用户自己决定如何释放
         free(lp_sde);

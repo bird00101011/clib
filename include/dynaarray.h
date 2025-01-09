@@ -1,6 +1,6 @@
 #include <types.h>
-#ifndef ArrayList_H
-#define ArrayList_H
+#ifndef DYNAARRAY_H
+#define DYNAARRAY_H
 
 typedef struct
 {

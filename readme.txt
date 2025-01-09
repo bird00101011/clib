@@ -43,9 +43,10 @@ CMake构建: VSCode编写完CMakeLists.txt后按`Ctrl + s`就会自动生成buil
 
 -------------------------------------------------------------------------------
     NAME   |  CODING  |  TESTING  |  Python Like  |  COMPLETED
- ArrayList      ✔                         
+ DynaArray                              ❌              ✔   
+ ArrayList      ✔
  LinkedList     ✔                          
- HashMap        ✔                                  
+ HashMap                                          
 -------------------------------------------------------------------------------
 
 解释: 什么是Python Like，在Python中一个List实例是可以插入不同类型的，既可以插入int也可以插入class，那在c语言中，我们通常看到的数据结构与算法里面说的都是所谓的一个List实例只能插入同一种类型，这显然不够好，用过别的例如Pascal语言里的数据结构，也都是只能插入同一种类型，那么C如何实现这种特性就是要去做的需求。
