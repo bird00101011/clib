@@ -30,9 +30,7 @@ LPStatusDataException StatusDataException_new()
 {
     LPStatusDataException lp_sde = malloc(sizeof(StatusDataException));
     if (lp_sde == NULL_POINTER)
-    {
         return lp_sde;
-    }
 
     lp_sde->lp_exception = Exception_new();
     if (lp_sde->lp_exception == NULL_POINTER)
