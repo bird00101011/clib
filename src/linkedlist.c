@@ -2,37 +2,38 @@
 #include <linkedlist.h>
 #include <stdlib.h>
 
-LPStatusDataException LinkedList_new()
+LPStatusDataException LinkedList_new(long element_size)
 {
-    LPStatusDataException lpsde = StatusDataException_new();
-    if (lpsde == NULL_POINTER)
-        return lpsde;
+    LPStatusDataException lp_sde = StatusDataException_new();
+    if (lp_sde == NULL_POINTER)
+        return lp_sde;
 
     LPLinkedList lp_linkedlist = malloc(sizeof(LinkedList));
     if (lp_linkedlist == NULL_POINTER)
     {
-        lpsde->lp_exception->error_null_pointer = True;
-        lpsde->status = False;
-        return lpsde;
+        lp_sde->lp_exception->error_null_pointer = True;
+        lp_sde->status = False;
+        return lp_sde;
     }
 
     lp_linkedlist->lp_head = NULL_POINTER;
     lp_linkedlist->elements_num = 0;
-    lpsde->data = lp_linkedlist;
-    return lpsde;
+    lp_linkedlist->element_size = element_size;
+    lp_sde->data = lp_linkedlist;
+    return lp_sde;
 }
 
 LPStatusDataException LinkedList_free(LPLinkedList lp_linkedlist)
 {
-    LPStatusDataException lpsde = StatusDataException_new();
-    if (lpsde == NULL_POINTER)
-        return lpsde;
+    LPStatusDataException lp_sde = StatusDataException_new();
+    if (lp_sde == NULL_POINTER)
+        return lp_sde;
 
     if (lp_linkedlist == NULL_POINTER)
     {
-        lpsde->lp_exception->error_null_pointer = True;
-        lpsde->status = False;
-        return lpsde;
+        lp_sde->lp_exception->error_null_pointer = True;
+        lp_sde->status = False;
+        return lp_sde;
     }
 
     LPLinkedListNode lp_next = lp_linkedlist->lp_head;
@@ -43,26 +44,26 @@ LPStatusDataException LinkedList_free(LPLinkedList lp_linkedlist)
     }
 
     free(lp_linkedlist);
-    return lpsde;
+    return lp_sde;
 }
 
 LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object element, long position)
 {
-    LPStatusDataException lpsde = StatusDataException_new();
-    if (lpsde == NULL_POINTER)
-        return lpsde;
+    LPStatusDataException lp_sde = StatusDataException_new();
+    if (lp_sde == NULL_POINTER)
+        return lp_sde;
 
     if (lp_linkedlist == NULL_POINTER)
     {
-        lpsde->lp_exception->error_null_pointer = True;
-        lpsde->status = False;
-        return lpsde;
+        lp_sde->lp_exception->error_null_pointer = True;
+        lp_sde->status = False;
+        return lp_sde;
     }
     if (position < 0 && position > lp_linkedlist->elements_num - 1)
     {
-        lpsde->lp_exception->error_index_out = True;
-        lpsde->status = False;
-        return lpsde;
+        lp_sde->lp_exception->error_index_out = True;
+        lp_sde->status = False;
+        return lp_sde;
     }
 
     LPLinkedListNode lp_next = lp_linkedlist->lp_head;
@@ -71,14 +72,14 @@ LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object eleme
         lp_next = lp_next->next;
     }
 
-    lpsde->data = lp_linkedlist;
+    lp_sde->data = lp_linkedlist;
 
     LPLinkedListNode lp_new = malloc(sizeof(LinkedListNode));
     if (lp_new == NULL_POINTER)
     {
-        lpsde->status = False;
-        lpsde->lp_exception->error_malloc = True;
-        return lpsde;
+        lp_sde->status = False;
+        lp_sde->lp_exception->error_malloc = True;
+        return lp_sde;
     }
 
     lp_new->element = element;
@@ -88,27 +89,27 @@ LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object eleme
 
     lp_linkedlist->elements_num++;
 
-    lpsde->data = lp_linkedlist;
-    return lpsde;
+    lp_sde->data = lp_linkedlist;
+    return lp_sde;
 }
 
-LPStatusDataException LinkedList_delete_element_by_position(LPLinkedList lp_linkedlist, long position)
+LPStatusDataException LinkedList_delete_by_position(LPLinkedList lp_linkedlist, long position)
 {
-    LPStatusDataException lpsde = StatusDataException_new();
-    if (lpsde == NULL_POINTER)
-        return lpsde;
+    LPStatusDataException lp_sde = StatusDataException_new();
+    if (lp_sde == NULL_POINTER)
+        return lp_sde;
 
     if (lp_linkedlist == NULL_POINTER)
     {
-        lpsde->lp_exception->error_null_pointer = True;
-        lpsde->status = False;
-        return lpsde;
+        lp_sde->lp_exception->error_null_pointer = True;
+        lp_sde->status = False;
+        return lp_sde;
     }
-    lpsde->data = lp_linkedlist;
+    lp_sde->data = lp_linkedlist;
     if (position < 0 && position > lp_linkedlist->elements_num - 1)
     {
-        lpsde->lp_exception->error_index_out = True;
-        lpsde->status = False;
+        lp_sde->lp_exception->error_index_out = True;
+        lp_sde->status = False;
     }
     else
     {
@@ -117,13 +118,46 @@ LPStatusDataException LinkedList_delete_element_by_position(LPLinkedList lp_link
         {
             lp_node = lp_node->next;
         }
-        free(lp_node->element);
+        lp_node->prev->next = lp_node->next;
+        lp_node->next->prev = lp_node->prev;
         free(lp_node);
     }
-    return lpsde;
+    return lp_sde;
 }
 
-LPStatusDataException LinkedList_delete_element_by_element(LPLinkedList lp_linkedlist, Object element);
+LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, Object element)
+{
+    LPStatusDataException lp_sde = StatusDataException_new();
+    if (lp_sde == NULL_POINTER)
+        return lp_sde;
+
+    if (lp_linkedlist == NULL_POINTER)
+    {
+        lp_sde->lp_exception->error_null_pointer = True;
+        lp_sde->status = False;
+        return lp_sde;
+    }
+    LPLinkedListNode lp_next = lp_linkedlist->lp_head;
+    long ds = 0;
+    int ls = sizeof(long);
+    for (long i = 1; i < lp_linkedlist->elements_num; i++)
+    {
+        if (memcmp((char *)lp_next, (char *)element, lp_linkedlist->element_size) == 0)
+        {
+            lp_node->prev->next = lp_node->next;
+            lp_node->next->prev = lp_node->prev;
+            free(lp_node);
+            ds++;
+        }
+    }
+    lp_sde->data = malloc(ls);
+    if (memcpy((char *)lp_sde->data, (char *)&ds, ls) == NULL_POINTER)
+    {
+        lp_sde->lp_exception->error_memcpy = True;
+        lp_sde->status = True;
+    }
+    return lp_sde;
+}
 
 LPStatusDataException LinkedList_get_element_by_position(LPLinkedList lp_linkedlist, long position);
 

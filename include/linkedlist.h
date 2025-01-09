@@ -9,12 +9,14 @@ typedef struct Node
     struct Node *next;
 } LinkedListNode, *LPLinkedListNode;
 
-typedef struct{
+typedef struct
+{
     LPLinkedListNode lp_head;
     long elements_num;
+    long element_size;
 } LinkedList, *LPLinkedList;
 
-LPStatusDataException LinkedList_new();
+LPStatusDataException LinkedList_new(long element_size);
 LPStatusDataException LinkedList_free(LPLinkedList lp_linkedlist);
 
 LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object element, long position);
