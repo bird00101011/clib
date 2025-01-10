@@ -12,6 +12,7 @@ typedef struct Node
 typedef struct
 {
     LPLinkedListNode lp_head;
+    LPLinkedListNode lp_tail;
     long elements_num;
     long element_size;
 } LinkedList, *LPLinkedList;
