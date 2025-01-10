@@ -26,7 +26,8 @@ ninja build: compile: 'ninja', test: 'test.exe', clear: 'ninja -t clean'
 
 CMake build: After VSCode writes the CMakeLists.txt, press 'Ctrl + s' to 
 automatically generate the build directory, and then use VS to open the .sln 
-file in the build directory to build, please refer to the search engine for more VS use.
+file in the build directory to build, please refer to the search engine for 
+more VS use.
 
 ## Note
 
