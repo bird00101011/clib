@@ -90,11 +90,11 @@ void test_dnayarray()
         printf("Now DynaArray instance's elements_num=%d, capacity=%d\n", al->elements_num, al->capacity);
 
         printf("Begin traverse DynaArray instance:\n");
-        int* element;
+        int *element;
         for (long index = 0; index < al->elements_num; index++)
         {
             lde = DynaArray_get_by_position(al, index);
-            element = (int*)(lde->data);
+            element = (int *)(lde->data);
             printf("\tindex=%d, element_addr=%p, element_content=%d\n", index, element, *element);
             StatusDataException_free(lde);
         }
@@ -116,7 +116,7 @@ void test_dnayarray()
         for (long index = 0; index < al->elements_num; index++)
         {
             lde = DynaArray_get_by_position(al, index);
-            element = (int*)(lde->data);
+            element = (int *)(lde->data);
             printf("\tindex=%d, element_addr=%p, element_content=%d\n", index, element, *element);
             StatusDataException_free(lde);
         }
@@ -126,7 +126,7 @@ void test_dnayarray()
         if (lde == NULL_POINTER)
             printf("DynaArray_get_by_position(al, 8): failed(return NULL_POINTER)\n");
 
-        element = (int*)lde->data;
+        element = (int *)lde->data;
         if (lde->lp_exception->error_index_out == True)
             printf("DynaArray index out: success\n");
         else
@@ -136,8 +136,8 @@ void test_dnayarray()
         printf("n=100,n1=1,n2=2,n3=3,n4=4,n5=5,n6=6,n7=7,n8=8\n");
         int n = 100;
         lde = DynaArray_edit_by_position(al, 1, &n);
+        *(int *)lde->data = 101;
         StatusDataException_free(lde);
-        n = 101;
         printf("n=101,n1=1,n2=2,n3=3,n4=4,n5=5,n6=6,n7=7,n8=8\n");
         if (lde == NULL_POINTER)
             printf("DynaArray_edit_by_position(al, 1, &n)\n");
@@ -149,7 +149,7 @@ void test_dnayarray()
         for (long index = 0; index < al->elements_num; index++)
         {
             lde = DynaArray_get_by_position(al, index);
-            element = (int*)(lde->data);
+            element = (int *)(lde->data);
             printf("\tindex=%d, element_addr=%p, element_content=%d\n", index, element, *element);
             StatusDataException_free(lde);
         }
@@ -168,7 +168,7 @@ void test_dnayarray()
         for (long index = 0; index < al->elements_num; index++)
         {
             lde = DynaArray_get_by_position(al, index);
-            element = (int*)(lde->data);
+            element = (int *)(lde->data);
             printf("\tindex=%d, element_addr=%p, element_content=%d\n", index, element, *element);
             StatusDataException_free(lde);
         }
@@ -187,7 +187,7 @@ void test_dnayarray()
         for (long index = 0; index < al->elements_num; index++)
         {
             lde = DynaArray_get_by_position(al, index);
-            element = (int*)(lde->data);
+            element = (int *)(lde->data);
             printf("\tindex=%d, element_addr=%p, element_content=%d\n", index, element, *element);
             StatusDataException_free(lde);
         }
@@ -209,8 +209,8 @@ void test_dnayarray()
         for (long index = 0; index < al->elements_num; index++)
         {
             lde = DynaArray_get_by_position(al, index);
-            element = (int*)(lde->data);
-            printf("\tindex=%d, element_addr=%p, element_content=%d, element_content=%d\n", index, element, *element, *((int*)al->elements + index));
+            element = (int *)(lde->data);
+            printf("\tindex=%d, element_addr=%p, element_content=%d, element_content=%d\n", index, element, *element, *((int *)al->elements + index));
             StatusDataException_free(lde);
         }
         printf("End traverse DynaArray instance.\n");
@@ -223,7 +223,7 @@ void test_dnayarray()
             printf("DynaArray_get_position_by_element(al, &n1): failed\n");
         else
         {
-            if (lde->status==False)
+            if (lde->status == False)
                 printf("DynaArray_get_position_by_element(al, &n1): failed\n");
             else
             {
@@ -235,12 +235,47 @@ void test_dnayarray()
                 for (long index = 0; index < rows->elements_num; index++)
                 {
                     lde = DynaArray_get_by_position(rows, index);
-                    printf("\tindex=%d, element_addr=%p, element_content=%d, element_content=%d\n", index, (long *)lde->data, *(long*)lde->data, *((long*)rows->elements + index));
+                    printf("\tindex=%d, element_addr=%p, element_content=%d, element_content=%d\n", index, (long *)lde->data, *(long *)lde->data, *((long *)rows->elements + index));
                     StatusDataException_free(lde);
                 }
                 printf("End traverse DynaArray instance.\n");
             }
         }
+        int o = 1000;
+        lde = DynaArray_edit_by_element(al, &n1, &o);
+        if (lde == NULL_POINTER)
+            printf("DynaArray_edit_by_element(al, &n1): failed\n");
+        else
+        {
+            if (lde->status == False)
+                printf("DynaArray_get_position_by_element(al, &n1): failed\n");
+            else
+            {
+                printf("DynaArray_get_position_by_element(al, &n1): success\n");
+                printf("n=101,n1=1,n2=2,n3=3,n4=4,n5=5,n6=6,n7=7,n8=8,n9=1,int o=1000\n");
+                printf("Begin traverse index of DynaArray_edit_by_element(al, &n1):\n");
+                LPDynaArray rows = (LPDynaArray)lde->data;
+                StatusDataException_free(lde);
+                for (long index = 0; index < rows->elements_num; index++)
+                {
+                    lde = DynaArray_get_by_position(rows, index);
+                    printf("\tindex=%d, element_addr=%p, element_content=%d, element_content=%d\n", index, (long *)lde->data, *(long *)lde->data, *((long *)rows->elements + index));
+                    StatusDataException_free(lde);
+                }
+                printf("End traverse DynaArray instance.\n");
+            }
+        }
+
+        printf("n=101,n1=1,n2=2,n3=3,n4=4,n5=5,n6=6,n7=7,n8=8\n");
+        printf("Begin traverse DynaArray instance:\n");
+        for (long index = 0; index < al->elements_num; index++)
+        {
+            lde = DynaArray_get_by_position(al, index);
+            element = (int *)(lde->data);
+            printf("\tindex=%d, element_addr=%p, element_content=%d, element_content=%d\n", index, element, *element, *((int *)al->elements + index));
+            StatusDataException_free(lde);
+        }
+        printf("End traverse DynaArray instance.\n");
 
         DynaArray_free(al);
     }

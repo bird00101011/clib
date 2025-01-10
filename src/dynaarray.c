@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <malloc.h>
+#include <memory.h>
 #include <dynaarray.h>
 
 LPStatusDataException DynaArray_new(long capacity, long element_size)
@@ -155,8 +157,6 @@ LPStatusDataException DynaArray_insert(LPDynaArray lp_dyna_array, long position,
         return lp_sde;
     }
 
-    lp_sde->data = lp_dyna_array;
-
     if (position >= 0 && position <= lp_dyna_array->elements_num)
     {
         char sig = 0;
@@ -228,6 +228,8 @@ LPStatusDataException DynaArray_insert(LPDynaArray lp_dyna_array, long position,
     }
 
     lp_dyna_array->elements_num = lp_dyna_array->elements_num + 1; // 也可以用++
+    lp_sde->data = (char *)lp_dyna_array->elements + position * lp_dyna_array->element_size;
+
     return lp_sde;
 }
 
@@ -244,8 +246,6 @@ LPStatusDataException DynaArray_delete_by_position(LPDynaArray lp_dyna_array, lo
 
         return lp_sde;
     }
-
-    lp_sde->data = lp_dyna_array;
 
     if (lp_dyna_array->elements_num == 0)
     {
@@ -317,8 +317,6 @@ LPStatusDataException DynaArray_get_by_position(LPDynaArray lp_dyna_array, long 
         return sde;
     }
 
-    sde->data = lp_dyna_array;
-
     if (position >= 0 && position < lp_dyna_array->elements_num)
     {
         sde->data = (char *)lp_dyna_array->elements + position * lp_dyna_array->element_size;
@@ -346,8 +344,6 @@ LPStatusDataException DynaArray_edit_by_position(LPDynaArray lp_dyna_array, long
         return sde;
     }
 
-    sde->data = lp_dyna_array;
-
     if (position >= 0 && position < lp_dyna_array->elements_num)
     {
         if (NULL_POINTER == memcpy((char *)lp_dyna_array->elements + position * lp_dyna_array->element_size,
@@ -357,7 +353,7 @@ LPStatusDataException DynaArray_edit_by_position(LPDynaArray lp_dyna_array, long
             sde->lp_exception->error_memcpy = True;
         }
         else
-            sde->data = lp_dyna_array;
+            sde->data = (char *)lp_dyna_array->elements + position * lp_dyna_array->element_size;
     }
     else
     {
@@ -381,6 +377,24 @@ LPStatusDataException DynaArray_edit_by_element(LPDynaArray lp_dyna_array, Objec
         return lp_sde;
     }
 
+    int ls = sizeof(long);
+    LPStatusDataException lp_sde_pos = DynaArray_new(10, ls);
+    if (lp_sde_pos == NULL_POINTER)
+    {
+        lp_sde->lp_exception->error_null_pointer = True;
+        lp_sde->status = False;
+        return lp_sde;
+    }
+
+    if (lp_sde_pos->status == False)
+    {
+        StatusDataException_free(lp_sde);
+        return lp_sde_pos;
+    }
+
+    StatusDataException_free(lp_sde);
+    LPDynaArray lp_da = (LPDynaArray)lp_sde_pos->data;
+
     LPStatusDataException lp_sde_iter;
     for (long i = 0; i < lp_dyna_array->elements_num; i++)
     {
@@ -401,13 +415,20 @@ LPStatusDataException DynaArray_edit_by_element(LPDynaArray lp_dyna_array, Objec
             StatusDataException_free(lp_sde_iter);
             lp_sde_iter = DynaArray_edit_by_position(lp_dyna_array, i, new_element);
             if (lp_sde_iter == NULL_POINTER || lp_sde_iter->status == False)
-                lp_sde->lp_exception->error_some++;
+                lp_sde_pos->lp_exception->error_some++;
+            else
+            {
+                StatusDataException_free(lp_sde_iter);
+                lp_sde_iter = DynaArray_insert(lp_da, lp_da->elements_num, &i);
+                if (lp_sde_iter == NULL_POINTER || lp_sde_iter->status == False)
+                    lp_sde_pos->lp_exception->error_some++;
+            }
         }
         StatusDataException_free(lp_sde_iter);
     }
-    if (lp_sde->lp_exception->error_some != 0)
-        lp_sde->status = False;
-    return lp_sde;
+    if (lp_sde_pos->lp_exception->error_some != 0)
+        lp_sde_pos->status = False;
+    return lp_sde_pos;
 }
 
 LPStatusDataException DynaArray_delete_by_element(LPDynaArray lp_dyna_array, Object old_element)
@@ -527,7 +548,7 @@ LPStatusDataException DynaArray_get_position_by_element(LPDynaArray lp_dyna_arra
         {
             StatusDataException_free(lp_sde_iter);
             lp_sde_iter = DynaArray_insert(lp_dn_l, lp_dn_l->elements_num, &i);
-    
+
             if (lp_sde_iter == NULL_POINTER)
                 lp_sde_pos->lp_exception->error_some++;
             if (lp_sde_iter->status == False)

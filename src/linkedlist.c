@@ -1,6 +1,8 @@
 #include <types.h>
 #include <linkedlist.h>
 #include <stdlib.h>
+#include <malloc.h>
+#include <memory.h>
 
 LPStatusDataException LinkedList_new(long element_size)
 {
@@ -19,6 +21,7 @@ LPStatusDataException LinkedList_new(long element_size)
     lp_linkedlist->lp_head = NULL_POINTER;
     lp_linkedlist->lp_tail = NULL_POINTER;
     lp_linkedlist->elements_num = 0;
+    lp_linkedlist->element_size = element_size;
     lp_sde->data = lp_linkedlist;
     return lp_sde;
 }
@@ -37,8 +40,9 @@ LPStatusDataException LinkedList_free(LPLinkedList lp_linkedlist)
     }
 
     LPLinkedListNode lp_next = lp_linkedlist->lp_head;
-    while (lp_next != NULL_POINTER)
+    for (long i = 1; i < lp_linkedlist->elements_num; i++)
     {
+        free(lp_next->element);
         free(lp_next);
         lp_next = lp_next->next;
     }
@@ -66,8 +70,6 @@ LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object eleme
         return lp_sde;
     }
 
-    lp_sde->data = lp_linkedlist;
-
     LPLinkedListNode lp_new = malloc(sizeof(LinkedListNode));
     if (lp_new == NULL_POINTER)
     {
@@ -76,7 +78,23 @@ LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object eleme
         return lp_sde;
     }
 
-    lp_new->element = element;
+    lp_new->element = malloc(lp_linkedlist->element_size);
+    if (lp_new->element == NULL_POINTER)
+    {
+        free(lp_new);
+        lp_sde->lp_exception->error_malloc = True;
+        lp_sde->status = False;
+        return lp_sde;
+    }
+    if (memcpy((char *)lp_new->element, (char *)element, lp_linkedlist->element_size) == NULL_POINTER)
+    {
+        free(lp_new->element);
+        free(lp_new);
+        lp_sde->lp_exception->error_memcpy = True;
+        lp_sde->status = False;
+        return lp_sde;
+    }
+
     LPLinkedListNode lp_head_tmp = lp_linkedlist->lp_head;
     LPLinkedListNode lp_tail_tmp = lp_linkedlist->lp_tail;
     if (position == 0)
@@ -128,7 +146,7 @@ LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object eleme
 
     lp_linkedlist->elements_num++;
 
-    lp_sde->data = lp_linkedlist;
+    lp_sde->data = lp_new;
     return lp_sde;
 }
 

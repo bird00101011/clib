@@ -3,7 +3,6 @@
 
 typedef void* Object;
 #define NULL_POINTER (Object)0
-#define POINTER_SIZE sizeof(char *)
 
 typedef enum
 {
