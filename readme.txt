@@ -71,8 +71,7 @@ efficiency method to solve the problem, and vice versa.
 
 -------------------------------------------------------------------------------
     NAME   |  CODING  |  TESTING  |  Python Like  |  COMPLETED
- DynaArray                              ❌              ✔   
- ArrayList      ✔
+ DynaArray                              ✔               ✔   
  LinkedList     ✔                          
  HashMap                                          
 -------------------------------------------------------------------------------
@@ -83,6 +82,8 @@ see that the data structure and algorithm are the so-called List instance can
 only be inserted into the same type, which is obviously not good enough, used
 in other data structures such as Pascal language, but also can only insert the
 same type, So how C implements this feature is the requirement to do.
+
+C language implementation Python Like, using pointers**
 
 ## Use
 
