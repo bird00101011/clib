@@ -14,7 +14,6 @@ typedef struct
     LPLinkedListNode lp_head;
     LPLinkedListNode lp_tail;
     long elements_num;
-    long element_size;
 } LinkedList, *LPLinkedList;
 
 LPStatusDataException LinkedList_new(long element_size);

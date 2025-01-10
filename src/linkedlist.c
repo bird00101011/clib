@@ -19,7 +19,6 @@ LPStatusDataException LinkedList_new(long element_size)
     lp_linkedlist->lp_head = NULL_POINTER;
     lp_linkedlist->lp_tail = NULL_POINTER;
     lp_linkedlist->elements_num = 0;
-    lp_linkedlist->element_size = element_size;
     lp_sde->data = lp_linkedlist;
     return lp_sde;
 }
@@ -41,7 +40,7 @@ LPStatusDataException LinkedList_free(LPLinkedList lp_linkedlist)
     while (lp_next != NULL_POINTER)
     {
         free(lp_next);
-        LPLinkedListNode lp_next = lp_linkedlist->lp_head;
+        lp_next = lp_next->next;
     }
 
     free(lp_linkedlist);
@@ -77,18 +76,7 @@ LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object eleme
         return lp_sde;
     }
 
-    int ls = sizeof(long);
-    lp_new->element = malloc(ls);
-    if (memcpy((char *)lp_new->element, (char *)element, lp_linkedlist->element_size) == NULL_POINTER)
-    {
-        free(lp_new->element);
-        free(lp_new);
-
-        lp_sde->lp_exception->error_memcpy = True;
-        lp_sde->status = False;
-        return lp_sde;
-    }
-
+    lp_new->element = element;
     LPLinkedListNode lp_head_tmp = lp_linkedlist->lp_head;
     LPLinkedListNode lp_tail_tmp = lp_linkedlist->lp_tail;
     if (position == 0)
