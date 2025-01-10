@@ -24,14 +24,16 @@ when the code is bug-free, and the latter for debugging bugs.
 
 ninja build: compile: 'ninja', test: 'test.exe', clear: 'ninja -t clean'
 
-CMake build: After VSCode writes the CMakeLists.txt, press 'Ctrl + s' to automatically generate the build directory, and then use VS to open the .sln 
+CMake build: After VSCode writes the CMakeLists.txt, press 'Ctrl + s' to 
+automatically generate the build directory, and then use VS to open the .sln 
 file in the build directory to build, please refer to the search engine for more VS use.
 
 ## Note
 
 The code may not be compiled, and it will be modified and optimized every day 
 to achieve an ideal state, and many designs are unreasonable at present, so the 
-progress can not be too fast, and so on one day I feel that the design is more reasonable, and then it is not too late to quickly advance the progress of the
+progress can not be too fast, and so on one day I feel that the design is more 
+reasonable, and then it is not too late to quickly advance the progress of the
 project, so that the probability of rework and modification in the end will be
 smaller, and the worst case is to write a lot of space but find a new and
 better design, and then the workload of modification will be very large.
@@ -52,7 +54,8 @@ the progress of this project will probably be very slow, it depends on the mood.
 document, [/d./d./d] * New version released
 
 where /d is the number [0-9], the first /d is the version, the second /d is the 
-number of functions, and the third /d is the number of iterations of the original number of functions. The principle is that when the number of
+number of functions, and the third /d is the number of iterations of the 
+original number of functions. The principle is that when the number of
 functions exceeds 10, the version number should be increased by 1, except for
 the first /d can be greater than 9, and the subsequent /d cannot be greater 
 than 9.
