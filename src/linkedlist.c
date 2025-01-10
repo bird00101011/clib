@@ -40,11 +40,16 @@ LPStatusDataException LinkedList_free(LPLinkedList lp_linkedlist)
     }
 
     LPLinkedListNode lp_next = lp_linkedlist->lp_head;
-    for (long i = 1; i < lp_linkedlist->elements_num; i++)
+    LPLinkedListNode lp_tmp = lp_next->next;
+    free(lp_next->element);
+    free(lp_next);
+    lp_next = lp_tmp;
+    for (long i = 1; i < lp_linkedlist->elements_num - 1; i++)
     {
+        lp_tmp = lp_next->next;
         free(lp_next->element);
         free(lp_next);
-        lp_next = lp_next->next;
+        lp_next = lp_tmp;
     }
 
     free(lp_linkedlist);
@@ -63,7 +68,7 @@ LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object eleme
         lp_sde->status = False;
         return lp_sde;
     }
-    if (position < 0 && position > lp_linkedlist->elements_num)
+    if (position < 0 || position > lp_linkedlist->elements_num)
     {
         lp_sde->lp_exception->error_index_out = True;
         lp_sde->status = False;
@@ -94,38 +99,50 @@ LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object eleme
         lp_sde->status = False;
         return lp_sde;
     }
+    lp_new->prev = NULL_POINTER;
+    lp_new->next = NULL_POINTER;
 
     LPLinkedListNode lp_head_tmp = lp_linkedlist->lp_head;
     LPLinkedListNode lp_tail_tmp = lp_linkedlist->lp_tail;
-    if (position == 0)
+    if (lp_linkedlist->elements_num == 0)
     {
         lp_linkedlist->lp_head = lp_new;
-        lp_new->prev = NULL_POINTER;
-
-        if (lp_linkedlist->elements_num == 0)
+        lp_linkedlist->lp_tail = lp_new;
+    }
+    else if (lp_linkedlist->elements_num == 1)
+    {
+        if (position == 0)
         {
-            lp_new->next = NULL_POINTER;
-            lp_linkedlist->lp_tail = lp_new;
+            lp_linkedlist->lp_head = lp_new;
+            lp_new->next = lp_head_tmp;
+            lp_head_tmp->prev = lp_new;
+            lp_linkedlist->lp_tail = lp_head_tmp;
         }
         else
         {
-            lp_new->next = lp_head_tmp;
-            lp_head_tmp->prev = lp_new;
+            lp_linkedlist->lp_tail = lp_new;
+            lp_new->prev = lp_head_tmp;
+            lp_head_tmp->next = lp_new;
         }
     }
     else
     {
-        if (position == lp_linkedlist->elements_num)
+        if (position == 0)
         {
-            lp_tail_tmp->next = lp_new;
-            lp_new->prev = lp_tail_tmp;
-            lp_new->next = NULL_POINTER;
+            lp_linkedlist->lp_head = lp_new;
+            lp_linkedlist->lp_head->next = lp_head_tmp;
+            lp_head_tmp->prev = lp_new;
+        }
+        else if (position == lp_linkedlist->elements_num)
+        {
             lp_linkedlist->lp_tail = lp_new;
+            lp_new->prev = lp_tail_tmp;
+            lp_tail_tmp->next = lp_new;
         }
         else
         {
             LPLinkedListNode lp_next;
-            if (position <= abs(lp_linkedlist->elements_num - position))
+            if (position < abs(lp_linkedlist->elements_num - position))
             {
                 lp_next = lp_head_tmp;
                 for (long i = 1; i <= position; i++)
@@ -138,15 +155,16 @@ LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object eleme
                     lp_next = lp_next->prev;
             }
 
-            lp_new->next = lp_next;
+            lp_next->prev->next = lp_new;
             lp_new->prev = lp_next->prev;
-            lp_next->prev = lp_new;
+            lp_new->next = lp_next;
+            lp_next->prev = lp_new;  
         }
     }
 
     lp_linkedlist->elements_num++;
 
-    lp_sde->data = lp_new;
+    lp_sde->data = lp_new->element;
     return lp_sde;
 }
 
@@ -163,21 +181,44 @@ LPStatusDataException LinkedList_delete_by_position(LPLinkedList lp_linkedlist, 
         return lp_sde;
     }
     lp_sde->data = lp_linkedlist;
-    if (position < 0 && position > lp_linkedlist->elements_num - 1)
+    if (position < 0 || position > lp_linkedlist->elements_num - 1)
     {
         lp_sde->lp_exception->error_index_out = True;
         lp_sde->status = False;
+        return lp_sde;
+    }
+
+    LPLinkedListNode lp_head_tmp = lp_linkedlist->lp_head;
+    LPLinkedListNode lp_head_tail = lp_linkedlist->lp_tail;
+    if (lp_linkedlist->elements_num == 0)
+    {
+        lp_sde->status = False;
+        lp_sde->lp_exception->error_index_out = True;
+    }
+    if (lp_linkedlist->elements_num == 1)
+    {
+        lp_linkedlist->lp_head = NULL_POINTER;
+        lp_linkedlist->lp_tail = NULL_POINTER;
     }
     else
     {
-        LPLinkedListNode lp_node = lp_linkedlist->lp_head;
-        for (long i = 1; i <= position; i++)
+        LPLinkedListNode lp_next;
+        if (position < abs(position - lp_linkedlist->elements_num - 1))
         {
-            lp_node = lp_node->next;
+            lp_next = lp_head_tmp;
+            for (long i = 1; i <= position; i++)
+                lp_next = lp_next->next;
         }
-        lp_node->prev->next = lp_node->next;
-        lp_node->next->prev = lp_node->prev;
-        free(lp_node);
+        else
+        {
+            lp_next = lp_head_tail;
+            for (long i = lp_linkedlist->elements_num - 1; i >= position; i--)
+                lp_next = lp_next->prev;
+        }
+        free(lp_next->element);
+        free(lp_next);
+        lp_next->prev->next = lp_next->next;
+        lp_next->next->prev = lp_next->prev;
     }
     return lp_sde;
 }
@@ -194,25 +235,7 @@ LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, O
         lp_sde->status = False;
         return lp_sde;
     }
-    LPLinkedListNode lp_next = lp_linkedlist->lp_head;
-    long ds = 0;
-    int ls = sizeof(long);
-    for (long i = 1; i < lp_linkedlist->elements_num; i++)
-    {
-        if (memcmp((char *)lp_next, (char *)element, lp_linkedlist->element_size) == 0)
-        {
-            lp_node->prev->next = lp_node->next;
-            lp_node->next->prev = lp_node->prev;
-            free(lp_node);
-            ds++;
-        }
-    }
-    lp_sde->data = malloc(ls);
-    if (memcpy((char *)lp_sde->data, (char *)&ds, ls) == NULL_POINTER)
-    {
-        lp_sde->lp_exception->error_memcpy = True;
-        lp_sde->status = True;
-    }
+
     return lp_sde;
 }
 
@@ -228,7 +251,40 @@ LPStatusDataException LinkedList_get_by_position(LPLinkedList lp_linkedlist, lon
         lp_sde->status = False;
         return lp_sde;
     }
-    LPLinkedListNode lp_next = lp_linkedlist->lp_head;
+    if (position <0 || position > lp_linkedlist->elements_num)
+    {
+        lp_sde->lp_exception->error_index_out = True;
+        lp_sde->status = False;
+        return lp_sde;
+    }
+
+    if (lp_linkedlist->elements_num == 0)
+    {
+        lp_sde->lp_exception->error_index_out = True;
+        lp_sde->status = False;
+    }
+    else if (lp_linkedlist->elements_num == 1)
+    {
+        lp_sde->data = lp_linkedlist->lp_head->element;
+    }
+    else
+    {
+        LPLinkedListNode lp_next;
+        if (position < abs(position - lp_linkedlist->elements_num))
+        {
+            lp_next = lp_linkedlist->lp_head;
+            for (long i = 1; i <= position; i++)
+                lp_next = lp_next->next;
+        }
+        else
+        {
+            lp_next = lp_linkedlist->lp_tail;
+            for (long i = lp_linkedlist->elements_num - 2; i >= position; i--)
+                lp_next = lp_next->prev;
+        }
+        lp_sde->data = lp_next->element;
+    }
+    return lp_sde;
 }
 
 LPStatusDataException LinkedList_get_position_by_element(LPLinkedList lp_linkedlist, Object element);

@@ -21,7 +21,7 @@ typedef struct
     Boolean error_index_out;
     Boolean error_null_pointer;
     long error_some;
-} Exception, * LPException;
+} Exception, *LPException;
 
 LPException Exception_new();
 void Exception_free(LPException e);

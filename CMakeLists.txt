@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(clib VERSION 1.0)
 include_directories(${PROJECT_SOURCE_DIR}/include)
-add_library(clib src/dynaarray.c src/types.c)
+add_library(clib src/linkedlist.c src/dynaarray.c src/types.c)
 add_executable(tests src/tests.c)  
 target_link_libraries(tests clib)

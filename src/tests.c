@@ -1,5 +1,6 @@
 #include <types.h>
 #include <dynaarray.h>
+#include <linkedlist.h>
 #include <stdio.h>
 /*
 printf格式化选项
@@ -20,11 +21,69 @@ printf格式化选项
 */
 
 void test_dnayarray();
+void test_linkedlist();
 
 int main()
 {
-    test_dnayarray();
+    test_linkedlist();
+    // test_dnayarray();
     return 0;
+}
+
+void test_linkedlist()
+{
+    printf("LinkedList Tests......................................\n");
+    LPStatusDataException lp_sde = LinkedList_new(sizeof(int));
+    if (lp_sde == NULL_POINTER || lp_sde->status == False)
+    {
+        printf("LinkedList_new(10): failed\n");
+    }
+    printf("LinkedList_new(10): success\n");
+
+    LPLinkedList lp_ll = (LPLinkedList)lp_sde->data;
+    StatusDataException_free(lp_sde);
+
+    int n, n1, n2, n3, n4, n5, n6, n7, n8, n9;
+    n = 0;
+    n1 = 1;
+    n2 = 2;
+    n3 = 3;
+    n4 = 4;
+    n5 = 5;
+    n6 = 6;
+    n7 = 7;
+    n8 = 8;
+    n9 = 9;
+    StatusDataException_free(LinkedList_insert(lp_ll, &n, lp_ll->elements_num));
+    StatusDataException_free(LinkedList_insert(lp_ll, &n1, lp_ll->elements_num));
+    StatusDataException_free(LinkedList_insert(lp_ll, &n2, lp_ll->elements_num));
+    StatusDataException_free(LinkedList_insert(lp_ll, &n3, lp_ll->elements_num));
+    StatusDataException_free(LinkedList_insert(lp_ll, &n4, lp_ll->elements_num));
+    StatusDataException_free(LinkedList_insert(lp_ll, &n5, lp_ll->elements_num));
+    StatusDataException_free(LinkedList_insert(lp_ll, &n6, lp_ll->elements_num));
+    StatusDataException_free(LinkedList_insert(lp_ll, &n7, lp_ll->elements_num));
+    StatusDataException_free(LinkedList_insert(lp_ll, &n8, lp_ll->elements_num));
+    StatusDataException_free(LinkedList_insert(lp_ll, &n9, lp_ll->elements_num));
+    printf("After inserted 3 '9'\n");
+    StatusDataException_free(LinkedList_insert(lp_ll, &n9, 0));
+    lp_sde = LinkedList_insert(lp_ll, &n9, 1);
+    if (lp_sde->status == False)
+        printf("LinkedList_insert(lp_ll, &n9, 1): failed\n");
+    else
+        printf("LinkedList_insert(lp_ll, &n9, 1): success\n");
+
+    StatusDataException_free(LinkedList_insert(lp_ll, &n9, 3));
+
+    printf("n=0,n1=1,n2=2,n3=3,n4=4,n5=5,n6=6,n7=7,n8=8,n9=9\n");
+    printf("Begin traverse LinkedList instance after inserted 10 numbers in [0..9]:\n");
+    for (long i = 0; i < lp_ll->elements_num; i++)
+    {
+        lp_sde = LinkedList_get_by_position(lp_ll, i);
+        printf("index=%d,element_addr=%p,element_content=%d\n", i, lp_sde->data, *(int *)lp_sde->data);
+        StatusDataException_free(lp_sde);
+    }
+    printf("End traverse\n");
+    LinkedList_free(lp_ll);
 }
 
 void test_dnayarray()
