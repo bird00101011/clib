@@ -158,7 +158,7 @@ LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object eleme
             lp_next->prev->next = lp_new;
             lp_new->prev = lp_next->prev;
             lp_new->next = lp_next;
-            lp_next->prev = lp_new;  
+            lp_next->prev = lp_new;
         }
     }
 
@@ -212,7 +212,7 @@ LPStatusDataException LinkedList_delete_by_position(LPLinkedList lp_linkedlist, 
         else
         {
             lp_next = lp_head_tail;
-            for (long i = lp_linkedlist->elements_num - 1; i >= position; i--)
+            for (long i = lp_linkedlist->elements_num - 2; i >= position; i--)
                 lp_next = lp_next->prev;
         }
         free(lp_next->element);
@@ -251,7 +251,7 @@ LPStatusDataException LinkedList_get_by_position(LPLinkedList lp_linkedlist, lon
         lp_sde->status = False;
         return lp_sde;
     }
-    if (position <0 || position > lp_linkedlist->elements_num)
+    if (position < 0 || position > lp_linkedlist->elements_num)
     {
         lp_sde->lp_exception->error_index_out = True;
         lp_sde->status = False;
