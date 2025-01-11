@@ -104,11 +104,18 @@ void test_linkedlist()
     {
         printf("LinkedList_delete_by_element(lp_ll, &n9): success\n");
         LPDynaArray lp_da = (LPDynaArray)lp_sde->data;
+        StatusDataException_free(lp_sde);
         for (long i = 0; i < lp_da->elements_num; i++)
         {
-            long *data = (long *)DynaArray_get_by_position(lp_da, i)->data;
-            printf("\tindex=%d,element_addr=%p,element_content=%d\n", i, data, *data);
+            lp_sde = DynaArray_get_by_position(lp_da, i);
+            if (lp_sde != NULL_POINTER && lp_sde->status != False)
+            {
+                long *data = (long *)lp_sde->data;
+                printf("\tindex=%d,element_addr=%p,element_content=%d\n", i, data, *data);
+            }
+            StatusDataException_free(lp_sde);
         }
+        StatusDataException_free(DynaArray_free(lp_da));
     }
     printf("n=0,n1=1,n2=2,n3=3,n4=4,n5=5,n6=6,n7=7,n8=8,n9=9\n");
     printf("Begin traverse LinkedList instance: LinkedList instance's head-content=%d, tail-content=%d\n",
@@ -116,7 +123,54 @@ void test_linkedlist()
     linkedlist_pprint(lp_ll);
     printf("End traverse\n");
 
-    LinkedList_free(lp_ll);
+    // LinkedList_edit_by_element(LPLinkedList lp_linkedlist, Object element);
+
+    StatusDataException_free(LinkedList_insert(lp_ll, &n9, 0));
+    StatusDataException_free(LinkedList_insert(lp_ll, &n9, 0));
+    StatusDataException_free(LinkedList_insert(lp_ll, &n9, lp_ll->elements_num));
+    StatusDataException_free(LinkedList_insert(lp_ll, &n9, lp_ll->elements_num));
+
+    lp_sde = LinkedList_get_position_by_element(lp_ll, &n9);
+    if (lp_sde == NULL_POINTER || lp_sde->status == False)
+        printf("LinkedList_get_position_by_element(lp_ll, &n9): failed\n");
+    else
+    {
+        printf("LinkedList_get_position_by_element(lp_ll, &n9): success\n");
+        LPDynaArray lp_da = (LPDynaArray)lp_sde->data;
+        for (long i = 0; i < lp_da->elements_num; i++)
+        {
+            lp_sde = DynaArray_get_by_position(lp_da, i);
+            if (lp_sde != NULL_POINTER && lp_sde->status != False)
+            {
+                long *data = (long *)lp_sde->data;
+                printf("\tindex=%d,element_addr=%p,element_content=%d\n", i, data, *data);
+            }
+            StatusDataException_free(lp_sde);
+        }
+        StatusDataException_free(DynaArray_free(lp_da));
+    }
+
+    StatusDataException_free(LinkedList_edit_by_position(lp_ll, lp_ll->elements_num - 2, &n2));
+    StatusDataException_free(LinkedList_edit_by_position(lp_ll, lp_ll->elements_num - 1, &n2));
+    StatusDataException_free(LinkedList_edit_by_position(lp_ll, 0, &n2));
+    lp_sde = LinkedList_edit_by_position(lp_ll, 1, &n2);
+    if (lp_sde == NULL_POINTER || lp_sde->status == False)
+        printf("LinkedList_edit_by_position(lp_ll, POS[=len-1,len-2]], V[=[&n2]]): failed\n");
+    else
+        printf("LinkedList_edit_by_position(lp_ll, POS[=len-1,len-2]], V[=[&n2]]): success\n");
+    printf("Begin traverse LinkedList instance:\n");
+    linkedlist_pprint(lp_ll);
+    printf("End traverse\n");
+
+    lp_sde = LinkedList_edit_by_element(lp_ll, &n2, &n9);
+    if (lp_sde == NULL_POINTER || lp_sde->status == False)
+        printf("LinkedList_edit_by_element(lp_ll, &n2, &n9): failed\n");
+    else
+        printf("LinkedList_edit_by_element(lp_ll, &n2, &n9): success\n");
+    printf("Begin traverse LinkedList instance:\n");
+    linkedlist_pprint(lp_ll);
+    printf("End traverse\n");
+    StatusDataException_free(LinkedList_free(lp_ll));
 }
 
 void test_dnayarray()

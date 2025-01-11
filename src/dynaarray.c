@@ -548,9 +548,7 @@ LPStatusDataException DynaArray_get_position_by_element(LPDynaArray lp_dyna_arra
             StatusDataException_free(lp_sde_iter);
             lp_sde_iter = DynaArray_insert(lp_dn_l, lp_dn_l->elements_num, &i);
 
-            if (lp_sde_iter == NULL_POINTER)
-                lp_sde_pos->lp_exception->error_some++;
-            if (lp_sde_iter->status == False)
+            if (lp_sde_iter == NULL_POINTER|| lp_sde_iter->status == False)
                 lp_sde_pos->lp_exception->error_some++;
         }
         StatusDataException_free(lp_sde_iter);

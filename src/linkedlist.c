@@ -450,6 +450,7 @@ LPStatusDataException LinkedList_get_position_by_element(LPLinkedList lp_linkedl
                 if (lp_sde_da == NULL_POINTER || lp_sde_da->status == False)
                     lp_sde->lp_exception->error_some++;
             }
+            lp_iter = lp_iter->next;
         }
     }
 
@@ -497,13 +498,13 @@ LPStatusDataException LinkedList_edit_by_position(LPLinkedList lp_linkedlist, lo
         if (position < abs(position - lp_linkedlist->elements_num - 1))
         {
             lp_iter = lp_linkedlist->lp_head;
-            for (long i = 0; i < lp_linkedlist->elements_num; i++)
+            for (long i = 1; i <= position; i++)
                 lp_iter = lp_iter->next;
         }
         else
         {
             lp_iter = lp_linkedlist->lp_tail;
-            for (long i = lp_linkedlist->elements_num - 1; i >= position; i--)
+            for (long i = lp_linkedlist->elements_num - 2; i >= position; i--)
                 lp_iter = lp_iter->prev;
         }
         if (memcpy((char *)lp_iter->element, (char *)element, lp_linkedlist->element_size) == NULL_POINTER)
@@ -518,13 +519,13 @@ LPStatusDataException LinkedList_edit_by_position(LPLinkedList lp_linkedlist, lo
     return lp_sde;
 }
 
-LPStatusDataException LinkedList_edit_by_element(LPLinkedList lp_linkedlist, Object element)
+LPStatusDataException LinkedList_edit_by_element(LPLinkedList lp_linkedlist, Object old_element, Object new_element)
 {
     LPStatusDataException lp_sde = StatusDataException_new();
     if (lp_sde == NULL_POINTER)
         return lp_sde;
 
-    if (lp_linkedlist == NULL_POINTER || element == NULL_POINTER)
+    if (lp_linkedlist == NULL_POINTER || old_element == NULL_POINTER || new_element == NULL_POINTER)
     {
         lp_sde->lp_exception->error_null_pointer = True;
         lp_sde->status = False;
@@ -556,12 +557,20 @@ LPStatusDataException LinkedList_edit_by_element(LPLinkedList lp_linkedlist, Obj
     LPLinkedListNode lp_iter = lp_linkedlist->lp_head;
     for (long i = 0; i < lp_linkedlist->elements_num; i++)
     {
-        if (memcmp((char *)lp_iter->element, (char *)element, lp_linkedlist->element_size) == 0)
+        if (memcmp((char *)lp_iter->element, (char *)old_element, lp_linkedlist->element_size) == 0)
         {
-            lp_sde_da = DynaArray_insert(lp_da, lp_da->elements_num);
-            if (lp_sde_da == NULL_POINTER || lp_sde_da->status == False)
-                lp_sde->lp_exception->error_some++;
-            StatusDataException_free(lp_sde_da);
+            if (memcpy((char *)lp_iter->element, (char *)new_element, lp_linkedlist->element_size) == NULL_POINTER)
+            {
+                lp_sde->lp_exception->error_memcpy = True;
+            }
+            else
+            {
+                lp_sde_da = DynaArray_insert(lp_da, lp_da->elements_num, &i);
+                if (lp_sde_da == NULL_POINTER || lp_sde_da->status == False)
+                    lp_sde->lp_exception->error_some++;
+
+                StatusDataException_free(lp_sde_da);
+            }
         }
         lp_iter = lp_iter->next;
     }

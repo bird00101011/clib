@@ -32,6 +32,6 @@ LPStatusDataException LinkedList_get_position_by_element(LPLinkedList lp_linkedl
 
 LPStatusDataException LinkedList_edit_by_position(LPLinkedList lp_linkedlist, long position, Object element);
 
-LPStatusDataException LinkedList_edit_by_element(LPLinkedList lp_linkedlist, Object element);
+LPStatusDataException LinkedList_edit_by_element(LPLinkedList lp_linkedlist, Object old_element, Object new_object);
 
 #endif
