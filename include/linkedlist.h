@@ -30,7 +30,7 @@ LPStatusDataException LinkedList_get_by_position(LPLinkedList lp_linkedlist, lon
 
 LPStatusDataException LinkedList_get_position_by_element(LPLinkedList lp_linkedlist, Object element);
 
-LPStatusDataException LinkedList_edit_by_position(LPLinkedList lp_linkedlist, long position);
+LPStatusDataException LinkedList_edit_by_position(LPLinkedList lp_linkedlist, long position, Object element);
 
 LPStatusDataException LinkedList_edit_by_element(LPLinkedList lp_linkedlist, Object element);
 

@@ -22,7 +22,7 @@ back at a famous open source project.
 This project uses two build tools, ninja and CMake, the former for building 
 when the code is bug-free, and the latter for debugging bugs.
 
-ninja build: compile: 'ninja', test: 'test.exe', clear: 'ninja -t clean'
+ninja build: compile: 'ninja', test: 'tests.exe', clear: 'ninja -t clean'
 
 CMake build: After VSCode writes the CMakeLists.txt, press 'Ctrl + s' to 
 automatically generate the build directory, and then use VS to open the .sln 
