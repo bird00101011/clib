@@ -25,8 +25,8 @@ void test_linkedlist();
 
 int main()
 {
-    // test_dnayarray();
-    test_linkedlist();
+    test_dnayarray();
+    // test_linkedlist();
     return 0;
 }
 
@@ -298,7 +298,7 @@ void test_dnayarray()
         printf("DynaArray_edit_position_by_element(al, &n1): failed\n");
     else
     {
-        printf("DynaArray_get_position_by_element(al, &n1): success\n");
+        printf("DynaArray_edit_position_by_element(al, &n1): success\n");
         printf("n=101,n1=1,n2=2,n3=3,n4=4,n5=5,n6=6,n7=7,n8=8,n9=1,int o=1000\n");
         printf("Begin traverse index of DynaArray_edit_by_element(al, &n1):\n");
         LPDynaArray rows = (LPDynaArray)lde->data;
@@ -322,6 +322,25 @@ void test_dnayarray()
         StatusDataException_free(lde);
     }
     printf("End traverse DynaArray instance.\n");
+
+    lde = DynaArray_delete_by_element(al, &o);
+    if (lde == NULL_POINTER || lde->status == False)
+        printf("DynaArray_delete_by_element(al, &o): failed\n");
+    else
+    {
+        printf("DynaArray_delete_by_element(al, &o): failed\n");
+        printf("n=101,n1=1,n2=2,n3=3,n4=4,n5=5,n6=6,n7=7,n8=8,n9=1,int o=1000\n");
+        printf("Begin traverse index of DynaArray_delete_by_element(al, &o):\n");
+        LPDynaArray rows = (LPDynaArray)lde->data;
+        StatusDataException_free(lde);
+        for (long index = 0; index < rows->elements_num; index++)
+        {
+            lde = DynaArray_get_by_position(rows, index);
+            printf("\tindex=%d, element_addr=%p, element_content=%d, element_content=%d\n", index, (long *)lde->data, *(long *)lde->data, *((long *)rows->elements + index));
+            StatusDataException_free(lde);
+        }
+        printf("End traverse DynaArray instance.\n");
+    }
 
     DynaArray_free(al);
 }

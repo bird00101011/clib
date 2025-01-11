@@ -477,8 +477,7 @@ LPStatusDataException DynaArray_delete_by_element(LPDynaArray lp_dyna_array, Obj
             lp_sde_iter = DynaArray_delete_by_position(lp_dyna_array, i);
             if (lp_sde_iter == NULL_POINTER || lp_sde_iter->status == False)
                 lp_sde->lp_exception->error_some++;
-            else
-                i--;
+            i--;
         }
         StatusDataException_free(lp_sde_iter);
     }
