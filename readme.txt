@@ -71,8 +71,8 @@ efficiency method to solve the problem, and vice versa.
 
 -------------------------------------------------------------------------------
     NAME   |  CODING  |  TESTING  |  Python Like  |  COMPLETED
- DynaArray                              ✔               ✔   
- LinkedList     ✔                          
+ DynaArray                               ✔              ✔   
+ LinkedList                              ✔              ✔
  HashMap                                          
 -------------------------------------------------------------------------------
 
