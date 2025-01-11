@@ -22,11 +22,12 @@ printf格式化选项
 
 void test_dnayarray();
 void test_linkedlist();
+void linkedlist_pprint(LPLinkedList);
 
 int main()
 {
-    test_dnayarray();
-    // test_linkedlist();
+    // test_dnayarray();
+    test_linkedlist();
     return 0;
 }
 
@@ -78,13 +79,43 @@ void test_linkedlist()
 
     printf("n=0,n1=1,n2=2,n3=3,n4=4,n5=5,n6=6,n7=7,n8=8,n9=9\n");
     printf("Begin traverse LinkedList instance after inserted 10 numbers in [0..9]:\n");
-    for (long i = 0; i < lp_ll->elements_num; i++)
-    {
-        lp_sde = LinkedList_get_by_position(lp_ll, i);
-        printf("\tindex=%d,element_addr=%p,element_content=%d\n", i, lp_sde->data, *(int *)lp_sde->data);
-        StatusDataException_free(lp_sde);
-    }
+    linkedlist_pprint(lp_ll);
     printf("End traverse\n");
+
+    lp_sde = LinkedList_delete_by_position(lp_ll, 1);
+    StatusDataException_free(lp_sde);
+    lp_sde = LinkedList_delete_by_position(lp_ll, 2);
+    StatusDataException_free(lp_sde);
+    lp_sde = LinkedList_delete_by_position(lp_ll, 3);
+    if (lp_sde == NULL_POINTER || lp_sde->status == False)
+        printf("LinkedList_delete_by_position(lp_ll, X){x=[1,2,3] one by one}: failed\n");
+    else
+        printf("LinkedList_delete_by_position(lp_ll, X){x=[1,2,3] one by one}: success\n");
+
+    printf("n=0,n1=1,n2=2,n3=3,n4=4,n5=5,n6=6,n7=7,n8=8,n9=9\n");
+    printf("Begin traverse LinkedList instance:\n");
+    linkedlist_pprint(lp_ll);
+    printf("End traverse\n");
+
+    lp_sde = LinkedList_delete_by_element(lp_ll, &n9);
+    if (lp_sde == NULL_POINTER || lp_sde->status == False)
+        printf("LinkedList_delete_by_element(lp_ll, &n9): failed\n");
+    else
+    {
+        printf("LinkedList_delete_by_element(lp_ll, &n9): success\n");
+        LPDynaArray lp_da = (LPDynaArray)lp_sde->data;
+        for (long i = 0; i < lp_da->elements_num; i++)
+        {
+            long *data = (long *)DynaArray_get_by_position(lp_da, i)->data;
+            printf("\tindex=%d,element_addr=%p,element_content=%d\n", i, data, *data);
+        }
+    }
+    printf("n=0,n1=1,n2=2,n3=3,n4=4,n5=5,n6=6,n7=7,n8=8,n9=9\n");
+    printf("Begin traverse LinkedList instance: LinkedList instance's head-content=%d, tail-content=%d\n",
+           *(int *)lp_ll->lp_head->element, *(int *)lp_ll->lp_tail->element);
+    linkedlist_pprint(lp_ll);
+    printf("End traverse\n");
+
     LinkedList_free(lp_ll);
 }
 
@@ -328,7 +359,7 @@ void test_dnayarray()
         printf("DynaArray_delete_by_element(al, &o): failed\n");
     else
     {
-        printf("DynaArray_delete_by_element(al, &o): failed\n");
+        printf("DynaArray_delete_by_element(al, &o): success\n");
         printf("n=101,n1=1,n2=2,n3=3,n4=4,n5=5,n6=6,n7=7,n8=8,n9=1,int o=1000\n");
         printf("Begin traverse index of DynaArray_delete_by_element(al, &o):\n");
         LPDynaArray rows = (LPDynaArray)lde->data;
@@ -343,4 +374,15 @@ void test_dnayarray()
     }
 
     DynaArray_free(al);
+}
+
+void linkedlist_pprint(LPLinkedList lp_ll)
+{
+    LPStatusDataException lp_sde;
+    for (long i = 0; i < lp_ll->elements_num; i++)
+    {
+        lp_sde = LinkedList_get_by_position(lp_ll, i);
+        printf("\tindex=%d,element_addr=%p,element_content=%d\n", i, lp_sde->data, *(int *)lp_sde->data);
+        StatusDataException_free(lp_sde);
+    }
 }

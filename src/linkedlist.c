@@ -277,6 +277,7 @@ LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, O
     LPDynaArray lp_da_pos = (LPDynaArray)lp_sde_dn->data;
     StatusDataException_free(lp_sde_dn);
 
+    long i = 0;
     if (lp_linkedlist->elements_num == 0)
     {
         lp_sde->lp_exception->error_index_out = True;
@@ -291,11 +292,11 @@ LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, O
             lp_linkedlist->lp_head = NULL_POINTER;
             lp_linkedlist->lp_tail = NULL_POINTER;
             lp_linkedlist->elements_num--;
-            long i = 0;
-            lp_sde_dn = DynaArray_insert(lp_da_pos, i, &i);
+            lp_sde_dn = DynaArray_insert(lp_da_pos, lp_da_pos->elements_num, &i);
 
             if (lp_sde_dn == NULL_POINTER || lp_sde_dn->status == False)
                 lp_sde->lp_exception->error_some++;
+            StatusDataException_free(lp_sde_dn);
 
             lp_linkedlist->elements_num = 0;
         }
@@ -306,7 +307,7 @@ LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, O
     {
         LPLinkedListNode lp_iter, lp_tmp;
         lp_iter = lp_linkedlist->lp_head;
-        if (memcmp((char *)lp_iter, (char *)element, lp_linkedlist->element_size) == 0)
+        if (memcmp((char *)lp_iter->element, (char *)element, lp_linkedlist->element_size) == 0)
         {
             lp_tmp = lp_iter->next;
             free(lp_iter->element);
@@ -315,11 +316,15 @@ LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, O
             lp_linkedlist->lp_head = lp_iter;
             lp_iter->prev = NULL_POINTER;
             lp_linkedlist->elements_num--;
+            lp_sde_dn = DynaArray_insert(lp_da_pos, lp_da_pos->elements_num, &i);
+            if (lp_sde_dn == NULL_POINTER || lp_sde_dn->status == False)
+                lp_sde->lp_exception->error_some++;
+            StatusDataException_free(lp_sde_dn);
         }
         long z = lp_linkedlist->elements_num;
-        for (long j = 1; j < z; j++)
+        for (i = 1; i < z; i++)
         {
-            if (memcmp((char *)lp_iter, (char *)element, lp_linkedlist->element_size) == 0)
+            if (memcmp((char *)lp_iter->element, (char *)element, lp_linkedlist->element_size) == 0)
             {
                 lp_tmp = lp_iter->next;
                 lp_tmp->prev = lp_iter->prev;
@@ -334,8 +339,25 @@ LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, O
                 free(lp_iter);
                 lp_iter = lp_tmp;
                 lp_linkedlist->elements_num--;
+                lp_sde_dn = DynaArray_insert(lp_da_pos, lp_da_pos->elements_num, &i);
+                if (lp_sde_dn == NULL_POINTER || lp_sde_dn->status == False)
+                    lp_sde->lp_exception->error_some++;
+                StatusDataException_free(lp_sde_dn);
             }
             lp_iter = lp_iter->next;
+        }
+        if (memcmp((char *)lp_iter->element, (char *)element, lp_linkedlist->element_size) == 0)
+        {
+            lp_tmp = lp_iter->prev;
+            lp_tmp->next = NULL_POINTER;
+            lp_linkedlist->lp_tail = lp_tmp;
+            lp_linkedlist->elements_num--;
+            free(lp_iter->element);
+            free(lp_iter);
+            lp_sde_dn = DynaArray_insert(lp_da_pos, lp_da_pos->elements_num, &i);
+            if (lp_sde_dn == NULL_POINTER || lp_sde_dn->status == False)
+                lp_sde->lp_exception->error_some++;
+            StatusDataException_free(lp_sde_dn);
         }
     }
     lp_sde->data = lp_da_pos;
