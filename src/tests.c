@@ -2,6 +2,8 @@
 #include <dynaarray.h>
 #include <linkedlist.h>
 #include <stdio.h>
+#include <memory.h>
+#include <malloc.h>
 /*
 printf格式化选项
 %d 十进制有符号整数
@@ -27,7 +29,7 @@ void linkedlist_pprint(LPLinkedList);
 int main()
 {
     // test_dnayarray();
-    test_linkedlist();
+    // test_linkedlist();
     return 0;
 }
 
