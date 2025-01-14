@@ -67,24 +67,6 @@ Efficiency > stipulates, that is, in the way of solving problems, when the
 benefits of efficiency are greater than the benefits of the rules, then use the 
 efficiency method to solve the problem, and vice versa.
 
-## Status
-
--------------------------------------------------------------------------------
-    NAME   |  CODING  |  TESTING  |  Python Like  |  COMPLETED
- DynaArray                               ✔              ✔   
- LinkedList                              ✔              ✔
- HashMap        ✔                                   
--------------------------------------------------------------------------------
-
-Explanation: What is Python Like, in Python a List instance can be inserted 
-into different types, both int and class, then in the c language, we usually 
-see that the data structure and algorithm are the so-called List instance can 
-only be inserted into the same type, which is obviously not good enough, used
-in other data structures such as Pascal language, but also can only insert the
-same type, So how C implements this feature is the requirement to do.
-
-C language implementation Python Like, using pointers**
-
 ## Use
 
 For more information on how to use it, check out the source code in tests.c, 
