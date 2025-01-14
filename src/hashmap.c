@@ -360,7 +360,7 @@ LPStatusDataException HashMap_put(LPHashMap lp_map, Object key, long key_size, O
     return lp_sde;
 }
 
-LPStatusDataException HashMap_get(LPHashMap lp_map, Object key)
+LPStatusDataException HashMap_get(LPHashMap lp_map, Object key, long key_size)
 {
     LPStatusDataException lp_sde = StatusDataException_new();
     if (lp_sde == NULL_POINTER)
@@ -372,8 +372,68 @@ LPStatusDataException HashMap_get(LPHashMap lp_map, Object key)
         lp_sde->status = False;
         return lp_sde;
     }
-    // TODO
 
+    LPStatusDataException lp_sde_hc = HashMap_gen_hash_code(lp_map, key, key_size);
+    if (lp_sde_hc == NULL_POINTER)
+    {
+        StatusDataException_free(lp_sde_hc);
+        lp_sde->lp_exception->error_null_pointer = True;
+        lp_sde->status = False;
+        return lp_sde;
+    }
+
+    if (lp_sde_hc->status == False)
+    {
+        StatusDataException_free(lp_sde);
+        return lp_sde_hc;
+    }
+
+    long *lp_hash_code = (long *)lp_sde_hc->data;
+    StatusDataException_free(lp_sde_hc);
+    lp_sde_hc = DynaArray_get_by_position(lp_map->items, *lp_hash_code);
+    if (lp_sde_hc == NULL_POINTER)
+    {
+        lp_sde->lp_exception->error_null_pointer = True;
+        lp_sde->status = False;
+        free(lp_hash_code);
+        return lp_sde;
+    }
+    if (lp_sde_hc->status == False)
+    {
+        StatusDataException_free(lp_sde);
+        free(lp_hash_code);
+        return lp_sde_hc;
+    }
+
+    LPLinkedList lp_ll = (LPLinkedList)lp_sde_hc->data;
+    StatusDataException_free(lp_sde_hc);
+    if (lp_ll->elements_num == 0)
+    {
+        lp_sde->status = False;
+        free(lp_hash_code);
+        return lp_sde;
+    }
+
+    LPLinkedListNode lp_lln == lp_ll->lp_head;
+    if (key_size == lp_lln->key_size)
+        if (memcmp((char *)lp_lln->key, (char *)key, key_size) == 0)
+        {
+            lp_sde->data = lp_lln->value;
+            return lp_sde;
+        }
+
+    for (long i = 1; i < lp_ll->elements_num; i++)
+    {
+        lp_lln == lp_ll->next;
+        if (key_size == lp_lln->key_size)
+            if (memcmp((char *)lp_lln->key, (char *)key, key_size) == 0)
+            {
+                lp_sde->data = lp_lln->value;
+                return lp_sde;
+            }
+    }
+
+    lp_sde->status = False;
     return lp_sde;
 }
 
