@@ -596,7 +596,8 @@ LPStatusDataException DynaArray_edit_by_element(LPDynaArray lp_dyna_array, Objec
  *
  * return: LPStatusDataException
  *
- * exceptions: []
+ * exceptions: [error_null_pointer, error_index_out, error_malloc, error_realloc,
+ *              error_memset, error_callback, error_memove]
  */
 LPStatusDataException DynaArray_delete_by_element(LPDynaArray lp_dyna_array, Object old_element, Boolean (*func)(Object))
 {
@@ -677,7 +678,8 @@ LPStatusDataException DynaArray_delete_by_element(LPDynaArray lp_dyna_array, Obj
  *
  * return: LPStatusDataException that contains indexes dyna array
  *
- * exceptions: [error_null_pointer, error_index_out]
+ * exceptions: [error_null_pointer, error_index_out, error_malloc, error_memset,
+ *              error_realloc, error_memove, error_memcpy]
  */
 LPStatusDataException DynaArray_get_position_by_element(LPDynaArray lp_dyna_array, Object element)
 {
@@ -759,7 +761,6 @@ LPStatusDataException DynaArray_get_position_by_element(LPDynaArray lp_dyna_arra
                 lp_sde->lp_exception->error_memove += lp_sde_iter->lp_exception->error_memove;
                 lp_sde->lp_exception->error_memcpy += lp_sde_iter->lp_exception->error_memcpy;
                 lp_sde->status = False;
-                continue;
             }
         }
         StatusDataException_free(lp_sde_iter);
