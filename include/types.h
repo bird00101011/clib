@@ -1,3 +1,4 @@
+// The project base type
 #ifndef TYPES_H
 #define TYPES_H
 

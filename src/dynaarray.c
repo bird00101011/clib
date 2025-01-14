@@ -1,3 +1,4 @@
+// c dynamic array implementation
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
@@ -112,7 +113,7 @@ LPStatusDataException DynaArray_free(LPDynaArray lp_dyna_array, Boolean (*func)(
                 }
                 free(lp_sde_iter->data);
 
-                lp_dyna_array->element_num--;
+                lp_dyna_array->elements_num--;
             }
 
             free(lp_dyna_array->elements);
@@ -422,7 +423,7 @@ LPStatusDataException DynaArray_get_by_position(LPDynaArray lp_dyna_array, long 
 {
     LPStatusDataException lp_sde = StatusDataException_new();
     if (lp_sde == NULL_POINTER)
-        return sde;
+        return lp_sde;
 
     if (lp_dyna_array == NULL_POINTER)
     {
