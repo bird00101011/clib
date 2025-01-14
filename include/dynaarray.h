@@ -11,15 +11,15 @@ typedef struct
 } DynaArray, *LPDynaArray;
 
 LPStatusDataException DynaArray_new(long capacity, long element_size);
-LPStatusDataException DynaArray_free(LPDynaArray lp_dyna_array);
+LPStatusDataException DynaArray_free(LPDynaArray lp_dyna_array, Boolean (*func)(Object));
 
 LPStatusDataException DynaArray_reallocate(LPDynaArray lp_dyna_array, long new_capacity);
 
 LPStatusDataException DynaArray_insert(LPDynaArray lp_dyna_array, long position, Object element);
 
-LPStatusDataException DynaArray_delete_by_position(LPDynaArray lp_dyna_array, long position);
+LPStatusDataException DynaArray_delete_by_position(LPDynaArray lp_dyna_array, long position, Boolean (*func)(Object));
 
-LPStatusDataException DynaArray_delete_by_element(LPDynaArray lp_dyna_array, Object element);
+LPStatusDataException DynaArray_delete_by_element(LPDynaArray lp_dyna_array, Object element, Boolean (*func)(Object));
 
 LPStatusDataException DynaArray_edit_by_position(LPDynaArray lp_dyna_array, long position, Object element);
 
