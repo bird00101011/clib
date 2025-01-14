@@ -6,15 +6,15 @@ LPException Exception_new()
     LPException lp_e = malloc(sizeof(Exception));
     if (lp_e != NULL_POINTER)
     {
-        lp_e->error_index_out = False;
+        lp_e->error_index_out = 0;
         lp_e->error_some = 0;
-        lp_e->error_malloc = False;
-        lp_e->error_memcpy = False;
-        lp_e->error_memove = False;
-        lp_e->error_memset = False;
-        lp_e->error_null_pointer = False;
-        lp_e->error_realloc = False;
-        lp_e->error_memcmp = False;
+        lp_e->error_malloc = 0;
+        lp_e->error_memcpy = 0;
+        lp_e->error_memove = 0;
+        lp_e->error_memset = 0;
+        lp_e->error_null_pointer = 0;
+        lp_e->error_realloc = 0;
+        lp_e->error_memcmp = 0;
     }
 
     return lp_e;

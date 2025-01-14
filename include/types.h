@@ -1,7 +1,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-typedef void* Object;
+typedef void *Object;
 #define NULL_POINTER (Object)0
 
 typedef enum
@@ -12,15 +12,15 @@ typedef enum
 
 typedef struct
 {
-    Boolean error_malloc;
-    Boolean error_realloc;
-    Boolean error_memset;
-    Boolean error_memove;
-    Boolean error_memcpy;
-    Boolean error_memcmp;
-    Boolean error_index_out;
-    Boolean error_null_pointer;
-    long error_some;
+    long error_malloc;
+    long error_realloc;
+    long error_memset;
+    long error_memove;
+    long error_memcpy;
+    long error_memcmp;
+    long error_index_out;
+    long error_null_pointer;
+    long error_callback;
 } Exception, *LPException;
 
 LPException Exception_new();
