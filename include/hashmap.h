@@ -12,16 +12,16 @@ typedef struct
     long value_size;
 } HashMapNode, *LPHashMapNode;
 
-LPHashMapNode _hashmapnode_new(Object key, Object value, long key_size, long value_size);
-void _hashmapnode_free(LPHashMapNode lp_hmn);
-Boolean _hashmap_init(LPHashMap lp_map);
+LPStatusDataException _hashmapnode_new(Object key, Object value, long key_size, long value_size) void _hashmapnode_free(LPHashMapNode lp_hmn);
+void _hashmapnode_free(LPHashMapNode lp_hmn)
 
-typedef struct
+    typedef struct
 {
     LPDynaArray items; // 存元素是LPHashMapNode的LinkedList实例
 } HashMap, *LPHashMap;
 
 LPStatusDataException HashMap_new();
+LPStatusDataException _hashmap_init(LPHashMap lp_map);
 LPStatusDataException HashMap_free(LPHashMap lp_map);
 
 LPStatusDataException HashMap_gen_hash_code(LPHashMap lp_map, Object key, long key_size);

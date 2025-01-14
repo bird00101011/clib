@@ -6,11 +6,19 @@
 #include <memory.h>
 #include <malloc.h>
 
-LPHashMapNode _hashmapnode_new(Object key, Object value, long key_size, long value_size)
+LPStatusDataException _hashmapnode_new(Object key, Object value, long key_size, long value_size)
 {
+    LPStatusDataException lp_sde = StatusDataException_new();
+    if (lp_sde == NULL_POINTER)
+        return lp_sde;
+
     LPHashMapNode lp_hmn = malloc(sizeof(HashMapNode));
     if (lp_hmn == NULL_POINTER)
-        return lp_hmn;
+    {
+        lp_sde->lp_exception->error_malloc = True;
+        lp_sde->status = False;
+        return lp_sde;
+    }
 
     if (key == NULL_POINTER)
     {
@@ -23,7 +31,18 @@ LPHashMapNode _hashmapnode_new(Object key, Object value, long key_size, long val
         if (lp_hm->key == NULL_POINTER)
         {
             _hashmapnode_free(lp_hmn);
-            lp_hmn = NULL_POINTER;
+            lp_sde->lp_exception->error_malloc = True;
+            lp_sde->status = False;
+        }
+        else
+        {
+            if (memcpy((char *)lp_hmn->key, (char *)key, key_size) == NULL_POINTER)
+            {
+                _hashmapnode_free(lp_hmn);
+                lp_sde->lp_exception->error_memcpy = True;
+                lp_sde->status = False;
+                return lp_sde;
+            }
         }
     }
 
@@ -38,11 +57,22 @@ LPHashMapNode _hashmapnode_new(Object key, Object value, long key_size, long val
         if (lp_hmn->value == NULL_POINTER)
         {
             _hashmapnode_free(lp_hmn);
-            lp_hmn = NULL_POINTER;
+            lp_sde->lp_exception->error_malloc = True;
+            lp_sde->status = False;
+            return lp_sde;
+        }
+        else
+        {
+            if (memcpy((char *)lp_hmn->key, (char *)key, key_size) == NULL_POINTER)
+            {
+                _hashmapnode_free(lp_hmn);
+                lp_sde->lp_exception->error_memcpy = True;
+                lp_sde->status = False;
+            }
         }
     }
 
-    return lp_hmn;
+    return lp_sde;
 }
 
 void _hashmapnode_free(LPHashMapNode lp_hmn)
@@ -59,35 +89,39 @@ void _hashmapnode_free(LPHashMapNode lp_hmn)
     }
 }
 
-Boolean _hashmap_init(LPHashMap lp_map)
+LPStatusDataException _hashmap_init(LPHashMap lp_map)
 {
-    if (lp_map == NULL_POINTER)
-        return False;
+    LPStatusDataException lp_sde = StatusDataException_new();
+    if (lp_sde == NULL_POINTER)
+        return lp_sde;
 
-    LPHashMapNode lp_new = _hashmapnode_new(NULL_POINTER, NULL_POINTER, 0, 0);
-    if (lp_new == NULL_POINTER)
+    if (lp_map == NULL_POINTER)
     {
-        return False;
+        lp_sde->lp_exception->error_null_pointer = True;
+        return lp_sde;
     }
 
-    LPStatusDataException lp_sde;
-    Boolean errable = False;
-    int i;
+    StatusDataException_free(lp_sde);
+    lp_sde = LinkedList_new(sizeof(HashMapNode));
+    if (lp_sde == NULL_POINTER || lp_sde->status == False)
+        return lp_sde;
 
-    for (i = 0; i < 16; i++)
+    LPLinkedList lp_ll = (LinkedList)lp_sde->data;
+    StatusDataException_free(lp_sde);
+
+    Boolean errable = False;
+    for (int i = 0; i < 16; i++)
     {
-        lp_sde = DynaArray_insert(lp_map->items, lp_map->items->elements_num, lp_new);
+        lp_sde = DynaArray_insert(lp_map->items, lp_map->items->elements_num, lp_ll);
 
         if (lp_sde == NULL_POINTER)
         {
-            free(lp_new);
             errable = True;
             break;
         }
 
         if (lp_sde->status == False)
         {
-            free(lp_new);
             StatusDataException_free(lp_sde);
             errable = True;
             break;
@@ -96,10 +130,19 @@ Boolean _hashmap_init(LPHashMap lp_map)
         StatusDataException_free(lp_sde);
     }
 
-    if (errable == False)
-        return True;
+    lp_sde = LinkedList_free(lp_ll);
+    if (lp_sde == NULL_POINTER || lp_sde->status == False)
+        return lp_sde;
 
-    return False;
+    if (errable == False)
+    {
+        lp_sde->data = lp_map;
+        lp_sde->status == True;
+    }
+    else
+        lp_sde->status = False;
+
+    return lp_sde;
 }
 
 LPStatusDataException HashMap_new()
@@ -132,12 +175,21 @@ LPStatusDataException HashMap_new()
 
     lp_hm->items = (LPDynaArray)lp_sde_da->data;
     StatusDataException_free(lp_sde_da);
-    if (_hashmap_init(lp_hm) == False)
+    lp_sde_da = _hashmap_init(lp_hm);
+
+    if (lp_sde_da == NULL_POINTER)
     {
-        lp_sde->lp_exception->error_some++;
+        lp_sde->lp_exception->error_null_pointer = True;
         lp_sde->status = False;
         HashMap_free(lp_hm);
         return lp_sde;
+    }
+
+    if (lp_sde_da->status == False)
+    {
+        StatusDataException_free(lp_sde);
+        HashMap_free(lp_hm);
+        return lp_sde_da;
     }
 
     lp_sde->data = lp_hm;
@@ -157,7 +209,75 @@ LPStatusDataException HashMap_free(LPHashMap lp_map)
         return lp_sde;
     }
 
-    DynaArray_free();
+    LPStatusDataException lp_sde_iter;
+    LPLinkedList lp_ll;
+    LPLinkedListNode lp_hmn;
+    for (long i = 0; i < lp_map->items->elements_num; i++)
+    {
+        lp_sde_iter = DynaArray_get_by_position(lp_map->items, i);
+        if (lp_sde_iter == NULL_POINTER)
+        {
+            lp_sde->lp_exception->error_some++;
+            continue;
+        }
+        if (lp_sde_iter->status == False)
+        {
+            StatusDataException_free(lp_sde_iter);
+            lp_sde->lp_exception->error_some++;
+            continue;
+        }
+
+        lp_ll = (LPLinkedList)lp_sde_iter->data;
+        StatusDataException_free(lp_sde_iter);
+        for (long j = 0; j < lp_ll->elements_num; j++)
+        {
+            lp_sde_iter = LinkedList_get_by_position(lp_ll, i);
+            if (lp_sde_iter == NULL_POINTER)
+            {
+                lp_sde->lp_exception->error_some++;
+                continue;
+            }
+            if (lp_sde_iter->status == False)
+            {
+                StatusDataException_free(lp_sde_iter);
+                lp_sde->lp_exception->error_some++;
+                continue;
+            }
+            lp_hmn = (LPLinkedList)lp_sde_iter->data;
+            StatusDataException_free(lp_sde_iter);
+            _hashmapnode_free(lp_hmn);
+        }
+
+        lp_sde_iter = LinkedList_free(lp_ll);
+        if (lp_sde_iter == NULL_POINTER)
+        {
+            lp_sde->lp_exception->error_some++;
+            continue;
+        }
+
+        if (lp_sde_iter->status == False)
+            lp_sde->lp_exception->error_some++;
+
+        StatusDataException_free(lp_sde_iter);
+    }
+
+    lp_sde_iter = DynaArray_free(lp_map->items);
+    if (lp_sde_iter == NULL_POINTER)
+        lp_sde->lp_exception->error_some++;
+
+    if (lp_sde_iter->status == False)
+    {
+        StatusDataException_free(lp_sde_iter);
+        lp_sde->lp_exception->error_some++;
+    }
+
+    if (lp_sde->lp_exception->error_some != 0)
+    {
+        lp_sde->status = False;
+        return lp_sde;
+    }
+
+    lp_sde->data = lp_map;
     return lp_sde;
 }
 
@@ -234,78 +354,7 @@ LPStatusDataException HashMap_put(LPHashMap lp_map, Object key, long key_size, O
 
     long *lp_hash_code = (long *)lp_sde_hc->data;
     StatusDataException_free(lp_sde_hc);
-
-    lp_sde_hc = DynaArray_get_by_position(lp_map->items, *lp_hash_code);
-    if (lp_sde_hc == NULL_POINTER)
-    {
-        free(lp_hash_code);
-        StatusDataException_free(lp_sde_hc);
-        lp_sde->lp_exception->error_null_pointer = True;
-        lp_sde->status = False;
-        return lp_sde;
-    }
-
-    if (lp_sde_hc->status == False)
-    {
-        free(lp_hash_code);
-        StatusDataException_free(lp_sde);
-        return lp_sde_hc;
-    }
-
-    StatusDataException_free(lp_sde_hc);
-    LPHashMapNode lp_new = malloc(sizeof(HashMapNode));
-    if (lp_new == NULL_POINTER)
-    {
-        free(lp_hash_code);
-        lp_sde->lp_exception->error_malloc = True;
-        lp_sde->status = False;
-        return lp_sde;
-    }
-
-    lp_new->key = memcpy((char *)lp_new->key, (char *)key, key_size);
-    if (lp_new->key == NULL_POINTER)
-    {
-        free(lp_hash_code);
-        free(lp_new);
-        lp_sde->lp_exception->error_memcpy = True;
-        lp_sde->status = False;
-        return lp_sde;
-    }
-
-    lp_new->value = memcpy((char *)lp_new->value, (char *)value, value_size);
-    if (lp_new->value == NULL_POINTER)
-    {
-        free(lp_hash_code);
-        free(lp_new->value);
-        free(lp_new);
-        lp_sde->lp_exception->error_memcpy = True;
-        lp_sde->status = False;
-        return lp_sde;
-    }
-
-    lp_new->key_size = key_size;
-    lp_new->value_size = value_size;
-    lp_sde_hc = DynaArray_edit_by_position(lp_map->items, *lp_hash_code, lp_new);
-    if (lp_sde_hc == NULL_POINTER)
-    {
-        free(lp_hash_code);
-        free(lp_new->key);
-        free(lp_new->value);
-        free(lp_new);
-        StatusDataException_free(lp_sde_hc);
-        lp_sde->lp_exception->error_null_pointer = True;
-        lp_sde->status = False;
-        return lp_sde;
-    }
-    if (lp_sde_hc->status == False)
-    {
-        free(lp_hash_code);
-        free(lp_new->key);
-        free(lp_new->value);
-        free(lp_new);
-        StatusDataException_free(lp_sde);
-        return lp_sde_hc;
-    }
+    // TODO
 
     lp_sde->data = lp_sde_hc->data;
     return lp_sde;
