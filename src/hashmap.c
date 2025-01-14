@@ -312,7 +312,7 @@ LPStatusDataException HashMap_gen_hash_code(LPHashMap lp_map, Object key, long k
 
     long sum = 0;
     for (long i = 0; i < key_size; i++)
-        sum += *(char *)(key + i);
+        sum += *(unsigned char *)(key + i);
 
     long hash_code = sum % lp_map->items->elements_capacity;
     if (memcpy((char *)lp_sde->data, (char *)&hash_code, ls) == NULL_POINTER)
