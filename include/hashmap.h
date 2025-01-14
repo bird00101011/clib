@@ -30,6 +30,6 @@ LPStatusDataException HashMap_put(LPHashMap lp_map, Object key, long key_size, O
 
 LPStatusDataException HashMap_get(LPHashMap lp_map, Object key, long key_size);
 
-LPStatusDataException HashMap_delete(LPHashMap lp_map, Object key, long key_size);
+LPStatusDataException HashMap_delete(LPHashMap lp_map, Object key, long key_size)
 
 #endif
