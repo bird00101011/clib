@@ -94,32 +94,35 @@ LPStatusDataException DynaArray_free(LPDynaArray lp_dyna_array)
     {
         if (lp_dyna_array->elements != NULL_POINTER)
         {
-            LPStatusDataException lp_sde_iter;
-            long z = lp_dyna_array->elements_num;
-            for (long i = 0; i < z; i++)
+            if (lp_dyna_array->free_func != NULL_POINTER)
             {
-                lp_sde_iter = DynaArray_get_by_position(lp_dyna_array, i);
-                if (lp_sde_iter == NULL_POINTER)
+                LPStatusDataException lp_sde_iter;
+
+                long z = lp_dyna_array->elements_num;
+                for (long i = 0; i < z; i++)
                 {
-                    lp_sde->lp_exception->error_malloc += lp_sde_iter->lp_exception->error_malloc;
-                    lp_sde->status = False;
-                    continue;
-                }
-                if (lp_sde_iter->status == False)
-                {
-                    lp_sde->lp_exception->error_index_out += lp_sde_iter->lp_exception->error_index_out;
-                    lp_sde->status = False;
-                    continue;
-                }
-                if (lp_dyna_array->free_func != NULL_POINTER)
-                {
+                    lp_sde_iter = DynaArray_get_by_position(lp_dyna_array, i);
+                    if (lp_sde_iter == NULL_POINTER)
+                    {
+                        lp_sde->lp_exception->error_malloc += lp_sde_iter->lp_exception->error_malloc;
+                        lp_sde->status = False;
+                        continue;
+                    }
+                    if (lp_sde_iter->status == False)
+                    {
+                        lp_sde->lp_exception->error_index_out += lp_sde_iter->lp_exception->error_index_out;
+                        lp_sde->status = False;
+                        continue;
+                    }
+
                     if (False == lp_dyna_array->free_func(lp_sde_iter->data))
                     {
                         lp_sde->lp_exception->error_callback++;
                         lp_sde->status = False;
                     }
+
+                    lp_dyna_array->elements_num--;
                 }
-                lp_dyna_array->elements_num--;
             }
 
             free(lp_dyna_array->elements);
@@ -205,6 +208,178 @@ LPStatusDataException DynaArray_reallocate(LPDynaArray lp_dyna_array, long new_c
     return lp_sde;
 }
 
+void _insert_kr(LPDynaArray lp_dyna_array, LPStatusDataException lp_sde, Boolean *reallocated)
+{
+    LPStatusDataException lp_sde_r = DynaArray_reallocate(lp_dyna_array, 2 * lp_dyna_array->capacity);
+    if (lp_sde_r == NULL_POINTER)
+    {
+        lp_sde->lp_exception->error_malloc++;
+        lp_sde->status = False;
+    }
+    else
+    {
+        if (lp_sde_r->status == False)
+        {
+            lp_sde->lp_exception->error_malloc += lp_sde_r->lp_exception->error_malloc;
+            lp_sde->lp_exception->error_index_out += lp_sde_r->lp_exception->error_index_out;
+            lp_sde->lp_exception->error_realloc += lp_sde_r->lp_exception->error_realloc;
+            lp_sde->lp_exception->error_memset += lp_sde_r->lp_exception->error_memset;
+            lp_sde->status = False;
+        }
+        else
+            *reallocated = True;
+    }
+    StatusDataException_free(lp_sde_r);
+}
+
+void _insert_no0_noelements_num(LPDynaArray lp_dyna_array, LPStatusDataException lp_sde, void *element, Boolean *reallocated)
+{
+    char *dst = (char *)lp_dyna_array->elements + (position + 1) * lp_dyna_array->element_size;
+    char *src = (char *)lp_dyna_array->elements + position * lp_dyna_array->element_size;
+    size_t count = (lp_dyna_array->elements_num - position) * lp_dyna_array->element_size;
+    LPStatusDataException lp_sde_r;
+
+    if (NULL_POINTER == memmove(dst, src, count))
+    {
+        lp_sde->status = False;
+        lp_sde->lp_exception->error_memove++;
+        if (*reallocated == True)
+        {
+            lp_sde_r = DynaArray_reallocate(lp_dyna_array, lp_dyna_array->capacity / 2);
+            if (lp_sde_r == NULL_POINTER)
+                lp_sde->lp_exception->error_malloc++;
+            else
+            {
+                if (lp_sde_r->status == False)
+                {
+                    lp_sde->lp_exception->error_malloc += lp_sde_r->lp_exception->error_malloc;
+                    lp_sde->lp_exception->error_index_out += lp_sde_r->lp_exception->error_index_out;
+                    lp_sde->lp_exception->error_realloc += lp_sde_r->lp_exception->error_realloc;
+                    lp_sde->lp_exception->error_memset += lp_sde_r->lp_exception->error_memset;
+                }
+            }
+            StatusDataException_free(lp_sde_r);
+        }
+    }
+    else
+    {
+        if (NULL_POINTER == memcpy(src, (char *)element, lp_dyna_array->element_size))
+        {
+            lp_sde->status = False;
+            lp_sde->lp_exception->error_memcpy++;
+
+            if (NULL_POINTER == memmove(src, dst, count))
+                lp_sde->lp_exception->error_memove++;
+
+            if (*reallocated == True)
+            {
+                lp_sde_r = DynaArray_reallocate(lp_dyna_array, lp_dyna_array->capacity / 2);
+                if (lp_sde_r == NULL_POINTER)
+                    lp_sde->lp_exception->error_malloc++;
+                else
+                {
+                    if (lp_sde_r->status == False)
+                    {
+                        lp_sde->lp_exception->error_malloc += lp_sde_r->lp_exception->error_malloc;
+                        lp_sde->lp_exception->error_index_out += lp_sde_r->lp_exception->error_index_out;
+                        lp_sde->lp_exception->error_realloc += lp_sde_r->lp_exception->error_realloc;
+                        lp_sde->lp_exception->error_memset += lp_sde_r->lp_exception->error_memset;
+                    }
+                }
+                StatusDataException_free(lp_sde_r);
+            }
+        }
+        else
+        {
+            if (lp_dyna_array->copy_func != NULL_POINTER)
+            {
+                if (lp_dyna_array->copy_func(src, element) == False)
+                {
+                    lp_sde->lp_exception->error_callback++;
+                    lp_sde->status = False;
+
+                    if (NULL_POINTER == memmove(src, dst, count))
+                        lp_sde->lp_exception->error_memove++;
+
+                    if (*reallocated == True)
+                    {
+                        lp_sde_r = DynaArray_reallocate(lp_dyna_array, lp_dyna_array->capacity / 2);
+                        if (lp_sde_r == NULL_POINTER)
+                            lp_sde->lp_exception->error_malloc++;
+                        else
+                        {
+                            if (lp_sde_r->status == False)
+                            {
+                                lp_sde->lp_exception->error_malloc += lp_sde_r->lp_exception->error_malloc;
+                                lp_sde->lp_exception->error_index_out += lp_sde_r->lp_exception->error_index_out;
+                                lp_sde->lp_exception->error_realloc += lp_sde_r->lp_exception->error_realloc;
+                                lp_sde->lp_exception->error_memset += lp_sde_r->lp_exception->error_memset;
+                            }
+                        }
+                        StatusDataException_free(lp_sde_r);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void _insert_elements_num(LPDynaArray lp_dyna_array, void *element, LPStatusDataException lp_sde, Boolean *reallocated)
+{
+    char *src = (char *)lp_dyna_array->elements + position * lp_dyna_array->element_size;
+    LPStatusDataException lp_sde_r;
+
+    if (NULL_POINTER == memcpy(src, (char *)element, lp_dyna_array->element_size))
+    {
+        lp_sde->status = False;
+        lp_sde->lp_exception->error_memcpy++;
+
+        if (*reallocated == True)
+        {
+            lp_sde_r = DynaArray_reallocate(lp_dyna_array, lp_dyna_array->capacity / 2);
+            if (lp_sde_r == NULL_POINTER)
+                lp_sde->lp_exception->error_malloc++;
+            else
+            {
+                if (lp_sde_r->status == False)
+                {
+                    lp_sde->lp_exception->error_malloc += lp_sde_r->lp_exception->error_malloc;
+                    lp_sde->lp_exception->error_index_out += lp_sde_r->lp_exception->error_index_out;
+                    lp_sde->lp_exception->error_realloc += lp_sde_r->lp_exception->error_realloc;
+                    lp_sde->lp_exception->error_memset += lp_sde_r->lp_exception->error_memset;
+                }
+            }
+            StatusDataException_free(lp_sde_r);
+        }
+    }
+    if (lp_dyna_array->copy_func != NULL_POINTER)
+    {
+        if (lp_dyna_array->copy_func(src, element) == False)
+        {
+            lp_sde->lp_exception->error_callback++;
+            lp_sde->status = False;
+
+            if (*reallocated == True)
+            {
+                lp_sde_r = DynaArray_reallocate(lp_dyna_array, lp_dyna_array->capacity / 2);
+                if (lp_sde_r == NULL_POINTER)
+                    lp_sde->lp_exception->error_malloc++;
+                else
+                {
+                    if (lp_sde_r->status == False)
+                    {
+                        lp_sde->lp_exception->error_malloc += lp_sde_r->lp_exception->error_malloc;
+                        lp_sde->lp_exception->error_index_out += lp_sde_r->lp_exception->error_index_out;
+                        lp_sde->lp_exception->error_realloc += lp_sde_r->lp_exception->error_realloc;
+                        lp_sde->lp_exception->error_memset += lp_sde_r->lp_exception->error_memset;
+                    }
+                }
+                StatusDataException_free(lp_sde_r);
+            }
+        }
+    }
+}
+
 /**
  * Insert a new element in a dynamic array
  *
@@ -235,80 +410,31 @@ LPStatusDataException DynaArray_insert(LPDynaArray lp_dyna_array, long position,
 
     if (position >= 0 && position <= lp_dyna_array->elements_num)
     {
-        char sig = 0;
+        Boolean *reallocated = (Boolean *)malloc(sizeof(Boolean));
+        *reallocated = False;
         if (lp_dyna_array->elements_num == lp_dyna_array->capacity)
         {
-            sig = 1;
-
-            LPStatusDataException ar_lp_sde = DynaArray_reallocate(lp_dyna_array, 2 * lp_dyna_array->capacity);
-            if (ar_lp_sde->status != True)
-            {
-                lp_sde->lp_exception->error_malloc += ar_lp_sde->lp_exception->error_malloc;
-                lp_sde->lp_exception->error_index_out += ar_lp_sde->lp_exception->error_index_out;
-                lp_sde->lp_exception->error_realloc += ar_lp_sde->lp_exception->error_realloc;
-                lp_sde->lp_exception->error_memset += ar_lp_sde->lp_exception->error_memset;
-                StatusDataException_free(ar_lp_sde);
+            _insert_kr(lp_dyna_array, lp_sde, reallocated);
+            free(reallocated);
+            if (lp_sde->status == False)
                 return lp_sde;
-            }
-
-            StatusDataException_free(ar_lp_sde);
         }
 
         if (position < lp_dyna_array->elements_num)
-        {
-            if (NULL_POINTER == memmove(((char *)lp_dyna_array->elements) + (position + 1) * lp_dyna_array->element_size,
-                                        (char *)lp_dyna_array->elements + position * lp_dyna_array->element_size,
-                                        (lp_dyna_array->elements_num - position) * lp_dyna_array->element_size))
-            {
-                lp_sde->status = False;
-                lp_sde->lp_exception->error_memove++;
-                return lp_sde;
-            }
-
-            if (NULL_POINTER == memcpy((char *)lp_dyna_array->elements + position * lp_dyna_array->element_size,
-                                       element, lp_dyna_array->element_size))
-            {
-                // TODO 恢复之前被移动的元素内存，或者抛出异常
-                lp_sde->status = False;
-                lp_sde->lp_exception->error_memcpy++;
-                return lp_sde;
-            }
-        }
+            _insert_no0_noelements_num(lp_dyna_array, lp_sde, element, reallocated);
         else // position == elements_num
-        {
-            if (NULL_POINTER == memcpy((char *)lp_dyna_array->elements + position * lp_dyna_array->element_size,
-                                       element, lp_dyna_array->element_size))
-            {
-                if (sig == 1)
-                {
-                    LPStatusDataException ar_lp_sde = DynaArray_reallocate(lp_dyna_array, lp_dyna_array->capacity / 2);
-                    if (ar_lp_sde->status != True)
-                    {
-                        lp_sde->lp_exception->error_malloc += ar_lp_sde->lp_exception->error_malloc;
-                        lp_sde->lp_exception->error_index_out += ar_lp_sde->lp_exception->error_index_out;
-                        lp_sde->lp_exception->error_realloc += ar_lp_sde->lp_exception->error_realloc;
-                        lp_sde->lp_exception->error_memset += ar_lp_sde->lp_exception->error_memset;
-                        StatusDataException_free(ar_lp_sde);
-                        return lp_sde;
-                    }
-                    StatusDataException_free(ar_lp_sde);
-                }
-                else
-                {
-                    lp_sde->lp_exception->error_memcpy++;
-                    lp_sde->status = False;
-                    return lp_sde;
-                }
-            }
-        }
+            _insert_elements_num(lp_dyna_array, element, lp_sde, reallocated);
+
+        free(reallocated);
     }
     else
     {
         lp_sde->lp_exception->error_index_out++;
         lp_sde->status = False;
-
-        return lp_sde;
     }
+
+    if (lp_sde->status == False)
+        return lp_sde;
 
     lp_dyna_array->elements_num++;
     lp_sde->data = (char *)lp_dyna_array->elements + position * lp_dyna_array->element_size;
@@ -322,14 +448,13 @@ LPStatusDataException DynaArray_insert(LPDynaArray lp_dyna_array, long position,
  * params:
  *  LPDynaArray lp_dyna_array: dyna array pointer
  *  long position: the position of the element in the dynamic array to be removed
- *  Boolean (*free_func)(Object): function pointer that frees the memory of a subproperty
  *
  * return: LPStatusDataException
  *
  * exceptions: [error_malloc, error_index_out, error_realloc, error_memset, error_callback,
  *              error_memove]
  */
-LPStatusDataException DynaArray_delete_by_position(LPDynaArray lp_dyna_array, long position, Boolean (*free_func)(Object))
+LPStatusDataException DynaArray_delete_by_position(LPDynaArray lp_dyna_array, long position)
 {
     LPStatusDataException lp_sde = StatusDataException_new();
     if (lp_sde == NULL_POINTER)
@@ -349,32 +474,11 @@ LPStatusDataException DynaArray_delete_by_position(LPDynaArray lp_dyna_array, lo
         return lp_sde;
     }
 
-    if (lp_dyna_array->elements_num < lp_dyna_array->capacity / 2)
-    {
-        LPStatusDataException ar_lp_sde = DynaArray_reallocate(lp_dyna_array, lp_dyna_array->capacity / 2);
-        if (ar_lp_sde == NULL_POINTER)
-        {
-            lp_sde->lp_exception->error_malloc++;
-            lp_sde->status = False;
-            return lp_sde;
-        }
-        if (ar_lp_sde->status == False)
-        {
-            lp_sde->lp_exception->error_malloc += ar_lp_sde->lp_exception->error_malloc;
-            lp_sde->lp_exception->error_index_out += ar_lp_sde->lp_exception->error_index_out;
-            lp_sde->lp_exception->error_realloc += ar_lp_sde->lp_exception->error_realloc;
-            lp_sde->lp_exception->error_memset += ar_lp_sde->lp_exception->error_memset;
-            StatusDataException_free(ar_lp_sde);
-            lp_sde->status = False;
-            return lp_sde;
-        }
-    }
-
     if (position >= 0 && position < lp_dyna_array->elements_num)
     {
-        if (free_func != NULL_POINTER)
+        if (lp_dyna_array->free_func != NULL_POINTER)
         {
-            if (True != free_func((char *)lp_dyna_array->elements + position * lp_dyna_array->element_size))
+            if (False == lp_dyna_array->free_func((char *)lp_dyna_array->elements + position * lp_dyna_array->element_size))
             {
                 lp_sde->lp_exception->error_callback++;
                 lp_sde->status = False;
@@ -411,6 +515,28 @@ LPStatusDataException DynaArray_delete_by_position(LPDynaArray lp_dyna_array, lo
     }
 
     lp_dyna_array->elements_num--;
+
+    if (lp_dyna_array->elements_num < lp_dyna_array->capacity / 2)
+    {
+        LPStatusDataException lp_sde_r = DynaArray_reallocate(lp_dyna_array, lp_dyna_array->capacity / 2);
+        if (lp_sde_r == NULL_POINTER)
+        {
+            lp_sde->lp_exception->error_malloc++;
+            lp_sde->status = False;
+            return lp_sde;
+        }
+        if (lp_sde_r->status == False)
+        {
+            lp_sde->lp_exception->error_malloc += lp_sde_r->lp_exception->error_malloc;
+            lp_sde->lp_exception->error_index_out += lp_sde_r->lp_exception->error_index_out;
+            lp_sde->lp_exception->error_realloc += lp_sde_r->lp_exception->error_realloc;
+            lp_sde->lp_exception->error_memset += lp_sde_r->lp_exception->error_memset;
+            StatusDataException_free(lp_sde_r);
+            lp_sde->status = False;
+            return lp_sde;
+        }
+    }
+
     return lp_sde;
 }
 
@@ -476,14 +602,28 @@ LPStatusDataException DynaArray_edit_by_position(LPDynaArray lp_dyna_array, long
 
     if (position >= 0 && position < lp_dyna_array->elements_num)
     {
-        if (NULL_POINTER == memcpy((char *)lp_dyna_array->elements + position * lp_dyna_array->element_size,
-                                   element, lp_dyna_array->element_size))
+        char *src = (char *)lp_dyna_array->elements + position * lp_dyna_array->element_size;
+        if (lp_dyna_array->compare_func != NULL_POINTER)
         {
-            lp_sde->status = False;
-            lp_sde->lp_exception->error_memcpy++;
+            if (lp_dyna_array->compare_func(src, element) == False)
+            {
+                lp_sde->lp_exception->error_callback++;
+                lp_sde->status = False;
+                return lp_sde;
+            }
+            else
+                lp_sde->data = src;
         }
         else
-            lp_sde->data = (char *)lp_dyna_array->elements + position * lp_dyna_array->element_size;
+        {
+            if (NULL_POINTER == memcpy(src, (char *)element, lp_dyna_array->element_size))
+            {
+                lp_sde->status = False;
+                lp_sde->lp_exception->error_memcpy++;
+            }
+            else
+                lp_sde->data = src;
+        }
     }
     else
     {
