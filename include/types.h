@@ -18,7 +18,6 @@ typedef struct
     long error_memset;
     long error_memove;
     long error_memcpy;
-    long error_memcmp;
     long error_index_out;
     long error_null_pointer;
     long error_callback;

@@ -15,16 +15,22 @@ typedef struct
     LPLinkedListNode lp_tail;
     long elements_num;
     long element_size;
+    Boolean (*copy_func)(Object, Object);
+    Boolean (*compare_func)(Object, Object);
+    Boolean (*free_func)(Object);
 } LinkedList, *LPLinkedList;
 
-LPStatusDataException LinkedList_new(long element_size);
-LPStatusDataException LinkedList_free(LPLinkedList lp_linkedlist, Boolean (*func)(Object));
+LPStatusDataException LinkedList_new(long element_size,
+                                     Boolean (*copy_func)(Object, Object),
+                                     Boolean (*compare_func)(Object, Object),
+                                     Boolean (*free_func)(Object));
+LPStatusDataException LinkedList_free(LPLinkedList lp_linkedlist);
 
 LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object element, long position);
 
-LPStatusDataException LinkedList_delete_by_position(LPLinkedList lp_linkedlist, long position, Boolean (*func)(Object));
+LPStatusDataException LinkedList_delete_by_position(LPLinkedList lp_linkedlist, long position);
 
-LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, Object element, Boolean (*func)(Object));
+LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, Object element);
 
 LPStatusDataException LinkedList_get_by_position(LPLinkedList lp_linkedlist, long position);
 

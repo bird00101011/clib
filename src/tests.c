@@ -28,7 +28,7 @@ void linkedlist_pprint(LPLinkedList);
 
 int main()
 {
-    // test_dnayarray();
+    test_dnayarray();
     test_linkedlist();
     return 0;
 }

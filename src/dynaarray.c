@@ -10,12 +10,18 @@
  * params:
  *  long capacity: array capacity
  *  long element_size: The number of bytes of the element
+ *  Boolean (*copy_func)(Object, Object): a pointer to the memory replication function
+ *  Boolean (*compare_func)(Object, Object): memory comparison function pointer
+ *  Boolean (*free_func)(Object): pointer to the memory release function
  *
  * return: LPStatusDataException
  *
  * exceptions: [error_index_out, error_malloc, error_memset]
  */
-LPStatusDataException DynaArray_new(long capacity, long element_size)
+LPStatusDataException DynaArray_new(long capacity, long element_size,
+                                    Boolean (*copy_func)(Object, Object),
+                                    Boolean (*compare_func)(Object, Object),
+                                    Boolean (*free_func)(Object))
 {
     LPStatusDataException lp_sde = StatusDataException_new();
     if (lp_sde == NULL_POINTER)
@@ -39,6 +45,9 @@ LPStatusDataException DynaArray_new(long capacity, long element_size)
 
     lpAl->elements_num = 0;
     lpAl->element_size = element_size;
+    lpAl->copy_func = copy_func;
+    lpAl->compare_func = compare_func;
+    lpAl->free_func = free_func;
 
     lpAl->capacity = capacity > 5 ? capacity : 5;
 
@@ -70,13 +79,12 @@ LPStatusDataException DynaArray_new(long capacity, long element_size)
  *
  * params:
  *  LPDynaArray lp_dyna_array: dynamic array pointers
- *  Boolean (*func)(object): the property releases the function pointer
  *
  * return: LPStatusDataException
  *
  * exceptions: [error_malloc, error_index_out, error_callback, error_null_pointer]
  */
-LPStatusDataException DynaArray_free(LPDynaArray lp_dyna_array, Boolean (*func)(Object))
+LPStatusDataException DynaArray_free(LPDynaArray lp_dyna_array)
 {
     LPStatusDataException lp_sde = StatusDataException_new();
     if (lp_sde == NULL_POINTER)
@@ -103,9 +111,9 @@ LPStatusDataException DynaArray_free(LPDynaArray lp_dyna_array, Boolean (*func)(
                     lp_sde->status = False;
                     continue;
                 }
-                if (func != NULL_POINTER)
+                if (lp_dyna_array->free_func != NULL_POINTER)
                 {
-                    if (False == func(lp_sde_iter->data))
+                    if (False == lp_dyna_array->free_func(lp_sde_iter->data))
                     {
                         lp_sde->lp_exception->error_callback++;
                         lp_sde->status = False;
@@ -314,14 +322,14 @@ LPStatusDataException DynaArray_insert(LPDynaArray lp_dyna_array, long position,
  * params:
  *  LPDynaArray lp_dyna_array: dyna array pointer
  *  long position: the position of the element in the dynamic array to be removed
- *  Boolean (*func)(Object): function pointer that frees the memory of a subproperty
+ *  Boolean (*free_func)(Object): function pointer that frees the memory of a subproperty
  *
  * return: LPStatusDataException
  *
  * exceptions: [error_malloc, error_index_out, error_realloc, error_memset, error_callback,
  *              error_memove]
  */
-LPStatusDataException DynaArray_delete_by_position(LPDynaArray lp_dyna_array, long position, Boolean (*func)(Object))
+LPStatusDataException DynaArray_delete_by_position(LPDynaArray lp_dyna_array, long position, Boolean (*free_func)(Object))
 {
     LPStatusDataException lp_sde = StatusDataException_new();
     if (lp_sde == NULL_POINTER)
@@ -364,9 +372,9 @@ LPStatusDataException DynaArray_delete_by_position(LPDynaArray lp_dyna_array, lo
 
     if (position >= 0 && position < lp_dyna_array->elements_num)
     {
-        if (func != NULL_POINTER)
+        if (free_func != NULL_POINTER)
         {
-            if (True != func((char *)lp_dyna_array->elements + position * lp_dyna_array->element_size))
+            if (True != free_func((char *)lp_dyna_array->elements + position * lp_dyna_array->element_size))
             {
                 lp_sde->lp_exception->error_callback++;
                 lp_sde->status = False;
@@ -604,14 +612,14 @@ LPStatusDataException DynaArray_edit_by_element(LPDynaArray lp_dyna_array, Objec
  * params:
  *  LPDynaArray lp_dyna_array:
  *  Object old_element:
- *  Boolean (*func)(Object): callback function to delete the element's attribute memory
+ *  Boolean (*free_func)(Object): callback function to delete the element's attribute memory
  *
  * return: LPStatusDataException
  *
  * exceptions: [error_null_pointer, error_index_out, error_malloc, error_realloc,
  *              error_memset, error_callback, error_memove]
  */
-LPStatusDataException DynaArray_delete_by_element(LPDynaArray lp_dyna_array, Object old_element, Boolean (*func)(Object))
+LPStatusDataException DynaArray_delete_by_element(LPDynaArray lp_dyna_array, Object old_element, Boolean (*free_func)(Object))
 {
     LPStatusDataException lp_sde = StatusDataException_new();
     if (lp_sde == NULL_POINTER)
@@ -655,7 +663,7 @@ LPStatusDataException DynaArray_delete_by_element(LPDynaArray lp_dyna_array, Obj
         {
             StatusDataException_free(lp_sde_iter);
 
-            lp_sde_iter = DynaArray_delete_by_position(lp_dyna_array, i, func);
+            lp_sde_iter = DynaArray_delete_by_position(lp_dyna_array, i, free_func);
             if (lp_sde_iter == NULL_POINTER)
             {
                 lp_sde->lp_exception->error_malloc++;

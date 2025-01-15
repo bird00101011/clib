@@ -43,13 +43,13 @@ LPStatusDataException LinkedList_new(long element_size)
  *
  * params:
  *  LPLinkedList lp_linkedlist: liked list pointer
- *  Boolean (*func)(Object): deletes the function pointer for an element's sub-property
+ *  Boolean (*free_func)(Object): deletes the function pointer for an element's sub-property
  *
  * return: LPStatusDataException
  *
  * exceptions: [error_null_pointer, error_callback, error_index_out]
  */
-LPStatusDataException LinkedList_free(LPLinkedList lp_linkedlist, Boolean (*func)(Object))
+LPStatusDataException LinkedList_free(LPLinkedList lp_linkedlist, Boolean (*free_func)(Object))
 {
     LPStatusDataException lp_sde = StatusDataException_new();
     if (lp_sde == NULL_POINTER)
@@ -70,9 +70,9 @@ LPStatusDataException LinkedList_free(LPLinkedList lp_linkedlist, Boolean (*func
 
     LPLinkedListNode lp_next = lp_linkedlist->lp_head;
     LPLinkedListNode lp_tmp = lp_next->next;
-    if (func != NULL_POINTER)
+    if (free_func != NULL_POINTER)
     {
-        if (False == func(lp_next->element))
+        if (False == free_func(lp_next->element))
         {
             lp_sde->lp_exception->error_callback++;
             lp_sde->status = False;
@@ -84,9 +84,9 @@ LPStatusDataException LinkedList_free(LPLinkedList lp_linkedlist, Boolean (*func
     for (long i = 1; i < lp_linkedlist->elements_num - 1; i++)
     {
         lp_tmp = lp_next->next;
-        if (func != NULL_POINTER)
+        if (free_func != NULL_POINTER)
         {
-            if (False == func(lp_next->element))
+            if (False == free_func(lp_next->element))
             {
                 lp_sde->lp_exception->error_callback++;
                 lp_sde->status = False;
@@ -240,13 +240,13 @@ LPStatusDataException LinkedList_insert(LPLinkedList lp_linkedlist, Object eleme
  * params:
  *  LPLinkedList lp_linkedlist: linked list pointer
  *  long position: the position to delete
- *  Boolean (*func)(Object): the callback function to delte attribute of element memory
+ *  Boolean (*free_func)(Object): the callback function to delte attribute of element memory
  *
  * return: LPStatusDataException
  *
  * exceptions: [error_null_pointer, error_index_out, error_callback]
  */
-LPStatusDataException LinkedList_delete_by_position(LPLinkedList lp_linkedlist, long position, Boolean (*func)(Object))
+LPStatusDataException LinkedList_delete_by_position(LPLinkedList lp_linkedlist, long position, Boolean (*free_func)(Object))
 {
     LPStatusDataException lp_sde = StatusDataException_new();
     if (lp_sde == NULL_POINTER)
@@ -273,9 +273,9 @@ LPStatusDataException LinkedList_delete_by_position(LPLinkedList lp_linkedlist, 
     }
     else if (lp_linkedlist->elements_num == 1)
     {
-        if (func != NULL_POINTER)
+        if (free_func != NULL_POINTER)
         {
-            if (func(lp_linkedlist->lp_head->element) == False)
+            if (free_func(lp_linkedlist->lp_head->element) == False)
             {
                 lp_sde->status = False;
                 lp_sde->lp_exception->error_callback++;
@@ -295,9 +295,9 @@ LPStatusDataException LinkedList_delete_by_position(LPLinkedList lp_linkedlist, 
 
         if (position == 0)
         {
-            if (func != NULL_POINTER)
+            if (free_func != NULL_POINTER)
             {
-                if (func(lp_head_tmp->element) == False)
+                if (free_func(lp_head_tmp->element) == False)
                 {
                     lp_sde->status = False;
                     lp_sde->lp_exception->error_callback++;
@@ -311,9 +311,9 @@ LPStatusDataException LinkedList_delete_by_position(LPLinkedList lp_linkedlist, 
         }
         else if (position == lp_linkedlist->elements_num - 1)
         {
-            if (func != NULL_POINTER)
+            if (free_func != NULL_POINTER)
             {
-                if (func(lp_tail_tmp->element) == False)
+                if (free_func(lp_tail_tmp->element) == False)
                 {
                     lp_sde->status = False;
                     lp_sde->lp_exception->error_callback++;
@@ -343,9 +343,9 @@ LPStatusDataException LinkedList_delete_by_position(LPLinkedList lp_linkedlist, 
             lp_next->prev->next = lp_next->next;
             lp_next->next->prev = lp_next->prev;
 
-            if (func != NULL_POINTER)
+            if (free_func != NULL_POINTER)
             {
-                if (func(lp_next->element) == False)
+                if (free_func(lp_next->element) == False)
                 {
                     lp_sde->status = False;
                     lp_sde->lp_exception->error_callback++;
@@ -365,13 +365,13 @@ LPStatusDataException LinkedList_delete_by_position(LPLinkedList lp_linkedlist, 
  * params:
  *  LPLinkedList lp_linkedlist: linked list pointer
  *  Object element: the element to delete
- *  Boolean (*func)(Object): the callback function to delete attribute of element
+ *  Boolean (*free_func)(Object): the callback function to delete attribute of element
  *
  * return: LPStatusDataException
  *
  * exceptions: [error_null_pointer, error_malloc, error_index_out, error_memset, error_memove, error_memcpy]
  */
-LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, Object element, Boolean (*func)(Object))
+LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, Object element, Boolean (*free_func)(Object))
 {
     LPStatusDataException lp_sde = StatusDataException_new();
     if (lp_sde == NULL_POINTER)
@@ -413,9 +413,9 @@ LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, O
     {
         if (memcmp((char *)lp_linkedlist->lp_head->element, (char *)element, lp_linkedlist->element_size) == 0)
         {
-            if (func != NULL_POINTER)
+            if (free_func != NULL_POINTER)
             {
-                if (False == func(lp_linkedlist->lp_head->element))
+                if (False == free_func(lp_linkedlist->lp_head->element))
                 {
                     lp_sde->status = False;
                     lp_sde->lp_exception->error_callback++;
@@ -461,9 +461,9 @@ LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, O
         if (memcmp((char *)lp_iter->element, (char *)element, lp_linkedlist->element_size) == 0)
         {
             lp_tmp = lp_iter->next;
-            if (func != NULL_POINTER)
+            if (free_func != NULL_POINTER)
             {
-                if (False == func(lp_iter->element))
+                if (False == free_func(lp_iter->element))
                 {
                     lp_sde->status = False;
                     lp_sde->lp_exception->error_callback++;
@@ -508,9 +508,9 @@ LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, O
                 if (lp_tmp->next == NULL_POINTER)
                     lp_linkedlist->lp_tail = lp_tmp;
 
-                if (func != NULL_POINTER)
+                if (free_func != NULL_POINTER)
                 {
-                    if (False == func(lp_iter->element))
+                    if (False == free_func(lp_iter->element))
                     {
                         lp_sde->status = False;
                         lp_sde->lp_exception->error_callback++;
@@ -547,9 +547,9 @@ LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, O
             lp_tmp->next = NULL_POINTER;
             lp_linkedlist->lp_tail = lp_tmp;
             lp_linkedlist->elements_num--;
-            if (func != NULL_POINTER)
+            if (free_func != NULL_POINTER)
             {
-                if (False == func(lp_iter->element))
+                if (False == free_func(lp_iter->element))
                 {
                     lp_sde->status = False;
                     lp_sde->lp_exception->error_callback++;

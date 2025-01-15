@@ -14,7 +14,6 @@ LPException Exception_new()
         lp_e->error_memset = 0;
         lp_e->error_null_pointer = 0;
         lp_e->error_realloc = 0;
-        lp_e->error_memcmp = 0;
     }
 
     return lp_e;
