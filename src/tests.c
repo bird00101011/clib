@@ -29,7 +29,7 @@ void linkedlist_pprint(LPLinkedList);
 int main()
 {
     // test_dnayarray();
-    // test_linkedlist();
+    test_linkedlist();
     return 0;
 }
 
@@ -84,11 +84,11 @@ void test_linkedlist()
     linkedlist_pprint(lp_ll);
     printf("End traverse\n");
 
-    lp_sde = LinkedList_delete_by_position(lp_ll, 1);
+    lp_sde = LinkedList_delete_by_position(lp_ll, 1, NULL_POINTER);
     StatusDataException_free(lp_sde);
-    lp_sde = LinkedList_delete_by_position(lp_ll, 2);
+    lp_sde = LinkedList_delete_by_position(lp_ll, 2, NULL_POINTER);
     StatusDataException_free(lp_sde);
-    lp_sde = LinkedList_delete_by_position(lp_ll, 3);
+    lp_sde = LinkedList_delete_by_position(lp_ll, 3, NULL_POINTER);
     if (lp_sde == NULL_POINTER || lp_sde->status == False)
         printf("LinkedList_delete_by_position(lp_ll, X){x=[1,2,3] one by one}: failed\n");
     else
@@ -99,7 +99,7 @@ void test_linkedlist()
     linkedlist_pprint(lp_ll);
     printf("End traverse\n");
 
-    lp_sde = LinkedList_delete_by_element(lp_ll, &n9);
+    lp_sde = LinkedList_delete_by_element(lp_ll, &n9, NULL_POINTER);
     if (lp_sde == NULL_POINTER || lp_sde->status == False)
         printf("LinkedList_delete_by_element(lp_ll, &n9): failed\n");
     else
@@ -117,7 +117,7 @@ void test_linkedlist()
             }
             StatusDataException_free(lp_sde);
         }
-        StatusDataException_free(DynaArray_free(lp_da));
+        StatusDataException_free(DynaArray_free(lp_da, NULL_POINTER));
     }
     printf("n=0,n1=1,n2=2,n3=3,n4=4,n5=5,n6=6,n7=7,n8=8,n9=9\n");
     printf("Begin traverse LinkedList instance: LinkedList instance's head-content=%d, tail-content=%d\n",
@@ -149,7 +149,7 @@ void test_linkedlist()
             }
             StatusDataException_free(lp_sde);
         }
-        StatusDataException_free(DynaArray_free(lp_da));
+        StatusDataException_free(DynaArray_free(lp_da, NULL_POINTER));
     }
 
     StatusDataException_free(LinkedList_edit_by_position(lp_ll, lp_ll->elements_num - 2, &n2));
@@ -172,7 +172,7 @@ void test_linkedlist()
     printf("Begin traverse LinkedList instance:\n");
     linkedlist_pprint(lp_ll);
     printf("End traverse\n");
-    StatusDataException_free(LinkedList_free(lp_ll));
+    StatusDataException_free(LinkedList_free(lp_ll, NULL_POINTER));
 }
 
 void test_dnayarray()
@@ -243,7 +243,7 @@ void test_dnayarray()
     }
     printf("End traverse DynaArray instance.\n");
 
-    lde = DynaArray_delete_by_position(al, 0);
+    lde = DynaArray_delete_by_position(al, 0, NULL_POINTER);
     if (lde == NULL_POINTER)
         printf("DynaArray_delete_by_position(al, 0): failed\n");
     else
@@ -317,7 +317,7 @@ void test_dnayarray()
     }
     printf("End traverse DynaArray instance.\n");
 
-    lde = DynaArray_delete_by_element(al, &n);
+    lde = DynaArray_delete_by_element(al, &n, NULL_POINTER);
     if (lde == NULL_POINTER)
         printf("DynaArray_delete_by_element(al, &n): faield\n");
     else
@@ -410,7 +410,7 @@ void test_dnayarray()
     }
     printf("End traverse DynaArray instance.\n");
 
-    lde = DynaArray_delete_by_element(al, &o);
+    lde = DynaArray_delete_by_element(al, &o, NULL_POINTER);
     if (lde == NULL_POINTER || lde->status == False)
         printf("DynaArray_delete_by_element(al, &o): failed\n");
     else
@@ -429,7 +429,7 @@ void test_dnayarray()
         printf("End traverse DynaArray instance.\n");
     }
 
-    DynaArray_free(al);
+    DynaArray_free(al, NULL_POINTER);
 }
 
 void linkedlist_pprint(LPLinkedList lp_ll)

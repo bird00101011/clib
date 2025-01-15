@@ -111,8 +111,6 @@ LPStatusDataException DynaArray_free(LPDynaArray lp_dyna_array, Boolean (*func)(
                         lp_sde->status = False;
                     }
                 }
-                free(lp_sde_iter->data);
-
                 lp_dyna_array->elements_num--;
             }
 
@@ -556,34 +554,47 @@ LPStatusDataException DynaArray_edit_by_element(LPDynaArray lp_dyna_array, Objec
         {
             StatusDataException_free(lp_sde_iter);
             lp_sde_iter = DynaArray_edit_by_position(lp_dyna_array, i, new_element);
-            if (lp_sde_iter == NULL_POINTER || lp_sde_iter->status == False)
+            if (lp_sde_iter == NULL_POINTER)
             {
-
-                lp_sde->lp_exception->error_null_pointer += lp_sde_iter->lp_exception->error_null_pointer;
-                lp_sde->lp_exception->error_memcpy += lp_sde_iter->lp_exception->error_memcpy;
-                lp_sde->lp_exception->error_index_out += lp_sde_iter->lp_exception->error_index_out;
+                lp_sde->lp_exception->error_malloc++;
                 lp_sde->status = False;
             }
             else
             {
-                StatusDataException_free(lp_sde_iter);
-                lp_sde_iter = DynaArray_insert(lp_da, lp_da->elements_num, &i);
-                if (lp_sde_iter == NULL_POINTER || lp_sde_iter->status == False)
+                if (lp_sde_iter->status == False)
                 {
                     lp_sde->lp_exception->error_null_pointer += lp_sde_iter->lp_exception->error_null_pointer;
-                    lp_sde->lp_exception->error_malloc += lp_sde_iter->lp_exception->error_malloc;
-                    lp_sde->lp_exception->error_index_out += lp_sde_iter->lp_exception->error_index_out;
-                    lp_sde->lp_exception->error_realloc += lp_sde_iter->lp_exception->error_realloc;
-                    lp_sde->lp_exception->error_memset += lp_sde_iter->lp_exception->error_memset;
-                    lp_sde->lp_exception->error_memove += lp_sde_iter->lp_exception->error_memove;
                     lp_sde->lp_exception->error_memcpy += lp_sde_iter->lp_exception->error_memcpy;
+                    lp_sde->lp_exception->error_index_out += lp_sde_iter->lp_exception->error_index_out;
                     lp_sde->status = False;
+                }
+                else
+                {
+                    StatusDataException_free(lp_sde_iter);
+                    lp_sde_iter = DynaArray_insert(lp_da, lp_da->elements_num, &i);
+                    if (lp_sde_iter == NULL_POINTER)
+                    {
+                        lp_sde->lp_exception->error_malloc++;
+                        lp_sde->status = False;
+                    }
+                    if (lp_sde_iter->status == False)
+                    {
+                        lp_sde->lp_exception->error_null_pointer += lp_sde_iter->lp_exception->error_null_pointer;
+                        lp_sde->lp_exception->error_malloc += lp_sde_iter->lp_exception->error_malloc;
+                        lp_sde->lp_exception->error_index_out += lp_sde_iter->lp_exception->error_index_out;
+                        lp_sde->lp_exception->error_realloc += lp_sde_iter->lp_exception->error_realloc;
+                        lp_sde->lp_exception->error_memset += lp_sde_iter->lp_exception->error_memset;
+                        lp_sde->lp_exception->error_memove += lp_sde_iter->lp_exception->error_memove;
+                        lp_sde->lp_exception->error_memcpy += lp_sde_iter->lp_exception->error_memcpy;
+                        lp_sde->status = False;
+                    }
                 }
             }
         }
         StatusDataException_free(lp_sde_iter);
     }
 
+    lp_sde->data = lp_da;
     return lp_sde;
 }
 
@@ -767,5 +778,6 @@ LPStatusDataException DynaArray_get_position_by_element(LPDynaArray lp_dyna_arra
         StatusDataException_free(lp_sde_iter);
     }
 
+    lp_sde->data = lp_dn_l;
     return lp_sde;
 }

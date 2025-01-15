@@ -70,10 +70,13 @@ LPStatusDataException LinkedList_free(LPLinkedList lp_linkedlist, Boolean (*func
 
     LPLinkedListNode lp_next = lp_linkedlist->lp_head;
     LPLinkedListNode lp_tmp = lp_next->next;
-    if (False == func(lp_next->element))
+    if (func != NULL_POINTER)
     {
-        lp_sde->lp_exception->error_callback++;
-        lp_sde->status = False;
+        if (False == func(lp_next->element))
+        {
+            lp_sde->lp_exception->error_callback++;
+            lp_sde->status = False;
+        }
     }
     free(lp_next->element);
     free(lp_next);
@@ -412,7 +415,7 @@ LPStatusDataException LinkedList_delete_by_element(LPLinkedList lp_linkedlist, O
         {
             if (func != NULL_POINTER)
             {
-                if (False == func(lp_iter->element))
+                if (False == func(lp_linkedlist->lp_head->element))
                 {
                     lp_sde->status = False;
                     lp_sde->lp_exception->error_callback++;
