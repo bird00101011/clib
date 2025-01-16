@@ -60,9 +60,82 @@ int DynaArray_free(LPDynaArray lp_da)
     return TRUE;
 }
 
-int DynaArray_reallocate(LPDynaArray lp_da, long new_capacity);
+int DynaArray_reallocate(LPDynaArray lp_da, long new_capacity)
+{
+    if (lp_da == NULL_POINTER || new_capacity <= 0)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return FALSE;
+    }
 
-int DynaArray_insert(LPDynaArray lp_da, long pos, void *ele);
+    lp_da = realloc(lp_da->eles, new_capacity);
+    if (lp_da == NULL_POINTER)
+    {
+        set_last_error(CLIB_REALLOC_FAILED);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+int DynaArray_insert(LPDynaArray lp_da, long pos, void *ele)
+{
+    if (lp_da == NULL_POINTER || ele == NULL_POINTER)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return FALSE;
+    }
+
+    if (pos < 0 || pos > lp_da->eles_num)
+    {
+        set_last_error(CLIB_INDEX_OUT_FAILED);
+        return FALSE;
+    }
+
+    if (lp_da->eles_num == lp_da->capacity)
+    {
+        if (DynaArray_reallocate(lp_da, lp_da->capacity * 2) == FALSE)
+            return FALSE;
+    }
+
+    char *dst = (char *)lp_da->eles + (pos + 1) * lp_da->ele_size;
+    char *src = (char *)lp_da->eles + pos * lp_da->ele_size;
+    size_t count = lp_da->ele_size * (lp_da->eles_num - pos);
+    if (memmove(dst, src, count) == NULL_POINTER)
+    {
+        set_last_error(CLIB_MEMOVE_FAILED);
+        return FALSE;
+    }
+
+    int opr = TRUE;
+    if (lp_da->copy_func == NULL_POINTER)
+    {
+        if (memcpy(src, (char *)ele, lp_da->ele_size) == NULL_POINTER)
+        {
+            set_last_error(CLIB_MEMCPY_FAILED);
+            opr = FALSE;
+        }
+    }
+    else
+    {
+        if (lp_da->copy_func(src, (char *)ele) == FALSE)
+        {
+            set_last_error(CLIB_CALLBACKFUNC_FAILED);
+            opr = FALSE;
+        }
+    }
+
+    if (opr == FALSE)
+    {
+        if (memmove(src, dst, count) == NULL_POINTER)
+            set_last_error(CLIB_MEMOVE_FAILED);
+
+        return FALSE;
+    }
+
+    lp_da->eles_num++;
+    return TRUE;
+}
 
 int DynaArray_del_by_pos(LPDynaArray lp_da, long pos);
 
