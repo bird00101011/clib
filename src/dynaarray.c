@@ -821,9 +821,7 @@ LPStatusDataException DynaArray_delete_by_element(LPDynaArray lp_dyna_array, Obj
         else
         {
             if (memcmp((char *)lp_sde_iter->data, (char *)old_element, lp_dyna_array->element_size) == 0)
-            {
                 equ = True;
-            }
         }
 
         if (equ == True)
