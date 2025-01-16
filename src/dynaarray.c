@@ -55,7 +55,6 @@ int DynaArray_free(LPDynaArray lp_da)
         }
         free(lp_da->eles);
     }
-    free(lp_da);
 
     return TRUE;
 }
