@@ -1,8 +1,7 @@
-#include <types.h>
 #include <dynaarray.h>
 #include <linkedlist.h>
-#ifndef MAP_H
-#define MAP_H
+#ifndef HASHMAP_H
+#define HASHMAP_H
 
 typedef struct
 {

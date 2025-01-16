@@ -1,4 +1,3 @@
-#include <types.h>
 #include <dynaarray.h>
 #ifndef LINKEDLIST_H
 #define LINKEDLIST_H

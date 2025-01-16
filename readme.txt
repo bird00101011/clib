@@ -1,5 +1,3 @@
-# clib
-```
         _____   _____              ____________ ______  ______   
    _____\    \_|\    \            /            \\     \|\     \  
   /     /|     |\\    \          |\___/\  \\___/||     |\|     | 
@@ -11,7 +9,7 @@
 | |     /____/|  |      | |    |||           | /|    |||     | | 
  \|_____|    ||  |______|/|____|/|___________|/ |____|/|_____|/  
         |____|/                               
-```
+
 I want to create a C library similar to glib.
 
 The starting point for maintaining a C project is to understand how it's built,

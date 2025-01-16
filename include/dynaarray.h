@@ -1,4 +1,3 @@
-#include <types.h>
 #ifndef DYNAARRAY_H
 #define DYNAARRAY_H
 

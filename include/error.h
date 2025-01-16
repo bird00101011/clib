@@ -1,4 +1,3 @@
-// The project base type
 #ifndef ERROR_H
 #define ERROR_H
 
