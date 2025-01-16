@@ -16,6 +16,6 @@
 #define FALSE -1
 
 long get_last_error();
-long set_last_error(long n);
+void set_last_error(long n);
 
 #endif
