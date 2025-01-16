@@ -1,8 +1,6 @@
 #ifndef ERROR_H
 #define ERROR_H
 
-#define NULL_POINTER (void *)0
-
 #define CLIB_MALLOC_FAILED 10000
 #define CLIB_REALLOC_FAILED 10001
 #define CLIB_MEMSET_FAILED 10002
