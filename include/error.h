@@ -9,6 +9,9 @@
 #define CLIB_INDEX_OUT_FAILED 10005
 #define CLIB_NULL_POINTER_FAILED 10006
 #define CLIB_CALLBACKFUNC_FAILED 10007
+#define CLIB_PARAMS_WRONG 10008
+
+#define NULL_POINTER (void *)0
 
 long get_last_error();
 long set_last_error(long n);

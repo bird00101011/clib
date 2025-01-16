@@ -14,7 +14,7 @@ typedef struct
 
 int DynaArray_new(LPDynaArray lp_da,
                   long capacity,
-                  long elein_size,
+                  long ele_size,
                   int (*copy_func)(void *, void *),
                   int (*compare_func)(void *, void *),
                   int (*free_func)(void *));
