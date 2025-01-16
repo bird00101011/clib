@@ -139,7 +139,51 @@ int DynaArray_insert(LPDynaArray lp_da, long pos, void *ele)
     return TRUE;
 }
 
-int DynaArray_del_by_pos(LPDynaArray lp_da, long pos);
+int DynaArray_del_by_pos(LPDynaArray lp_da, long pos)
+{
+    if (lp_da == NULL_POINTER)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return FALSE;
+    }
+
+    if (pos < 0 || pos >= lp_da->eles_num)
+    {
+        set_last_error(CLIB_INDEX_OUT_FAILED);
+        return FALSE;
+    }
+
+    char *arr = (char *)lp_da->eles;
+    char *dst = arr + pos * lp_da->ele_size;
+
+    if (lp_da->free_func == NULL_POINTER)
+    {
+        if (lp_da->free_func(dst) == FALSE)
+        {
+            set_last_error(CLIB_CALLBACKFUNC_FAILED);
+            return FALSE;
+        }
+    }
+
+    if (lp_da->eles_num > 1)
+    {
+        char *src = arr + (pos + 1) * lp_da->ele_size;
+        size_t mv_count = (lp_da->eles_num - pos - 1) * lp_da->ele_size;
+
+        if (memmove(dst, src, mv_count) == NULL_POINTER)
+        {
+            set_last_error(CLIB_MEMOVE_FAILED);
+            return FALSE;
+        }
+    }
+
+    char *end = arr + (lp_da->eles_num - 1) * lp_da->ele_size;
+
+    if (memset(end, 0, lp_da->ele_size) == NULL_POINTER)
+        set_last_error(CLIB_MEMSET_FAILED);
+
+    return TRUE;
+}
 
 int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele, LPDynaArray lp_poses);
 
