@@ -22,13 +22,13 @@ int DynaArray_free(LPDynaArray lp_da);
 
 int DynaArray_reallocate(LPDynaArray lp_da, long new_capacity);
 
-int DynaArray_insert(LPDynaArray lp_da, long posin, void *ele);
+int DynaArray_insert(LPDynaArray lp_da, long pos, void *ele);
 
 int DynaArray_del_by_pos(LPDynaArray lp_da, long pos);
 
 int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele, LPDynaArray lp_poses);
 
-int DynaArray_edit_by_pos(LPDynaArray lp_da, long posin, void *ele);
+int DynaArray_edit_by_pos(LPDynaArray lp_da, long pos, void *ele);
 
 int DynaArray_edit_by_ele(LPDynaArray lp_da, void *old_ele, void *new_ele);
 
