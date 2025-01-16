@@ -4,36 +4,37 @@
 
 typedef struct
 {
-    Object elements;
-    long elements_num;
-    long element_size;
+    void *eles;
+    long eles_num;
+    long ele_size;
     long capacity;
-    Boolean (*copy_func)(Object, Object);
-    Boolean (*compare_func)(Object, Object);
-    Boolean (*free_func)(Object);
+    int (*copy_func)(void *, void *);
+    int (*compare_func)(void *, void *);
+    int (*free_func)(void *);
 } DynaArray, *LPDynaArray;
 
-LPStatusDataException DynaArray_new(long capacity,
-                                    long element_size,
-                                    Boolean (*copy_func)(Object, Object),
-                                    Boolean (*compare_func)(Object, Object),
-                                    Boolean (*free_func)(Object));
-LPStatusDataException DynaArray_free(LPDynaArray lp_dyna_array);
+int DynaArray_new(LPDynaArray lp_da,
+                  long capacity,
+                  long elein_size,
+                  int (*copy_func)(void *, void *),
+                  int (*compare_func)(void *, void *),
+                  int (*free_func)(void *));
+int DynaArray_free(LPDynaArray lp_da);
 
-LPStatusDataException DynaArray_reallocate(LPDynaArray lp_dyna_array, long new_capacity);
+int DynaArray_reallocate(LPDynaArray lp_da, long new_capacity);
 
-LPStatusDataException DynaArray_insert(LPDynaArray lp_dyna_array, long position, Object element);
+int DynaArray_insert(LPDynaArray lp_da, long posin, void *ele);
 
-LPStatusDataException DynaArray_delete_by_position(LPDynaArray lp_dyna_array, long position);
+int DynaArray_del_by_pos(LPDynaArray lp_da, long pos);
 
-LPStatusDataException DynaArray_delete_by_element(LPDynaArray lp_dyna_array, Object element);
+int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele, LPDynaArray lp_poses);
 
-LPStatusDataException DynaArray_edit_by_position(LPDynaArray lp_dyna_array, long position, Object element);
+int DynaArray_edit_by_pos(LPDynaArray lp_da, long posin, void *ele);
 
-LPStatusDataException DynaArray_edit_by_element(LPDynaArray lp_dyna_array, Object old_element, Object new_element);
+int DynaArray_edit_by_ele(LPDynaArray lp_da, void *old_ele, void *new_ele);
 
-LPStatusDataException DynaArray_get_by_position(LPDynaArray lp_dyna_array, long position);
+int DynaArray_get_by_pos(LPDynaArray lp_da, long pos);
 
-LPStatusDataException DynaArray_get_position_by_element(LPDynaArray lp_dyna_array, Object element);
+int DynaArray_get_pos_by_ele(LPDynaArray lp_da, void *ele);
 
 #endif
