@@ -44,9 +44,12 @@ int DynaArray_free(LPDynaArray lp_da)
     {
         if (lp_da->free_func != NULL_POINTER)
         {
+            char *src;
+            char *arr = (char *)lp_da->eles;
             for (long i = 0; i < lp_da->eles_num; i++)
             {
-                if (lp_da->free_func((char *)lp_da->eles + i * lp_da->ele_size) == FALSE)
+                src = arr + i * lp_da->ele_size;
+                if (lp_da->free_func(src) == FALSE)
                 {
                     set_last_error(CLIB_CALLBACKFUNC_FAILED);
                     return FALSE;
