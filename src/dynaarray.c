@@ -90,52 +90,50 @@ LPStatusDataException DynaArray_free(LPDynaArray lp_dyna_array)
     if (lp_sde == NULL_POINTER)
         return lp_sde;
 
-    if (lp_dyna_array != NULL_POINTER)
-    {
-        if (lp_dyna_array->elements != NULL_POINTER)
-        {
-            if (lp_dyna_array->free_func != NULL_POINTER)
-            {
-                LPStatusDataException lp_sde_iter;
-
-                long z = lp_dyna_array->elements_num;
-                for (long i = 0; i < z; i++)
-                {
-                    lp_sde_iter = DynaArray_get_by_position(lp_dyna_array, i);
-                    if (lp_sde_iter == NULL_POINTER)
-                    {
-                        lp_sde->lp_exception->error_malloc += lp_sde_iter->lp_exception->error_malloc;
-                        lp_sde->status = False;
-                        continue;
-                    }
-                    if (lp_sde_iter->status == False)
-                    {
-                        lp_sde->lp_exception->error_index_out += lp_sde_iter->lp_exception->error_index_out;
-                        lp_sde->status = False;
-                        continue;
-                    }
-
-                    if (False == lp_dyna_array->free_func(lp_sde_iter->data))
-                    {
-                        lp_sde->lp_exception->error_callback++;
-                        lp_sde->status = False;
-                    }
-
-                    lp_dyna_array->elements_num--;
-                }
-            }
-
-            free(lp_dyna_array->elements);
-        }
-
-        free(lp_dyna_array);
-    }
-    else
+    if (lp_dyna_array == NULL_POINTER)
     {
         lp_sde->lp_exception->error_null_pointer++;
         lp_sde->status = False;
-        lp_sde->data = lp_dyna_array;
+        return lp_sde;
     }
+
+    if (lp_dyna_array->elements != NULL_POINTER)
+    {
+        if (lp_dyna_array->free_func != NULL_POINTER)
+        {
+            LPStatusDataException lp_sde_iter;
+
+            long z = lp_dyna_array->elements_num;
+            for (long i = 0; i < z; i++)
+            {
+                lp_sde_iter = DynaArray_get_by_position(lp_dyna_array, i);
+                if (lp_sde_iter == NULL_POINTER)
+                {
+                    lp_sde->lp_exception->error_malloc += lp_sde_iter->lp_exception->error_malloc;
+                    lp_sde->status = False;
+                    continue;
+                }
+                if (lp_sde_iter->status == False)
+                {
+                    lp_sde->lp_exception->error_index_out += lp_sde_iter->lp_exception->error_index_out;
+                    lp_sde->status = False;
+                    continue;
+                }
+
+                if (False == lp_dyna_array->free_func(lp_sde_iter->data))
+                {
+                    lp_sde->lp_exception->error_callback++;
+                    lp_sde->status = False;
+                }
+
+                lp_dyna_array->elements_num--;
+            }
+        }
+
+        free(lp_dyna_array->elements);
+    }
+
+    free(lp_dyna_array);
 
     return lp_sde;
 }
