@@ -12,6 +12,8 @@
 #define CLIB_PARAMS_WRONG 10008
 
 #define NULL_POINTER (void *)0
+#define TRUE 0
+#define FALSE -1
 
 long get_last_error();
 long set_last_error(long n);

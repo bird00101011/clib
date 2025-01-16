@@ -14,7 +14,7 @@ int DynaArray_new(LPDynaArray lp_da,
     if (lp_da == NULL_POINTER || capacity <= 0 || ele_size <= 0)
     {
         set_last_error(CLIB_PARAMS_WRONG);
-        return -1;
+        return FALSE;
     }
     lp_da->capacity = capacity;
     lp_da->ele_size = ele_size;
@@ -26,10 +26,10 @@ int DynaArray_new(LPDynaArray lp_da,
     if (lp_da->eles == NULL_POINTER)
     {
         set_last_error(CLIB_MALLOC_FAILED);
-        return -1;
+        return FALSE;
     }
 
-    return 0;
+    return TRUE;
 }
 
 int DynaArray_free(LPDynaArray lp_da)
@@ -37,7 +37,7 @@ int DynaArray_free(LPDynaArray lp_da)
     if (lp_da == NULL_POINTER)
     {
         set_last_error(CLIB_PARAMS_WRONG);
-        return -1;
+        return FALSE;
     }
 
     if (lp_da->eles != NULL_POINTER)
@@ -46,13 +46,18 @@ int DynaArray_free(LPDynaArray lp_da)
         {
             for (long i = 0; i < lp_da->eles_num; i++)
             {
-                if (lp_da->free_func((char *)lp_da->eles + i * lp_da->ele_size) == -1)
+                if (lp_da->free_func((char *)lp_da->eles + i * lp_da->ele_size) == FALSE)
+                {
                     set_last_error(CLIB_CALLBACKFUNC_FAILED);
+                    return FALSE;
+                }
             }
         }
         free(lp_da->eles);
     }
     free(lp_da);
+
+    return TRUE;
 }
 
 int DynaArray_reallocate(LPDynaArray lp_da, long new_capacity);
