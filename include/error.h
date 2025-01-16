@@ -12,4 +12,7 @@
 #define CLIB_NULL_POINTER_FAILED 10006
 #define CLIB_CALLBACKFUNC_FAILED 10007
 
+long get_last_error();
+long set_last_error(long n);
+
 #endif
