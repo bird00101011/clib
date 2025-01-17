@@ -1,5 +1,6 @@
 #include <error.h>
 #include <dynaarray.h>
+#include <linkedlist.h>
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
@@ -53,7 +54,7 @@ void test_dynaarray()
     ele_size = sizeof(Student);
     int r;
 
-    r = DynaArray_new(lp_da, capacity, ele_size, copy_func, compare_func, free_func);
+    r = DynaArray_init(lp_da, capacity, ele_size, copy_func, compare_func, free_func);
     assert(r == TRUE);
 
     r = DynaArray_reallocate(lp_da, capacity * 2);
@@ -91,7 +92,7 @@ void test_dynaarray()
 
     LPDynaArray lp_poses = (LPDynaArray)malloc(sizeof(DynaArray));
     assert(lp_poses != NULL_POINTER);
-    r = DynaArray_new(lp_poses, 10, sizeof(long), NULL_POINTER, NULL_POINTER, NULL_POINTER);
+    r = DynaArray_init(lp_poses, 10, sizeof(long), NULL_POINTER, NULL_POINTER, NULL_POINTER);
     assert(r != FALSE);
 
     // r = DynaArray_edit_by_ele(lp_da, &sdd, &sgg, lp_poses);
@@ -133,8 +134,46 @@ void test_dynaarray()
     free(lp_poses);
 }
 
+void test_linkedlist()
+{
+    int r;
+    LPLinkedList lp_ll = (LPLinkedList)malloc(sizeof(LinkedList));
+    assert(lp_ll != NULL_POINTER);
+
+    // r = LinkedList_init(lp_ll, sizeof(Student), NULL_POINTER, NULL_POINTER, NULL_POINTER);
+    r = LinkedList_init(lp_ll, sizeof(Student), copy_func, compare_func, free_func);
+    assert(r != FALSE);
+
+    Student dd = {"DD", 15};
+    Student mm = {"MM", 16};
+    Student jj = {"JJ", 17};
+    Student gg = {"GG", 18};
+    Student cw = {"CW", 3};
+    r = LinkedList_insert(lp_ll, lp_ll->eles_num, &dd);
+    r = LinkedList_insert(lp_ll, lp_ll->eles_num, &mm);
+    r = LinkedList_insert(lp_ll, lp_ll->eles_num, &jj);
+    r = LinkedList_insert(lp_ll, lp_ll->eles_num, &gg);
+    // r = LinkedList_insert(lp_ll, 5, &cw);
+    assert(r != FALSE);
+
+    LPLinkedListNode lp_lln = lp_ll->lp_head;
+    LPStudent s;
+    for (long i = 0; i < lp_ll->eles_num; i++)
+    {
+        s = (LPStudent)lp_lln->ele;
+        printf("%s, %d\n", s->name, s->age);
+        lp_lln = lp_lln->next;
+    }
+
+    r = LinkedList_free(lp_ll);
+    assert(r != FALSE);
+
+    free(lp_ll);
+}
+
 int main()
 {
-    test_dynaarray();
+    // test_dynaarray();
+    test_linkedlist();
     return 0;
 }

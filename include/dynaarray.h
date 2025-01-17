@@ -12,12 +12,12 @@ typedef struct
     int (*free_func)(void *);
 } DynaArray, *LPDynaArray;
 
-int DynaArray_new(LPDynaArray lp_da,
-                  long capacity,
-                  long ele_size,
-                  int (*copy_func)(void *, void *),
-                  int (*compare_func)(void *, void *),
-                  int (*free_func)(void *));
+int DynaArray_init(LPDynaArray lp_da,
+                   long capacity,
+                   long ele_size,
+                   int (*copy_func)(void *, void *),
+                   int (*compare_func)(void *, void *),
+                   int (*free_func)(void *));
 int DynaArray_free(LPDynaArray lp_da);
 
 int DynaArray_reallocate(LPDynaArray lp_da, long new_capacity);

@@ -20,14 +20,14 @@ typedef struct
     int (*free_func)(void *);
 } LinkedList, *LPLinkedList;
 
-int LinkedList_new(LPLinkedList lp_ll,
-                   long ele_size,
-                   int (*copy_func)(void *, void *),
-                   int (*compare_func)(void *, void *),
-                   int (*free_func)(void *));
+int LinkedList_init(LPLinkedList lp_ll,
+                    long ele_size,
+                    int (*copy_func)(void *, void *),
+                    int (*compare_func)(void *, void *),
+                    int (*free_func)(void *));
 int LinkedList_free(LPLinkedList lp_ll);
 
-int LinkedList_insert(LPLinkedList lp_ll, void *ele, long pos);
+int LinkedList_insert(LPLinkedList lp_ll, long pos, void *ele);
 
 int LinkedList_del_by_pos(LPLinkedList lp_ll, long pos);
 

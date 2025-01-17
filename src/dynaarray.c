@@ -4,12 +4,12 @@
 #include <malloc.h>
 #include <memory.h>
 
-int DynaArray_new(LPDynaArray lp_da,
-                  long capacity,
-                  long ele_size,
-                  int (*copy_func)(void *, void *),
-                  int (*compare_func)(void *, void *),
-                  int (*free_func)(void *))
+int DynaArray_init(LPDynaArray lp_da,
+                   long capacity,
+                   long ele_size,
+                   int (*copy_func)(void *, void *),
+                   int (*compare_func)(void *, void *),
+                   int (*free_func)(void *))
 {
     if (lp_da == NULL_POINTER || capacity <= 0 || ele_size <= 0)
     {
