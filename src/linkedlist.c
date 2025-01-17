@@ -35,7 +35,7 @@ int LinkedList_free(LPLinkedList lp_ll)
         set_last_error(CLIB_PARAMS_WRONG);
         return FALSE;
     }
-    LPLinkedListNode lp_lln, lp_llt;
+    LPLinkedListNode lp_lln, lp_ll_nin;
     lp_lln = lp_ll->lp_head;
     for (long i = 0; i < lp_ll->eles_num; i++)
     {
@@ -50,9 +50,9 @@ int LinkedList_free(LPLinkedList lp_ll)
             }
         }
 
-        lp_llt = lp_lln->next;
+        lp_ll_nin = lp_lln->next;
         free(lp_lln);
-        lp_lln = lp_llt;
+        lp_lln = lp_ll_nin;
     }
 
     return TRUE;
@@ -66,8 +66,7 @@ int LinkedList_insert(LPLinkedList lp_ll, long pos, void *ele)
         return FALSE;
     }
 
-    LPLinkedListNode lp_lln, lp_llt, lp_llnn;
-    lp_lln = lp_ll->lp_head;
+    LPLinkedListNode lp_lln, lp_ll_nin, lp_llnn;
     char *src, *dst;
     src = (char *)ele;
 
@@ -110,6 +109,7 @@ int LinkedList_insert(LPLinkedList lp_ll, long pos, void *ele)
 
     if (lp_ll->eles_num == 0)
     {
+        lp_lln = lp_ll->lp_head;
         lp_llnn->prev = lp_llnn;
         lp_llnn->next = lp_llnn;
         lp_ll->lp_head = lp_llnn;
@@ -132,13 +132,13 @@ int LinkedList_insert(LPLinkedList lp_ll, long pos, void *ele)
 
         if (pos < lp_ll->eles_num)
         {
-            lp_llt = lp_lln->prev;
+            lp_ll_nin = lp_lln->prev;
             lp_lln->prev = lp_llnn;
             lp_llnn->next = lp_lln;
-            lp_llnn->prev = lp_llt;
+            lp_llnn->prev = lp_ll_nin;
 
             if (pos > 0)
-                lp_llt->next = lp_llnn;
+                lp_ll_nin->next = lp_llnn;
             else
                 lp_ll->lp_head = lp_llnn;
         }
@@ -155,9 +155,165 @@ int LinkedList_insert(LPLinkedList lp_ll, long pos, void *ele)
     return TRUE;
 }
 
-int LinkedList_del_by_pos(LPLinkedList lp_ll, long pos);
+int LinkedList_del_by_pos(LPLinkedList lp_ll, long pos)
+{
+    if (lp_ll == NULL_POINTER || pos < 0 || pos >= lp_ll->eles_num)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return FALSE;
+    }
 
-int LinkedList_del_by_ele(LPLinkedList lp_ll, void *ele, LPDynaArray lp_poses);
+    LPLinkedListNode lp_lln, lp_ll_nin;
+
+    if (lp_ll->eles_num == 0)
+    {
+        lp_lln = lp_ll->lp_head;
+        if (lp_ll->free_func == NULL_POINTER)
+            free(lp_lln->ele);
+        else
+        {
+            if (lp_ll->free_func(lp_lln->ele) == FALSE)
+            {
+                set_last_error(CLIB_CALLBACKFUNC_FAILED);
+                return FALSE;
+            }
+        }
+
+        free(lp_lln);
+        lp_ll->lp_head = NULL_POINTER;
+        lp_ll->lp_tail = NULL_POINTER;
+    }
+    else
+    {
+        long i;
+        if (pos - abs(pos - lp_ll->eles_num) < 0)
+        {
+            lp_lln = lp_ll->lp_head;
+            for (i = 1; i <= pos; i++)
+                lp_lln = lp_lln->next;
+        }
+        else
+        {
+            lp_lln = lp_ll->lp_tail;
+            for (i = lp_ll->eles_num - 2; i >= pos; i--)
+                lp_lln = lp_lln->prev;
+        }
+
+        if (lp_ll->free_func != NULL_POINTER)
+        {
+            if (lp_ll->free_func(lp_lln->ele) == FALSE)
+            {
+                set_last_error(CLIB_CALLBACKFUNC_FAILED);
+                return FALSE;
+            }
+        }
+
+        free(lp_lln->ele);
+
+        if (pos == 0)
+        {
+            lp_ll_nin = lp_lln->next;
+            lp_ll_nin->prev = NULL_POINTER;
+            lp_ll->lp_head = lp_ll_nin;
+        }
+        else if (pos == lp_ll->eles_num - 1)
+        {
+            lp_ll_nin = lp_lln->prev;
+            lp_ll_nin->next = NULL_POINTER;
+            lp_ll->lp_tail = lp_ll_nin;
+        }
+        else
+        {
+            lp_ll_nin = lp_lln->next;
+            lp_ll_nin->prev = lp_lln->prev;
+            lp_ll_nin->prev->next = lp_ll_nin;
+        }
+
+        free(lp_lln);
+    }
+
+    lp_ll->eles_num--;
+    return TRUE;
+}
+
+int LinkedList_del_by_ele(LPLinkedList lp_ll, void *ele, LPDynaArray lp_poses)
+{
+    if (lp_ll == NULL_POINTER || ele == NULL_POINTER)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return FALSE;
+    }
+
+    if (lp_ll->eles_num == 0)
+        return FALSE;
+
+    char eq = FALSE;
+    long len = lp_ll->eles_num;
+    LPLinkedListNode lp_lln, lp_ll_nin, lp_ll_nip;
+    lp_lln = lp_ll->lp_head;
+
+    for (long i = 0; i < len; i++)
+    {
+        if (lp_ll->compare_func != NULL_POINTER)
+        {
+            if (lp_ll->compare_func(lp_lln->ele, ele) == TRUE)
+                eq = TRUE;
+        }
+        else
+        {
+            if (memcmp(lp_lln->ele, ele, lp_ll->ele_size) == 0)
+                eq = TRUE;
+        }
+
+        lp_ll_nin = lp_lln->next;
+        lp_ll_nip = lp_lln->prev;
+
+        if (eq == TRUE)
+        {
+            if (lp_ll->free_func != NULL_POINTER)
+            {
+                if (lp_ll->free_func(lp_lln->ele) == FALSE)
+                {
+                    set_last_error(CLIB_CALLBACKFUNC_FAILED);
+                    return FALSE;
+                }
+            }
+            else
+                free(lp_lln->ele);
+
+            if (lp_ll_nip == NULL_POINTER)
+            {
+                lp_ll->lp_head = lp_ll_nin;
+                lp_ll->lp_head->prev = NULL_POINTER;
+            }
+
+            if (lp_ll_nin == NULL_POINTER)
+            {
+                lp_ll->lp_tail = lp_ll_nip;
+                lp_ll->lp_tail->next = NULL_POINTER;
+            }
+
+            if (lp_ll_nin != NULL_POINTER && lp_ll_nip != NULL_POINTER)
+            {
+                lp_ll_nin->prev = lp_ll_nip;
+                lp_ll_nip->next = lp_ll_nin;
+            }
+
+            free(lp_lln);
+            lp_ll->eles_num--;
+
+            if (lp_poses != NULL_POINTER)
+                if (FALSE == DynaArray_insert(lp_poses, lp_poses->eles_num, &i))
+                    return FALSE;
+
+            eq = FALSE;
+        }
+
+        lp_lln = lp_ll_nin;
+    }
+
+    return TRUE;
+}
 
 int LinkedList_get_by_pos(LPLinkedList lp_ll, long pos, void *ele);
 

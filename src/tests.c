@@ -153,22 +153,49 @@ void test_linkedlist()
     r = LinkedList_insert(lp_ll, lp_ll->eles_num, &mm);
     r = LinkedList_insert(lp_ll, lp_ll->eles_num, &jj);
     r = LinkedList_insert(lp_ll, lp_ll->eles_num, &gg);
-    // r = LinkedList_insert(lp_ll, 5, &cw);
+    r = LinkedList_insert(lp_ll, 4, &cw);
+    r = LinkedList_insert(lp_ll, 5, &cw);
+    // r = LinkedList_del_by_pos(lp_ll, 4);
+
+    LPDynaArray lp_poses = (LPDynaArray)malloc(sizeof(DynaArray));
+    assert(lp_poses != NULL_POINTER);
+    r = DynaArray_init(lp_poses, 10, sizeof(long), NULL_POINTER, NULL_POINTER, NULL_POINTER);
     assert(r != FALSE);
+
+    r = LinkedList_del_by_ele(lp_ll, &cw, lp_poses);
+    assert(r != FALSE);
+
+    char *arr = (char *)lp_poses->eles;
+    char *src;
+    for (long i = 0; i < lp_poses->eles_num; i++)
+    {
+        src = arr + lp_poses->ele_size * i;
+        printf(" del index %d\n", *(long *)src);
+    }
 
     LPLinkedListNode lp_lln = lp_ll->lp_head;
     LPStudent s;
     for (long i = 0; i < lp_ll->eles_num; i++)
     {
         s = (LPStudent)lp_lln->ele;
-        printf("%s, %d\n", s->name, s->age);
+        printf(" student %s, %d\n", s->name, s->age);
         lp_lln = lp_lln->next;
+    }
+
+    if (lp_ll->eles_num != 0)
+    {
+        LPStudent o = (LPStudent)lp_ll->lp_head->ele;
+        LPStudent u = (LPStudent)lp_ll->lp_tail->ele;
+        printf("head: %s, %d\ntai: %s, %d\n", o->name, o->age, u->name, u->age);
     }
 
     r = LinkedList_free(lp_ll);
     assert(r != FALSE);
-
     free(lp_ll);
+
+    r = DynaArray_free(lp_poses);
+    assert(r != FALSE);
+    free(lp_poses);
 }
 
 int main()
