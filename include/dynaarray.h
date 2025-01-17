@@ -30,10 +30,10 @@ int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele);
 
 int DynaArray_edit_by_pos(LPDynaArray lp_da, long pos, void *ele);
 
-int DynaArray_edit_by_ele(LPDynaArray lp_da, void *old_ele, void *new_ele);
+int DynaArray_edit_by_ele(LPDynaArray lp_da, void *old_ele, void *new_ele, LPDynaArray lp_poses);
 
-int DynaArray_get_by_pos(LPDynaArray lp_da, long pos);
+int DynaArray_get_by_pos(LPDynaArray lp_da, long pos, void *ele);
 
-int DynaArray_get_pos_by_ele(LPDynaArray lp_da, void *ele);
+int DynaArray_get_pos_by_ele(LPDynaArray lp_da, void *ele, LPDynaArray lp_poses);
 
 #endif

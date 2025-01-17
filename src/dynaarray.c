@@ -241,10 +241,7 @@ int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele)
                 eq = TRUE;
         }
         else
-        {
-            if (lp_da->compare_func(src, dst) == TRUE)
-                eq = TRUE;
-        }
+            eq = lp_da->compare_func(src, dst);
 
         if (eq == TRUE)
         {
@@ -259,10 +256,137 @@ int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele)
     return TRUE;
 }
 
-int DynaArray_edit_by_pos(LPDynaArray lp_da, long pos, void *ele);
+int DynaArray_edit_by_pos(LPDynaArray lp_da, long pos, void *ele)
+{
+    if (lp_da == NULL_POINTER || pos < 0 || pos >= lp_da->eles_num || ele == NULL_POINTER)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return FALSE;
+    }
 
-int DynaArray_edit_by_ele(LPDynaArray lp_da, void *old_ele, void *new_ele);
+    char *arr = (char *)lp_da->eles;
+    char *dst = arr + pos * lp_da->ele_size;
+    char *src = (char *)ele;
+    size_t count = lp_da->ele_size;
+    if (lp_da->copy_func == NULL_POINTER)
+    {
+        if (memcpy(dst, src, count) == NULL_POINTER)
+            return FALSE;
+    }
+    else
+    {
+        if (lp_da->copy_func(dst, src) == FALSE)
+            return FALSE;
+    }
 
-int DynaArray_get_by_pos(LPDynaArray lp_da, long pos);
+    return TRUE;
+}
 
-int DynaArray_get_pos_by_ele(LPDynaArray lp_da, void *ele);
+int DynaArray_edit_by_ele(LPDynaArray lp_da, void *old_ele, void *new_ele, LPDynaArray lp_poses)
+{
+    if (lp_da == NULL_POINTER || old_ele == NULL_POINTER || new_ele == NULL_POINTER)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return FALSE;
+    }
+
+    char *arr = (char *)lp_da->eles;
+    char *oe = (char *)old_ele;
+    char *ne = (char *)new_ele;
+    char *src;
+    char eq = FALSE;
+    for (long i = 0; i < lp_da->eles_num; i++)
+    {
+        src = arr + i * lp_da->ele_size;
+        if (lp_da->compare_func == NULL_POINTER)
+        {
+            if (memcmp(src, oe, lp_da->ele_size) == 0)
+                eq = TRUE;
+        }
+        else
+            eq = lp_da->compare_func(src, oe);
+
+        if (eq == TRUE)
+        {
+            if (lp_da->copy_func == NULL_POINTER)
+            {
+                if (memcpy(src, new_ele, lp_da->ele_size) != 0)
+                    return FALSE;
+            }
+            else
+            {
+                if (lp_da->copy_func(src, new_ele) == FALSE)
+                    return FALSE;
+            }
+
+            if (lp_poses != NULL_POINTER)
+            {
+                if (DynaArray_insert(lp_poses, lp_poses->eles_num, &i) == FALSE)
+                    return FALSE;
+            }
+        }
+
+        eq = FALSE;
+    }
+
+    return TRUE;
+}
+
+int DynaArray_get_by_pos(LPDynaArray lp_da, long pos, void *ele)
+{
+    if (lp_da == NULL_POINTER || pos < 0 || pos >= lp_da->eles_num)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return FALSE;
+    }
+
+    char *arr = (char *)lp_da->eles;
+    char *src = arr + pos * lp_da->ele_size;
+    char *oe = (char *)ele;
+    if (lp_da->copy_func == NULL_POINTER)
+    {
+        if (memcpy(oe, src, lp_da->ele_size) == NULL_POINTER)
+            return FALSE;
+    }
+    else
+    {
+        if (lp_da->copy_func(oe, src) == FALSE)
+            return FALSE;
+    }
+
+    return TRUE;
+}
+
+int DynaArray_get_pos_by_ele(LPDynaArray lp_da, void *ele, LPDynaArray lp_poses)
+{
+    if (lp_da == NULL_POINTER || ele == NULL_POINTER || lp_poses == NULL_POINTER)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return FALSE;
+    }
+
+    char *arr = (char *)lp_da->eles;
+    char *src;
+    char *oe = (char *)ele;
+    char eq = FALSE;
+    for (long i = 0; i < lp_da->eles_num; i++)
+    {
+        src = arr + i * lp_da->ele_size;
+        if (lp_da->compare_func == NULL_POINTER)
+        {
+            if (memcmp(src, oe, lp_da->ele_size) == 0)
+                eq = TRUE;
+        }
+        else
+            eq = lp_da->compare_func(src, oe);
+
+        if (eq == TRUE)
+        {
+            if (DynaArray_insert(lp_poses, lp_poses->eles_num, &i) == FALSE)
+                return FALSE;
+        }
+        eq = FALSE;
+    }
+
+    return TRUE;
+}
