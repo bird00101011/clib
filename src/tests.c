@@ -28,7 +28,12 @@ int copy_func(void *dst, void *src)
 
 int compare_func(void *dst, void *src)
 {
-    return TRUE;
+    LPStudent d = (LPStudent)dst;
+    LPStudent s = (LPStudent)src;
+    if (strcmp(d->name, s->name) == 0 && d->age == s->age)
+        return TRUE;
+
+    return FALSE;
 }
 
 int free_func(void *dst)
@@ -55,10 +60,9 @@ void test_dynaarray()
     assert(r == TRUE);
 
     char *mm = malloc(3);
-
     char *gg = malloc(3);
-
     char *jj = malloc(3);
+    char *dd = "MM";
 
     strcpy(mm, "MM");
     strcpy(gg, "GG");
@@ -67,8 +71,7 @@ void test_dynaarray()
     Student smm = {mm, 16};
     Student sgg = {gg, 18};
     Student sjj = {jj, 17};
-
-    printf("%d\n", lp_da->eles_num);
+    Student sdd = {dd, 16};
 
     r = DynaArray_insert(lp_da, lp_da->eles_num, &smm);
     assert(r == TRUE);
@@ -79,7 +82,12 @@ void test_dynaarray()
     r = DynaArray_insert(lp_da, lp_da->eles_num, &sjj);
     assert(r == TRUE);
 
-    DynaArray_del_by_pos(lp_da, 2);
+    r = DynaArray_insert(lp_da, lp_da->eles_num, &sdd);
+    assert(r == TRUE);
+
+    // DynaArray_del_by_pos(lp_da, 2);
+    // r = DynaArray_del_by_ele(lp_da, &sdd);
+    assert(r == TRUE);
 
     for (long i = 0; i < lp_da->eles_num; i++)
     {
@@ -89,6 +97,7 @@ void test_dynaarray()
 
     r = DynaArray_free(lp_da);
     assert(r == TRUE);
+
     free(lp_da);
 }
 

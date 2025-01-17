@@ -220,7 +220,44 @@ int DynaArray_del_by_pos(LPDynaArray lp_da, long pos)
     return TRUE;
 }
 
-int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele, LPDynaArray lp_poses);
+int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele)
+{
+    if (lp_da == NULL_POINTER || ele == NULL_POINTER)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return FALSE;
+    }
+
+    char *arr = (char *)lp_da->eles;
+    char *dst = (char *)ele;
+    char *src;
+    char eq = FALSE;
+    for (long i = 0; i < lp_da->eles_num; i++)
+    {
+        src = arr + i * lp_da->ele_size;
+        if (lp_da->compare_func == NULL_POINTER)
+        {
+            if (memcmp(src, dst, lp_da->ele_size) == 0)
+                eq = TRUE;
+        }
+        else
+        {
+            if (lp_da->compare_func(src, dst) == TRUE)
+                eq = TRUE;
+        }
+
+        if (eq == TRUE)
+        {
+            if (DynaArray_del_by_pos(lp_da, i) == FALSE)
+                return FALSE;
+            i--;
+        }
+
+        eq = FALSE;
+    }
+
+    return TRUE;
+}
 
 int DynaArray_edit_by_pos(LPDynaArray lp_da, long pos, void *ele);
 
