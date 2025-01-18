@@ -315,10 +315,163 @@ int LinkedList_del_by_ele(LPLinkedList lp_ll, void *ele, LPDynaArray lp_poses)
     return TRUE;
 }
 
-int LinkedList_get_by_pos(LPLinkedList lp_ll, long pos, void *ele);
+int LinkedList_get_by_pos(LPLinkedList lp_ll, long pos, void *ele)
+{
+    if (lp_ll == NULL_POINTER || pos < 0 || pos >= lp_ll->eles_num || ele == NULL_POINTER)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return FALSE;
+    }
 
-int LinkedList_get_pos_by_ele(LPLinkedList lp_ll, void *ele, LPDynaArray lp_poses);
+    LPLinkedListNode lp_lln;
+    long i;
+    if (pos - abs(pos - lp_ll->eles_num) < 0)
+    {
+        for (i = 0, lp_lln = lp_ll->lp_head; i < pos; i++)
+            lp_lln = lp_lln->next;
+    }
+    else
+    {
+        for (i = lp_ll->eles_num - 1, lp_lln = lp_ll->lp_tail; i > pos; i--)
+            lp_lln = lp_lln->prev;
+    }
 
-int LinkedList_edit_by_pos(LPLinkedList lp_ll, long pos, void *ele);
+    if (lp_ll->copy_func != NULL_POINTER)
+    {
+        if (lp_ll->copy_func(ele, lp_lln->ele) == FALSE)
+        {
+            set_last_error(CLIB_CALLBACKFUNC_FAILED);
+            return FALSE;
+        }
+    }
+    else
+    {
+        if (memcpy((char *)ele, (char *)lp_lln->ele, lp_ll->ele_size) == NULL_POINTER)
+        {
+            set_last_error(CLIB_MEMCPY_FAILED);
+            return FALSE;
+        }
+    }
 
-int LinkedList_edit_by_ele(LPLinkedList lp_ll, void *old_ele, void *new_ele, LPDynaArray lp_poses);
+    return TRUE;
+}
+
+int LinkedList_get_pos_by_ele(LPLinkedList lp_ll, void *ele, LPDynaArray lp_poses)
+{
+    if (lp_ll == NULL_POINTER || ele == NULL_POINTER || lp_poses == NULL_POINTER)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return FALSE;
+    }
+
+    LPLinkedListNode lp_lln = lp_ll->lp_head;
+    char eq = FALSE;
+    for (long i = 0; i < lp_ll->eles_num; i++, lp_lln = lp_lln->next)
+    {
+        if (lp_ll->compare_func != NULL_POINTER)
+            eq = lp_ll->compare_func(ele, lp_lln->ele);
+        else
+        {
+            if (memcmp((char *)ele, (char *)lp_lln->ele, lp_ll->ele_size) == 0)
+                eq = TRUE;
+        }
+        if (eq == TRUE)
+        {
+            if (DynaArray_insert(lp_poses, lp_poses->eles_num, &i) == FALSE)
+                return FALSE;
+
+            eq = FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
+int LinkedList_edit_by_pos(LPLinkedList lp_ll, long pos, void *ele)
+{
+    if (lp_ll == NULL_POINTER || ele == NULL_POINTER)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return FALSE;
+    }
+
+    LPLinkedListNode lp_lln;
+    long i;
+    if (pos - abs(pos - lp_ll->eles_num) < 0)
+    {
+        for (i = 0, lp_lln = lp_ll->lp_head; i < pos; i++)
+            lp_lln = lp_lln->next;
+    }
+    else
+    {
+        for (i = lp_ll->eles_num - 1, lp_lln = lp_ll->lp_tail; i > pos; i--)
+            lp_lln = lp_lln->prev;
+    }
+
+    if (lp_ll->copy_func != NULL_POINTER)
+    {
+        if (lp_ll->copy_func(lp_lln->ele, ele) == FALSE)
+        {
+            set_last_error(CLIB_CALLBACKFUNC_FAILED);
+            return FALSE;
+        }
+    }
+    else
+    {
+        if (memcpy((char *)lp_lln->ele, (char *)ele, lp_ll->ele_size) == NULL_POINTER)
+        {
+            set_last_error(CLIB_MEMCPY_FAILED);
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
+int LinkedList_edit_by_ele(LPLinkedList lp_ll, void *old_ele, void *new_ele, LPDynaArray lp_poses)
+{
+    if (lp_ll == NULL_POINTER || old_ele == NULL_POINTER || new_ele == NULL_POINTER)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return FALSE;
+    }
+
+    LPLinkedListNode lp_lln = lp_ll->lp_head;
+    char eq = FALSE;
+    for (long i = 0; i < lp_ll->eles_num; i++, lp_lln = lp_lln->next)
+    {
+        if (lp_ll->compare_func != NULL_POINTER)
+            eq = lp_ll->compare_func(old_ele, lp_lln->ele);
+        else
+        {
+            if (memcmp((char *)old_ele, (char *)lp_lln->ele, lp_ll->ele_size) == 0)
+                eq = TRUE;
+        }
+        if (eq == TRUE)
+        {
+            if (lp_ll->copy_func != NULL_POINTER)
+            {
+                if (lp_ll->copy_func(lp_lln->ele, new_ele) == FALSE)
+                {
+                    set_last_error(CLIB_CALLBACKFUNC_FAILED);
+                    return FALSE;
+                }
+            }
+            else
+            {
+                if (memcpy((char *)lp_lln->ele, (char *)new_ele, lp_ll->ele_size) == 0)
+                {
+                    set_last_error(CLIB_MEMCPY_FAILED);
+                    return FALSE;
+                }
+            }
+
+            if (DynaArray_insert(lp_poses, lp_poses->eles_num, &i) == FALSE)
+                return FALSE;
+
+            eq = FALSE;
+        }
+    }
+
+    return TRUE;
+}

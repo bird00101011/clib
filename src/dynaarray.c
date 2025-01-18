@@ -220,7 +220,7 @@ int DynaArray_del_by_pos(LPDynaArray lp_da, long pos)
     return TRUE;
 }
 
-int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele)
+int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele, LPDynaArray lp_poses)
 {
     if (lp_da == NULL_POINTER || ele == NULL_POINTER)
     {
@@ -232,7 +232,8 @@ int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele)
     char *dst = (char *)ele;
     char *src;
     char eq = FALSE;
-    for (long i = 0; i < lp_da->eles_num; i++)
+    long i, count;
+    for (i = 0, count = 0; i < lp_da->eles_num; i++, count++)
     {
         src = arr + i * lp_da->ele_size;
         if (lp_da->compare_func == NULL_POINTER)
@@ -247,6 +248,10 @@ int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele)
         {
             if (DynaArray_del_by_pos(lp_da, i) == FALSE)
                 return FALSE;
+
+            if (lp_poses != NULL_POINTER)
+                if (DynaArray_insert(lp_poses, lp_poses->eles_num, &count) == FALSE)
+                    return FALSE;
             i--;
         }
 
@@ -276,7 +281,10 @@ int DynaArray_edit_by_pos(LPDynaArray lp_da, long pos, void *ele)
     else
     {
         if (lp_da->copy_func(dst, src) == FALSE)
+        {
+            set_last_error(CLIB_CALLBACKFUNC_FAILED);
             return FALSE;
+        }
     }
 
     return TRUE;
@@ -316,7 +324,10 @@ int DynaArray_edit_by_ele(LPDynaArray lp_da, void *old_ele, void *new_ele, LPDyn
             else
             {
                 if (lp_da->copy_func(src, new_ele) == FALSE)
+                {
+                    set_last_error(CLIB_CALLBACKFUNC_FAILED);
                     return FALSE;
+                }
             }
 
             if (lp_poses != NULL_POINTER)
