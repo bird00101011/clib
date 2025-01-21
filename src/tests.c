@@ -1,6 +1,7 @@
 #include <error.h>
 #include <dynaarray.h>
 #include <linkedlist.h>
+#include <hashmap.h>
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
@@ -206,11 +207,39 @@ void test_linkedlist()
     free(lp_poses);
 }
 
+void test_hashmap()
+{
+    LPHashMap lp_hm = (LPHashMap)malloc(sizeof(HashMap));
+    assert(lp_hm != NULL_POINTER);
+    int r = HashMap_init(lp_hm, copy_func, compare_func, free_func);
+    assert(r != FALSE);
+
+    char *ddn = "DD";
+    char *mmn = "MM";
+    char *jjn = "JJ";
+    char *ggn = "GG";
+    char *cwn = "CW";
+    Student dd = {ddn, 15};
+    Student mm = {mmn, 16};
+    Student jj = {jjn, 17};
+    Student gg = {ggn, 18};
+    Student cw = {cwn, 3};
+    long ss = sizeof(Student);
+
+    r = HashMap_put(lp_hm, ddn, 3, &dd, ss);
+    assert(r != FALSE);
+
+    HashMap_free(lp_hm);
+    free(lp_hm);
+}
+
 int main()
 {
-    printf("DynaArray tests..........\n");
-    test_dynaarray();
-    printf("LinkedList tests.........\n");
-    test_linkedlist();
+    // printf("DynaArray tests..........\n");
+    // test_dynaarray();
+    // printf("LinkedList tests.........\n");
+    // test_linkedlist();
+    printf("HashMap tests...............\n");
+    test_hashmap();
     return 0;
 }
