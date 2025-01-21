@@ -72,16 +72,11 @@ int HashMap_init(LPHashMap lp_hm,
                  int (*compare_func)(void *, void *),
                  int (*free_func)(void *))
 {
-    if (lp_hm == NULL_POINTER)
-    {
-        set_last_error(CLIB_PARAMS_WRONG);
-        return FALSE;
-    }
+    assert(lp_hm != NULL_POINTER);
 
     lp_hm->copy_func = copy_func;
     lp_hm->compare_func = compare_func;
     lp_hm->free_func = free_func;
-    lp_hm->kvs_num = 0;
 
     lp_hm->lp_lls = (LPDynaArray)malloc(sizeof(DynaArray));
     if (lp_hm->lp_lls == NULL_POINTER)
@@ -114,11 +109,7 @@ int HashMap_init(LPHashMap lp_hm,
 
 int HashMap_free(LPHashMap lp_map)
 {
-    if (lp_map == NULL_POINTER)
-    {
-        set_last_error(CLIB_PARAMS_WRONG);
-        return FALSE;
-    }
+    assert(lp_hm != NULL_POINTER);
 
     if (DynaArray_free(lp_map->lp_lls) == FALSE)
         return FALSE;
@@ -129,7 +120,9 @@ int HashMap_free(LPHashMap lp_map)
 
 int HashMap_gen_hash_code(LPHashMap lp_map, void *key, long key_size, long *lp_hsc)
 {
-    if (lp_map == NULL_POINTER || key == NULL_POINTER || key_size <= 0 || lp_hsc == NULL_POINTER)
+    assert(lp_map != NULL_POINTER && key != NULL_POINTER && lp_hsc != NULL_POINTER);
+
+    if (key_size <= 0)
     {
         set_last_error(CLIB_PARAMS_WRONG);
         return FALSE;
@@ -152,7 +145,9 @@ int HashMap_gen_hash_code(LPHashMap lp_map, void *key, long key_size, long *lp_h
 
 int HashMap_put(LPHashMap lp_map, void *key, long key_size, void *value, long value_size)
 {
-    if (lp_map == NULL_POINTER || key == NULL_POINTER || value == NULL_POINTER || key_size <= 0 || value_size <= 0)
+    assert(lp_map != NULL_POINTER || key != NULL_POINTER || value != NULL_POINTER);
+
+    if (key_size <= 0 || value_size <= 0)
     {
         set_last_error(CLIB_PARAMS_WRONG);
         return FALSE;
@@ -196,7 +191,6 @@ int HashMap_put(LPHashMap lp_map, void *key, long key_size, void *value, long va
         if (LinkedList_insert(&ll, ll.eles_num, &src) == FALSE)
             return FALSE;
 
-    lp_map->kvs_num++;
     return TRUE;
 }
 

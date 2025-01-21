@@ -14,7 +14,6 @@ typedef struct
 typedef struct
 {
     LPDynaArray lp_lls;
-    long kvs_num;
     int (*copy_func)(void *, void *);
     int (*compare_func)(void *, void *);
     int (*free_func)(void *);
