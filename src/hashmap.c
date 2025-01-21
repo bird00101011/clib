@@ -61,10 +61,7 @@ int _da_compare_func(void *dst, void *src)
 int _da_free_func(void *dst)
 {
     LPLinkedList lp_ll = (LPLinkedList)dst;
-    if (LinkedList_free(lp_ll) == FALSE)
-        return FALSE;
-
-    return TRUE;
+    return LinkedList_free(lp_ll);
 }
 
 int HashMap_init(LPHashMap lp_hm,
@@ -145,7 +142,7 @@ int HashMap_gen_hash_code(LPHashMap lp_map, void *key, long key_size, long *lp_h
 
 int HashMap_put(LPHashMap lp_map, void *key, long key_size, void *value, long value_size)
 {
-    assert(lp_map != NULL_POINTER || key != NULL_POINTER || value != NULL_POINTER);
+    assert(lp_map != NULL_POINTER && key != NULL_POINTER && value != NULL_POINTER);
 
     if (key_size <= 0 || value_size <= 0)
     {
