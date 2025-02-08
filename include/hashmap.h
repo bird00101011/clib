@@ -30,7 +30,7 @@ int HashMap_gen_hash_code(LPHashMap lp_map, void *key, long key_size, long *lp_h
 
 int HashMap_put(LPHashMap lp_map, void *key, long key_size, void *value, long value_size);
 
-int HashMap_get(LPHashMap lp_map, LPHashMapKV *ele);
+int HashMap_get(LPHashMap lp_map, LPHashMapKV ele);
 
 int HashMap_delete(LPHashMap lp_map, void *key, long key_size);
 

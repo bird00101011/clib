@@ -35,6 +35,8 @@ int LinkedList_del_by_ele(LPLinkedList lp_ll, void *ele, LPDynaArray lp_poses);
 
 int LinkedList_get_by_pos(LPLinkedList lp_ll, long pos, void *ele);
 
+void *LinkedList_get_addr_by_pos(LPLinkedList lp_ll, long pos);
+
 int LinkedList_get_pos_by_ele(LPLinkedList lp_ll, void *ele, LPDynaArray lp_poses);
 
 int LinkedList_edit_by_pos(LPLinkedList lp_ll, long pos, void *ele);

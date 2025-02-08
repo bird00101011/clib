@@ -207,11 +207,26 @@ void test_linkedlist()
     free(lp_poses);
 }
 
+int hm_copy_func(void *dst, void *src)
+{
+    return TRUE;
+}
+
+int hm_compare_func(void *dst, void *src)
+{
+    return TRUE;
+}
+
+int hm_free_func(void *dst)
+{
+    return TRUE;
+}
+
 void test_hashmap()
 {
     LPHashMap lp_hm = (LPHashMap)malloc(sizeof(HashMap));
     assert(lp_hm != NULL_POINTER);
-    int r = HashMap_init(lp_hm, copy_func, compare_func, free_func);
+    int r = HashMap_init(lp_hm, hm_copy_func, hm_compare_func, hm_free_func);
     assert(r != FALSE);
 
     char *ddn = "DD";
@@ -227,7 +242,13 @@ void test_hashmap()
     long ss = sizeof(Student);
 
     r = HashMap_put(lp_hm, ddn, 3, &dd, ss);
+    // printf(" err %d\n", get_last_error());
     assert(r != FALSE);
+    HashMapKV hmkv = {ddn, 3};
+    r = HashMap_get(lp_hm, &hmkv);
+    assert(r != FALSE);
+    LPStudent lps = (LPStudent)hmkv.value;
+    printf(" name=%s, age=%d\n", lps->name, lps->age);
 
     HashMap_free(lp_hm);
     free(lp_hm);
@@ -237,7 +258,7 @@ int main()
 {
     // printf("DynaArray tests..........\n");
     // test_dynaarray();
-    // printf("LinkedList tests.........\n");
+    // // printf("LinkedList tests.........\n");
     // test_linkedlist();
     printf("HashMap tests...............\n");
     test_hashmap();

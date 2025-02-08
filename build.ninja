@@ -2,8 +2,10 @@ ninja_required_version = 1.5
 rule compile_tests
   command = cl /c /utf-8 $in
 build dynaarray.obj error.obj tests.obj linkedlist.obj hashmap.obj: compile_tests src/dynaarray.c src/error.c src/tests.c src/linkedlist.c src/hashmap.c
+#build dynaarray.obj error.obj tests.obj linkedlist.obj: compile_tests src/dynaarray.c src/error.c src/tests.c src/linkedlist.c 
 rule link_tests
   command = link /out:$out $in
 build tests.exe : link_tests hashmap.obj linkedlist.obj dynaarray.obj error.obj tests.obj
+#build tests.exe : link_tests linkedlist.obj dynaarray.obj error.obj tests.obj
 build all: phony tests.exe
 default all

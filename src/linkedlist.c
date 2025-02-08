@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
+#include <assert.h>
 
 int LinkedList_init(LPLinkedList lp_ll,
                     long ele_size,
@@ -11,7 +12,7 @@ int LinkedList_init(LPLinkedList lp_ll,
                     int (*compare_func)(void *, void *),
                     int (*free_func)(void *))
 {
-    assert((lp_ll != NULL_POINTER);
+    assert(lp_ll != NULL_POINTER);
     if (ele_size <= 0)
     {
         set_last_error(CLIB_PARAMS_WRONG);
@@ -350,6 +351,31 @@ int LinkedList_get_by_pos(LPLinkedList lp_ll, long pos, void *ele)
     }
 
     return TRUE;
+}
+
+void *LinkedList_get_addr_by_pos(LPLinkedList lp_ll, long pos)
+{
+    assert(lp_ll != NULL_POINTER);
+    if (pos < 0 || pos >= lp_ll->eles_num)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return NULL_POINTER;
+    }
+
+    LPLinkedListNode lp_lln;
+    long i;
+    if (pos - abs(pos - lp_ll->eles_num) < 0)
+    {
+        for (i = 0, lp_lln = lp_ll->lp_head; i < pos; i++)
+            lp_lln = lp_lln->next;
+    }
+    else
+    {
+        for (i = lp_ll->eles_num - 1, lp_lln = lp_ll->lp_tail; i > pos; i--)
+            lp_lln = lp_lln->prev;
+    }
+
+    return (void *)lp_lln->ele;
 }
 
 int LinkedList_get_pos_by_ele(LPLinkedList lp_ll, void *ele, LPDynaArray lp_poses)

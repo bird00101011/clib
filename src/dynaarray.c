@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
+#include <assert.h>
 
 int DynaArray_init(LPDynaArray lp_da,
                    long capacity,
@@ -43,9 +44,7 @@ int DynaArray_init(LPDynaArray lp_da,
 
 int DynaArray_free(LPDynaArray lp_da)
 {
-    assert(lp_da != NULL_POINTER);
-    assert(lp_da->eles != NULL_POINTER);
-
+    assert(lp_da != NULL_POINTER && lp_da->eles != NULL_POINTER);
     if (lp_da->free_func != NULL_POINTER)
     {
         char *src;
@@ -88,7 +87,6 @@ int DynaArray_reallocate(LPDynaArray lp_da, long new_capacity)
 int DynaArray_insert(LPDynaArray lp_da, long pos, void *ele)
 {
     assert(lp_da != NULL_POINTER && ele != NULL_POINTER);
-
     if (pos < 0 || pos > lp_da->eles_num)
     {
         set_last_error(CLIB_INDEX_OUT_FAILED);
@@ -210,7 +208,6 @@ int DynaArray_del_by_pos(LPDynaArray lp_da, long pos)
 int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele, LPDynaArray lp_poses)
 {
     assert(lp_da != NULL_POINTER && ele != NULL_POINTER);
-
     char *arr = (char *)lp_da->eles;
     char *dst = (char *)ele;
     char *src;
@@ -277,7 +274,6 @@ int DynaArray_edit_by_pos(LPDynaArray lp_da, long pos, void *ele)
 int DynaArray_edit_by_ele(LPDynaArray lp_da, void *old_ele, void *new_ele, LPDynaArray lp_poses)
 {
     assert(lp_da != NULL_POINTER && old_ele != NULL_POINTER && new_ele == NULL_POINTER);
-
     char *arr = (char *)lp_da->eles;
     char *oe = (char *)old_ele;
     char *ne = (char *)new_ele;
@@ -349,10 +345,23 @@ int DynaArray_get_by_pos(LPDynaArray lp_da, long pos, void *ele)
     return TRUE;
 }
 
+void *DynaArray_get_addr_by_pos(LPDynaArray lp_da, long pos)
+{
+    assert(lp_da != NULL_POINTER);
+    if (pos < 0 || pos >= lp_da->eles_num)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return NULL_POINTER;
+    }
+
+    char *arr = (char *)lp_da->eles;
+    char *src = arr + pos * lp_da->ele_size;
+    return (void *)src;
+}
+
 int DynaArray_get_pos_by_ele(LPDynaArray lp_da, void *ele, LPDynaArray lp_poses)
 {
     assert(lp_da != NULL_POINTER && ele != NULL_POINTER && lp_poses != NULL_POINTER);
-
     char *arr = (char *)lp_da->eles;
     char *src;
     char *oe = (char *)ele;

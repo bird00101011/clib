@@ -15,7 +15,7 @@ int _da_copy_func(void *dst, void *src)
     if (LinkedList_free(lp_dst) == FALSE)
         return FALSE;
 
-    if (LinkedList_init(lp_dst, lp_dst->ele_size, lp_dst->copy_func, lp_dst->compare_func, lp_dst->free_func) == FALSE)
+    if (LinkedList_init(lp_dst, lp_src->ele_size, lp_src->copy_func, lp_src->compare_func, lp_src->free_func) == FALSE)
         return FALSE;
 
     LPLinkedListNode lp_lln = lp_src->lp_head;
@@ -30,7 +30,6 @@ int _da_copy_func(void *dst, void *src)
     if (LinkedList_free(lp_src) == FALSE)
         return FALSE;
 
-    free(lp_src);
     return TRUE;
 }
 
@@ -70,7 +69,6 @@ int HashMap_init(LPHashMap lp_hm,
                  int (*free_func)(void *))
 {
     assert(lp_hm != NULL_POINTER);
-
     lp_hm->copy_func = copy_func;
     lp_hm->compare_func = compare_func;
     lp_hm->free_func = free_func;
@@ -88,7 +86,7 @@ int HashMap_init(LPHashMap lp_hm,
         return FALSE;
     }
 
-    LinkedList ll;
+    LinkedList ll = {};
     if (LinkedList_init(&ll, sizeof(HashMapKV), lp_hm->copy_func, lp_hm->compare_func, lp_hm->free_func) == FALSE)
         return FALSE;
 
@@ -106,8 +104,7 @@ int HashMap_init(LPHashMap lp_hm,
 
 int HashMap_free(LPHashMap lp_map)
 {
-    assert(lp_hm != NULL_POINTER);
-
+    assert(lp_map != NULL_POINTER);
     if (DynaArray_free(lp_map->lp_lls) == FALSE)
         return FALSE;
 
@@ -118,7 +115,6 @@ int HashMap_free(LPHashMap lp_map)
 int HashMap_gen_hash_code(LPHashMap lp_map, void *key, long key_size, long *lp_hsc)
 {
     assert(lp_map != NULL_POINTER && key != NULL_POINTER && lp_hsc != NULL_POINTER);
-
     if (key_size <= 0)
     {
         set_last_error(CLIB_PARAMS_WRONG);
@@ -131,7 +127,7 @@ int HashMap_gen_hash_code(LPHashMap lp_map, void *key, long key_size, long *lp_h
         sum += *(unsigned char *)(arr + i);
 
     long hsc = sum % lp_map->lp_lls->eles_num;
-    if (memcpy(lp_hsc, (long *)&hsc, 1) == NULL_POINTER)
+    if (memcpy(lp_hsc, &hsc, sizeof(long)) == NULL_POINTER)
     {
         set_last_error(CLIB_MEMCPY_FAILED);
         return FALSE;
@@ -143,7 +139,6 @@ int HashMap_gen_hash_code(LPHashMap lp_map, void *key, long key_size, long *lp_h
 int HashMap_put(LPHashMap lp_map, void *key, long key_size, void *value, long value_size)
 {
     assert(lp_map != NULL_POINTER && key != NULL_POINTER && value != NULL_POINTER);
-
     if (key_size <= 0 || value_size <= 0)
     {
         set_last_error(CLIB_PARAMS_WRONG);
@@ -154,24 +149,24 @@ int HashMap_put(LPHashMap lp_map, void *key, long key_size, void *value, long va
     if (FALSE == HashMap_gen_hash_code(lp_map, key, key_size, &pos))
         return FALSE;
 
-    LinkedList ll = {};
-    if (DynaArray_get_by_pos(lp_map->lp_lls, pos, &ll) == FALSE)
+    LPLinkedList lp_ll = (LPLinkedList)DynaArray_get_addr_by_pos(lp_map->lp_lls, pos);
+    if (lp_ll == NULL_POINTER)
         return FALSE;
 
     HashMapKV src = {key, value, key_size, value_size};
     char eq = FALSE;
 
-    if (ll.eles_num > 0)
+    if (lp_ll->eles_num > 0)
     {
-        LPLinkedListNode lp_lln = ll.lp_head;
+        LPLinkedListNode lp_lln = lp_ll->lp_head;
         LPHashMapKV dst = (LPHashMapKV)lp_lln->ele;
 
-        for (long i = 0; i < ll.eles_num; i++)
+        for (long i = 0; i < lp_ll->eles_num; i++)
         {
-            if (ll.compare_func(dst, &src) == TRUE)
+            if (lp_ll->compare_func(dst, &src) == TRUE)
             {
                 eq = TRUE;
-                if (ll.copy_func(dst, &src) == FALSE)
+                if (lp_ll->copy_func(dst, &src) == FALSE)
                 {
                     set_last_error(CLIB_CALLBACKFUNC_FAILED);
                     return FALSE;
@@ -185,37 +180,33 @@ int HashMap_put(LPHashMap lp_map, void *key, long key_size, void *value, long va
     }
 
     if (eq == FALSE)
-        if (LinkedList_insert(&ll, ll.eles_num, &src) == FALSE)
+        if (LinkedList_insert(lp_ll, lp_ll->eles_num, &src) == FALSE)
             return FALSE;
 
     return TRUE;
 }
 
-int HashMap_get(LPHashMap lp_map, LPHashMapKV *ele)
+int HashMap_get(LPHashMap lp_map, LPHashMapKV ele)
 {
-    assert(lp_map != NULL_POINTER && ele != NULL_POINTER);
-    if (key_size <= 0)
+    assert(lp_map != NULL_POINTER && ele != NULL_POINTER && ele->key != NULL_POINTER);
+    if (ele->key_size <= 0)
     {
         set_last_error(CLIB_PARAMS_WRONG);
         return FALSE;
     }
 
     long pos;
-    if (HashMap_gen_hash_code(lp_map, key, key_size, &pos) == FALSE)
+    if (HashMap_gen_hash_code(lp_map, ele->key, ele->key_size, &pos) == FALSE)
         return FALSE;
 
-    LinkedList ll = {};
-    if (DynaArray_get_by_pos(lp_map->lp_lls, pos, &ll) == FALSE)
-        return FALSE;
-
-    if (ll.eles_num > 0)
+    LPLinkedList lp_ll = DynaArray_get_addr_by_pos(lp_map->lp_lls, pos);
+    if (lp_ll->eles_num > 0)
     {
-        LPLinkedListNode lp_lln = ll.lp_head;
-        for (long i = 0; i < ll.eles_num; i++)
+        LPLinkedListNode lp_lln = lp_ll->lp_head;
+        for (long i = 0; i < lp_ll->eles_num; i++)
         {
-            if (ll.compare_func(lp_lln->ele, ele) == TRUE)
-                if (ll.copy_func != NULL_POINTER)
-                    return ll.copy_func(ele, lp_lln->ele);
+            if (lp_ll->compare_func(lp_lln->ele, ele) == TRUE)
+                return lp_ll->copy_func(ele, lp_lln->ele);
 
             lp_lln = lp_lln->next;
         }
@@ -241,12 +232,13 @@ int HashMap_delete(LPHashMap lp_map, void *key, long key_size)
     if (DynaArray_get_by_pos(lp_map->lp_lls, pos, &ll) == FALSE)
         return FALSE;
 
+    HashMapKV ele = {key, NULL_POINTER, key_size, 0};
     if (ll.eles_num > 0)
     {
         LPLinkedListNode lp_lln = ll.lp_head;
         for (long i = 0; i < ll.eles_num; i++)
         {
-            if (ll.compare_func(lp_lln->ele, ele) == TRUE)
+            if (ll.compare_func(lp_lln->ele, &ele) == TRUE)
                 if (ll.free_func != NULL_POINTER)
                     return ll.free_func(lp_lln->ele);
 
