@@ -207,101 +207,16 @@ void test_linkedlist()
     free(lp_poses);
 }
 
-int hm_copy_func(void *dst, void *src)
-{
-    LPHashMapKV d = (LPHashMapKV)dst;
-    LPHashMapKV s = (LPHashMapKV)src;
-    d->key = (char *)malloc(s->key_size);
-    d->value = (char *)malloc(s->value_size);
-    d->key_size = s->key_size;
-    d->value_size = s->value_size;
-    if (d->key != NULL_POINTER)
-        memcpy((char *)d->key, (char *)s->key, s->key_size);
-    if (d->value != NULL_POINTER)
-        memcpy((char *)d->value, (char *)s->value, s->value_size);
-
-    return TRUE;
-}
-
-int hm_compare_func(void *dst, void *src)
-{
-    LPHashMapKV d = (LPHashMapKV)dst;
-    LPHashMapKV s = (LPHashMapKV)src;
-    if (d->key_size == s->key_size && memcmp((char *)d->key, (char *)s->key, s->key_size) == 0)
-        return TRUE;
-    return FALSE;
-}
-
-int hm_free_func(void *dst)
-{
-    LPHashMapKV d = (LPHashMapKV)dst;
-    free(d->key);
-    free(d->value);
-    free(d);
-
-    return TRUE;
-}
-
 void test_hashmap()
 {
-    LPHashMap lp_hm = (LPHashMap)malloc(sizeof(HashMap));
-    assert(lp_hm != NULL_POINTER);
-    int r = HashMap_init(lp_hm, hm_copy_func, hm_compare_func, hm_free_func);
-    assert(r != FALSE);
-
-    char *ddn = "DD";
-    char *mmn = "MM";
-    char *jjn = "JJ";
-    char *ggn = "GG";
-    char *cwn = "CW";
-    Student dd = {ddn, 15};
-    Student mm = {mmn, 16};
-    Student jj = {jjn, 17};
-    Student gg = {ggn, 18};
-    Student cw = {cwn, 3};
-    long ss = sizeof(Student);
-
-    r = HashMap_put(lp_hm, ddn, 3, &dd, ss);
-    r = HashMap_put(lp_hm, mmn, 3, &mm, ss);
-    r = HashMap_put(lp_hm, jjn, 3, &jj, ss);
-    // printf(" err %d\n", get_last_error());
-    assert(r != FALSE);
-    HashMapKV hmkv_dd = {ddn, NULL_POINTER, 3, ss};
-    HashMapKV hmkv_mm = {mmn, NULL_POINTER, 3, ss};
-    HashMapKV hmkv_jj = {jjn, NULL_POINTER, 3, ss};
-
-    r = HashMap_get(lp_hm, &hmkv_dd);
-    assert(r != FALSE);
-    LPStudent lps = (LPStudent)hmkv_dd.value;
-    printf(" put then get name=%s, age=%d\n", lps->name, lps->age);
-
-    r = HashMap_get(lp_hm, &hmkv_mm);
-    assert(r != FALSE);
-    lps = (LPStudent)hmkv_mm.value;
-    printf(" put then get name=%s, age=%d\n", lps->name, lps->age);
-
-    r = HashMap_get(lp_hm, &hmkv_jj);
-    assert(r != FALSE);
-    lps = (LPStudent)hmkv_jj.value;
-    printf(" put then get name=%s, age=%d\n", lps->name, lps->age);
-
-    r = HashMap_delete(lp_hm, ddn, 3);
-    assert(r != FALSE);
-    hmkv_dd.value = NULL_POINTER;
-    hmkv_dd.value_size = 0;
-    r = HashMap_get(lp_hm, &hmkv_dd);
-    assert(r == FALSE);
-
-    HashMap_free(lp_hm);
-    free(lp_hm);
 }
 
 int main()
 {
-    // printf("DynaArray tests..........\n");
-    // test_dynaarray();
-    // // printf("LinkedList tests.........\n");
-    // test_linkedlist();
+    printf("DynaArray tests..........\n");
+    test_dynaarray();
+    printf("LinkedList tests.........\n");
+    test_linkedlist();
     printf("HashMap tests...............\n");
     test_hashmap();
     return 0;
