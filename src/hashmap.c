@@ -156,7 +156,7 @@ int HashMap_put(LPHashMap lp_map, void *key, long key_size, void *value, long va
     HashMapKV src = {key, value, key_size, value_size};
     char eq = FALSE;
 
-    if (lp_ll->eles_num > 0)
+    if (lp_ll->eles_num > 0 && lp_ll->eles_num < 8)
     {
         LPLinkedListNode lp_lln = lp_ll->lp_head;
         LPHashMapKV dst = (LPHashMapKV)lp_lln->ele;
@@ -177,11 +177,23 @@ int HashMap_put(LPHashMap lp_map, void *key, long key_size, void *value, long va
             lp_lln = lp_lln->next;
             dst = (LPHashMapKV)lp_lln->ele;
         }
-    }
 
-    if (eq == FALSE)
+        if (eq == FALSE)
+            if (LinkedList_insert(lp_ll, lp_ll->eles_num, &src) == FALSE)
+                return FALSE;
+    }
+    else if (lp_ll->eles_num == 0)
+    {
         if (LinkedList_insert(lp_ll, lp_ll->eles_num, &src) == FALSE)
             return FALSE;
+    }
+    else
+    {
+        if (HashMap_reallocate(lp_map) == FALSE)
+            return FALSE;
+
+        return HashMap_put(lp_map, key, key_size, value, value_size);
+    }
 
     return TRUE;
 }
@@ -245,6 +257,14 @@ int HashMap_delete(LPHashMap lp_map, void *key, long key_size)
             lp_lln = lp_lln->next;
         }
     }
+
+    return FALSE;
+}
+
+int HashMap_reallocate(LPHashMap lp_map)
+{
+    assert(lp_map != NULL_POINTER && lp_map->lp_lls != NULL_POINTER);
+    // TODO
 
     return FALSE;
 }

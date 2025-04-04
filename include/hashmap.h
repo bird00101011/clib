@@ -34,4 +34,5 @@ int HashMap_get(LPHashMap lp_map, LPHashMapKV ele);
 
 int HashMap_delete(LPHashMap lp_map, void *key, long key_size);
 
+int HashMap_reallocate(LPHashMap lp_map);
 #endif
