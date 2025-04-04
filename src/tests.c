@@ -209,16 +209,36 @@ void test_linkedlist()
 
 int hm_copy_func(void *dst, void *src)
 {
+	LPHashMapKV d = (LPHashMapKV)dst;
+	LPHashMapKV s = (LPHashMapKV)src;
+	d->key = (char*)malloc(s->key_size);
+	d->value = (char*)malloc(s->value_size);
+    d->key_size = s->key_size;
+    d->value_size = s->value_size;
+	if (d->key != NULL_POINTER)
+		memcpy((char*)d->key, (char*)s->key, s->key_size);
+	if (d->value != NULL_POINTER)
+		memcpy((char*)d->value, (char*)s->value, s->value_size); 
+
     return TRUE;
 }
 
 int hm_compare_func(void *dst, void *src)
 {
-    return TRUE;
+    LPHashMapKV d = (LPHashMapKV)dst;
+    LPHashMapKV s = (LPHashMapKV)src;
+    if (d->key_size == s->key_size && memcmp((char*)d->key, (char*)s->key, s->key_size) == 0)
+        return TRUE;
+    return FALSE;
 }
 
 int hm_free_func(void *dst)
 {
+    LPHashMapKV d = (LPHashMapKV)dst;
+    free(d->key);
+    free(d->value);
+    free(d);
+
     return TRUE;
 }
 
@@ -244,9 +264,13 @@ void test_hashmap()
     r = HashMap_put(lp_hm, ddn, 3, &dd, ss);
     // printf(" err %d\n", get_last_error());
     assert(r != FALSE);
-    HashMapKV hmkv = {ddn, 3};
+    HashMapKV hmkv;
+    hmkv.key = ddn;
+    hmkv.key_size = 3;
+
     r = HashMap_get(lp_hm, &hmkv);
     assert(r != FALSE);
+    printf(" ss=%d, value_size=%d\n", ss, hmkv.value_size);
     LPStudent lps = (LPStudent)hmkv.value;
     printf(" name=%s, age=%d\n", lps->name, lps->age);
 

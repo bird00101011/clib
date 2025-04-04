@@ -41,7 +41,7 @@ the progress of this project will probably be very slow, it depends on the mood.
 ## symbols
 
 `[*] ~` Modify function, `[*] +` add function, `[*] -` delete function, `[*] ^` Write 
-document, `[/d./d./d] *` New version released
+document, `[/d./d./d] *` New version released, `[*] T` write tests.
 
 where /d is the number [0-9], the first /d is the version, the second /d is the 
 number of functions, and the third /d is the number of iterations of the 
