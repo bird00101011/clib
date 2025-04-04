@@ -73,6 +73,8 @@ int HashMap_init(LPHashMap lp_hm,
     lp_hm->compare_func = compare_func;
     lp_hm->free_func = free_func;
 
+    lp_hm->element_num = 0;
+    lp_hm->capacity = 16;
     lp_hm->lp_lls = (LPDynaArray)malloc(sizeof(DynaArray));
     if (lp_hm->lp_lls == NULL_POINTER)
     {
@@ -80,7 +82,7 @@ int HashMap_init(LPHashMap lp_hm,
         return FALSE;
     }
 
-    if (DynaArray_init(lp_hm->lp_lls, 16, sizeof(LinkedList), _da_copy_func, _da_compare_func, _da_free_func) == FALSE)
+    if (DynaArray_init(lp_hm->lp_lls, lp_hm->capacity, sizeof(LinkedList), _da_copy_func, _da_compare_func, _da_free_func) == FALSE)
     {
         free(lp_hm->lp_lls);
         return FALSE;
@@ -126,7 +128,7 @@ int HashMap_gen_hash_code(LPHashMap lp_map, void *key, long key_size, long *lp_h
     for (long i = 0; i < key_size; i++)
         sum += *(unsigned char *)(arr + i);
 
-    long hsc = sum % lp_map->lp_lls->eles_num;
+    long hsc = sum % lp_map->capacity;
     if (memcpy(lp_hsc, &hsc, sizeof(long)) == NULL_POINTER)
     {
         set_last_error(CLIB_MEMCPY_FAILED);
@@ -189,12 +191,19 @@ int HashMap_put(LPHashMap lp_map, void *key, long key_size, void *value, long va
     }
     else
     {
-        if (HashMap_reallocate(lp_map) == FALSE)
+        if (HashMap_reallocate(lp_map, lp_map->lp_lls->capacity * 2) == FALSE)
             return FALSE;
 
-        return HashMap_put(lp_map, key, key_size, value, value_size);
+        if (HashMap_put(lp_map, key, key_size, value, value_size) == FALSE)
+        {
+            if (HashMap_reallocate(lp_map, lp_map->lp_lls->capacity / 2) == FALSE)
+                set_last_error(CLIB_HASHMAP_REALLOC_FAILED);
+
+            return FALSE;
+        }
     }
 
+    lp_map->element_num++;
     return TRUE;
 }
 
@@ -252,7 +261,25 @@ int HashMap_delete(LPHashMap lp_map, void *key, long key_size)
         {
             if (ll.compare_func(lp_lln->ele, &ele) == TRUE)
                 if (ll.free_func != NULL_POINTER)
-                    return ll.free_func(lp_lln->ele);
+                {
+                    if (ll.free_func(lp_lln->ele) == FALSE)
+                        return FALSE;
+
+                    if (LinkedList_delete(lp_ll, i) == FALSE)
+                        return FALSE;
+
+                    lp_map->element_num--;
+
+                    if (lp_map->element_num < (lp_map->capacity / 2) && lp_map->capacity > 16)
+                    {
+                        if (HashMap_reallocate(lp_map, lp_map->capacity / 2) == FALSE)
+                        {
+                            set_last_error(CLIB_HASHMAP_REALLOC_FAILED);
+                            return FALSE;
+                        }
+                    }
+                    rerturn TRUE;
+                }
 
             lp_lln = lp_lln->next;
         }
@@ -261,10 +288,87 @@ int HashMap_delete(LPHashMap lp_map, void *key, long key_size)
     return FALSE;
 }
 
-int HashMap_reallocate(LPHashMap lp_map)
+int HashMap_reallocate(LPHashMap lp_map, long new_capacity)
 {
     assert(lp_map != NULL_POINTER && lp_map->lp_lls != NULL_POINTER);
-    // TODO
+    if (new_capacity <= 0)
+    {
+        set_last_error(CLIB_PARAMS_WRONG);
+        return FALSE;
+    }
 
-    return FALSE;
+    LPDynaArray new_lp_lls = (LPDynaArray)malloc(sizeof(DynaArray));
+    if (new_lp_lls == NULL_POINTER)
+    {
+        set_last_error(CLIB_MALLOC_FAILED);
+        return FALSE;
+    }
+    if (DynaArray_init(new_lp_lls, new_capacity, sizeof(LinkedList), _da_copy_func, _da_compare_func, _da_free_func) == FALSE)
+    {
+        free(new_lp_lls);
+        return FALSE;
+    }
+
+    LinkedList ll = {};
+    if (LinkedList_init(&ll, sizeof(HashMapKV), lp_map->copy_func, lp_map->compare_func, lp_map->free_func) == FALSE)
+        return FALSE;
+
+    for (char i = 0; i < new_capacity; i++)
+    {
+        if (DynaArray_insert(new_lp_lls, i, &ll) == FALSE)
+        {
+            DynaArray_free(new_lp_lls);
+            free(new_lp_lls);
+            return FALSE;
+        }
+    }
+
+    for (long i = 0; i < lp_map->lp_lls->eles_num; i++)
+    {
+        LPLinkedList lp_ll = DynaArray_get_addr_by_pos(lp_map->lp_lls, i);
+        for (LPLinkedListNode lp_lln = lp_ll->lp_head; lp_lln != NULL_POINTER; lp_lln = lp_lln->next)
+        {
+            LPHashMapKV src = (LPHashMapKV)lp_lln->ele;
+
+            LinkedList dst = {};
+            if (LinkedList_init(&dst, sizeof(HashMapKV), lp_map->copy_func, lp_map->compare_func, lp_map->free_func) == FALSE)
+            {
+                DynaArray_free(new_lp_lls);
+                free(new_lp_lls);
+                return FALSE;
+            }
+            if (LinkedList_insert(&dst, dst.eles_num, src) == FALSE)
+            {
+                DynaArray_free(new_lp_lls);
+                free(new_lp_lls);
+                return FALSE;
+            }
+
+            long sum = 0;
+            char *arr = (char *)src->key;
+            for (long i = 0; i < src->key_size; i++)
+                sum += *(unsigned char *)(arr + i);
+
+            long hsc = sum % new_capacity;
+            if (memcpy(lp_hsc, &hsc, sizeof(long)) == NULL_POINTER)
+            {
+                set_last_error(CLIB_MEMCPY_FAILED);
+                return FALSE;
+            }
+
+            if (DynaArray_insert(new_lp_lls, hsc, &dst) == FALSE)
+            {
+                DynaArray_free(new_lp_lls);
+                free(new_lp_lls);
+                return FALSE;
+            }
+        }
+    }
+
+    DynaArray_free(lp_map->lp_lls);
+    free(lp_map->lp_lls);
+    lp_map->lp_lls = new_lp_lls;
+    lp_map->capacity = new_capacity;
+    lp_map->element_num = lp_map->lp_lls->eles_num;
+    return TRUE;
 }

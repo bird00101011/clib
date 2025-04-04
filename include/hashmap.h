@@ -13,6 +13,8 @@ typedef struct
 
 typedef struct
 {
+    long element_num;
+    long capacity;
     LPDynaArray lp_lls;
     int (*copy_func)(void *, void *);
     int (*compare_func)(void *, void *);
@@ -34,5 +36,5 @@ int HashMap_get(LPHashMap lp_map, LPHashMapKV ele);
 
 int HashMap_delete(LPHashMap lp_map, void *key, long key_size);
 
-int HashMap_reallocate(LPHashMap lp_map);
+int HashMap_reallocate(LPHashMap lp_map, long new_capacity);
 #endif
