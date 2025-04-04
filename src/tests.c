@@ -209,16 +209,16 @@ void test_linkedlist()
 
 int hm_copy_func(void *dst, void *src)
 {
-	LPHashMapKV d = (LPHashMapKV)dst;
-	LPHashMapKV s = (LPHashMapKV)src;
-	d->key = (char*)malloc(s->key_size);
-	d->value = (char*)malloc(s->value_size);
+    LPHashMapKV d = (LPHashMapKV)dst;
+    LPHashMapKV s = (LPHashMapKV)src;
+    d->key = (char *)malloc(s->key_size);
+    d->value = (char *)malloc(s->value_size);
     d->key_size = s->key_size;
     d->value_size = s->value_size;
-	if (d->key != NULL_POINTER)
-		memcpy((char*)d->key, (char*)s->key, s->key_size);
-	if (d->value != NULL_POINTER)
-		memcpy((char*)d->value, (char*)s->value, s->value_size); 
+    if (d->key != NULL_POINTER)
+        memcpy((char *)d->key, (char *)s->key, s->key_size);
+    if (d->value != NULL_POINTER)
+        memcpy((char *)d->value, (char *)s->value, s->value_size);
 
     return TRUE;
 }
@@ -227,7 +227,7 @@ int hm_compare_func(void *dst, void *src)
 {
     LPHashMapKV d = (LPHashMapKV)dst;
     LPHashMapKV s = (LPHashMapKV)src;
-    if (d->key_size == s->key_size && memcmp((char*)d->key, (char*)s->key, s->key_size) == 0)
+    if (d->key_size == s->key_size && memcmp((char *)d->key, (char *)s->key, s->key_size) == 0)
         return TRUE;
     return FALSE;
 }
@@ -262,17 +262,35 @@ void test_hashmap()
     long ss = sizeof(Student);
 
     r = HashMap_put(lp_hm, ddn, 3, &dd, ss);
+    r = HashMap_put(lp_hm, mmn, 3, &mm, ss);
+    r = HashMap_put(lp_hm, jjn, 3, &jj, ss);
     // printf(" err %d\n", get_last_error());
     assert(r != FALSE);
-    HashMapKV hmkv;
-    hmkv.key = ddn;
-    hmkv.key_size = 3;
+    HashMapKV hmkv_dd = {ddn, NULL_POINTER, 3, ss};
+    HashMapKV hmkv_mm = {mmn, NULL_POINTER, 3, ss};
+    HashMapKV hmkv_jj = {jjn, NULL_POINTER, 3, ss};
 
-    r = HashMap_get(lp_hm, &hmkv);
+    r = HashMap_get(lp_hm, &hmkv_dd);
     assert(r != FALSE);
-    printf(" ss=%d, value_size=%d\n", ss, hmkv.value_size);
-    LPStudent lps = (LPStudent)hmkv.value;
-    printf(" name=%s, age=%d\n", lps->name, lps->age);
+    LPStudent lps = (LPStudent)hmkv_dd.value;
+    printf(" put then get name=%s, age=%d\n", lps->name, lps->age);
+
+    r = HashMap_get(lp_hm, &hmkv_mm);
+    assert(r != FALSE);
+    lps = (LPStudent)hmkv_mm.value;
+    printf(" put then get name=%s, age=%d\n", lps->name, lps->age);
+
+    r = HashMap_get(lp_hm, &hmkv_jj);
+    assert(r != FALSE);
+    lps = (LPStudent)hmkv_jj.value;
+    printf(" put then get name=%s, age=%d\n", lps->name, lps->age);
+
+    r = HashMap_delete(lp_hm, ddn, 3);
+    assert(r != FALSE);
+    hmkv_dd.value = NULL_POINTER;
+    hmkv_dd.value_size = 0;
+    r = HashMap_get(lp_hm, &hmkv_dd);
+    assert(r == FALSE);
 
     HashMap_free(lp_hm);
     free(lp_hm);
