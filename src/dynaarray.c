@@ -5,6 +5,7 @@
 #include <memory.h>
 #include <assert.h>
 
+__declspec(dllexport)
 int DynaArray_init(LPDynaArray lp_da,
                    long capacity,
                    long ele_size,
@@ -42,6 +43,7 @@ int DynaArray_init(LPDynaArray lp_da,
     return TRUE;
 }
 
+__declspec(dllexport)
 int DynaArray_free(LPDynaArray lp_da)
 {
     assert(lp_da != NULL_POINTER && lp_da->eles != NULL_POINTER);
@@ -64,6 +66,7 @@ int DynaArray_free(LPDynaArray lp_da)
     return TRUE;
 }
 
+__declspec(dllexport)
 int DynaArray_reallocate(LPDynaArray lp_da, long new_capacity)
 {
     assert(lp_da != NULL_POINTER);
@@ -84,6 +87,7 @@ int DynaArray_reallocate(LPDynaArray lp_da, long new_capacity)
     return TRUE;
 }
 
+__declspec(dllexport)
 int DynaArray_insert(LPDynaArray lp_da, long pos, void *ele)
 {
     assert(lp_da != NULL_POINTER && ele != NULL_POINTER);
@@ -163,6 +167,7 @@ int DynaArray_insert(LPDynaArray lp_da, long pos, void *ele)
     return TRUE;
 }
 
+__declspec(dllexport)
 int DynaArray_del_by_pos(LPDynaArray lp_da, long pos)
 {
     assert(lp_da != NULL_POINTER);
@@ -205,6 +210,7 @@ int DynaArray_del_by_pos(LPDynaArray lp_da, long pos)
     return TRUE;
 }
 
+__declspec(dllexport)
 int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele, LPDynaArray lp_poses)
 {
     assert(lp_da != NULL_POINTER && ele != NULL_POINTER);
@@ -241,6 +247,7 @@ int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele, LPDynaArray lp_poses)
     return TRUE;
 }
 
+__declspec(dllexport)
 int DynaArray_edit_by_pos(LPDynaArray lp_da, long pos, void *ele)
 {
     assert(lp_da != NULL_POINTER && ele != NULL_POINTER);
@@ -271,6 +278,7 @@ int DynaArray_edit_by_pos(LPDynaArray lp_da, long pos, void *ele)
     return TRUE;
 }
 
+__declspec(dllexport)
 int DynaArray_edit_by_ele(LPDynaArray lp_da, void *old_ele, void *new_ele, LPDynaArray lp_poses)
 {
     assert(lp_da != NULL_POINTER && old_ele != NULL_POINTER && new_ele == NULL_POINTER);
@@ -319,6 +327,7 @@ int DynaArray_edit_by_ele(LPDynaArray lp_da, void *old_ele, void *new_ele, LPDyn
     return TRUE;
 }
 
+__declspec(dllexport)
 int DynaArray_get_by_pos(LPDynaArray lp_da, long pos, void *ele)
 {
     assert(lp_da != NULL_POINTER);
@@ -345,6 +354,7 @@ int DynaArray_get_by_pos(LPDynaArray lp_da, long pos, void *ele)
     return TRUE;
 }
 
+__declspec(dllexport)
 void *DynaArray_get_addr_by_pos(LPDynaArray lp_da, long pos)
 {
     assert(lp_da != NULL_POINTER);
@@ -359,6 +369,7 @@ void *DynaArray_get_addr_by_pos(LPDynaArray lp_da, long pos)
     return (void *)src;
 }
 
+__declspec(dllexport)
 int DynaArray_get_pos_by_ele(LPDynaArray lp_da, void *ele, LPDynaArray lp_poses)
 {
     assert(lp_da != NULL_POINTER && ele != NULL_POINTER && lp_poses != NULL_POINTER);

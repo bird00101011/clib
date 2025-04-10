@@ -2,6 +2,7 @@
 
 long CLIB_LAST_ERROR = 0;
 
+__declspec(dllexport)
 long get_last_error()
 {
     return CLIB_LAST_ERROR;

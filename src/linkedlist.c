@@ -6,6 +6,7 @@
 #include <memory.h>
 #include <assert.h>
 
+__declspec(dllexport)
 int LinkedList_init(LPLinkedList lp_ll,
                     long ele_size,
                     int (*copy_func)(void *, void *),
@@ -30,6 +31,7 @@ int LinkedList_init(LPLinkedList lp_ll,
     return TRUE;
 }
 
+__declspec(dllexport)
 int LinkedList_free(LPLinkedList lp_ll)
 {
     assert(lp_ll != NULL_POINTER);
@@ -56,6 +58,7 @@ int LinkedList_free(LPLinkedList lp_ll)
     return TRUE;
 }
 
+__declspec(dllexport)
 int LinkedList_insert(LPLinkedList lp_ll, long pos, void *ele)
 {
     assert(lp_ll != NULL_POINTER && ele != NULL_POINTER);
@@ -154,6 +157,7 @@ int LinkedList_insert(LPLinkedList lp_ll, long pos, void *ele)
     return TRUE;
 }
 
+__declspec(dllexport)
 int LinkedList_del_by_pos(LPLinkedList lp_ll, long pos)
 {
     assert(lp_ll != NULL_POINTER);
@@ -236,6 +240,7 @@ int LinkedList_del_by_pos(LPLinkedList lp_ll, long pos)
     return TRUE;
 }
 
+__declspec(dllexport)
 int LinkedList_del_by_ele(LPLinkedList lp_ll, void *ele, LPDynaArray lp_poses)
 {
     assert(lp_ll != NULL_POINTER && ele != NULL_POINTER);
@@ -311,6 +316,7 @@ int LinkedList_del_by_ele(LPLinkedList lp_ll, void *ele, LPDynaArray lp_poses)
     return TRUE;
 }
 
+__declspec(dllexport)
 int LinkedList_get_by_pos(LPLinkedList lp_ll, long pos, void *ele)
 {
     assert(lp_ll != NULL_POINTER && ele != NULL_POINTER);
@@ -353,6 +359,7 @@ int LinkedList_get_by_pos(LPLinkedList lp_ll, long pos, void *ele)
     return TRUE;
 }
 
+__declspec(dllexport)
 void *LinkedList_get_addr_by_pos(LPLinkedList lp_ll, long pos)
 {
     assert(lp_ll != NULL_POINTER);
@@ -378,6 +385,7 @@ void *LinkedList_get_addr_by_pos(LPLinkedList lp_ll, long pos)
     return (void *)lp_lln->ele;
 }
 
+__declspec(dllexport)
 int LinkedList_get_pos_by_ele(LPLinkedList lp_ll, void *ele, LPDynaArray lp_poses)
 {
     assert(lp_ll != NULL_POINTER && ele != NULL_POINTER && lp_poses != NULL_POINTER);
@@ -405,6 +413,7 @@ int LinkedList_get_pos_by_ele(LPLinkedList lp_ll, void *ele, LPDynaArray lp_pose
     return TRUE;
 }
 
+__declspec(dllexport)
 int LinkedList_edit_by_pos(LPLinkedList lp_ll, long pos, void *ele)
 {
     assert(lp_ll != NULL_POINTER && ele != NULL_POINTER);
@@ -442,6 +451,7 @@ int LinkedList_edit_by_pos(LPLinkedList lp_ll, long pos, void *ele)
     return TRUE;
 }
 
+__declspec(dllexport)
 int LinkedList_edit_by_ele(LPLinkedList lp_ll, void *old_ele, void *new_ele, LPDynaArray lp_poses)
 {
     assert(lp_ll != NULL_POINTER && old_ele != NULL_POINTER && new_ele != NULL_POINTER);
