@@ -1,9 +1,15 @@
-.IGNORE: clean
+.IGNORE: clean test
 
-LIB_TARGET = clib.lib
+CPU ?= 86 # 64
+
+FLAG_MACHINE = /MACHINE:X$(CPU)
+
+LIB_TARGET = libclibx$(strip $(CPU)).lib
 TESTS_TARGET = tests.exe
 
 TARGETS = $(LIB_TARGET) $(TESTS_TARGET)
+
+all: $(TARGETS)
 
 CC_CMD = cl
 LIB_CMD = lib
@@ -15,13 +21,11 @@ LIB_OBJ = $(LIB_SRC:.c=.obj)
 TESTS_SRC = tests.c
 TESTS_OBJ = $(TESTS_SRC:.c=.obj)
 
-all: $(TARGETS)
-
 $(LIB_TARGET): $(LIB_OBJ)
-	$(LIB_CMD) /OUT:$@ $^
+	$(LIB_CMD) $(FLAG_MACHINE) /OUT:$@ $^
 
 $(TESTS_TARGET): $(TESTS_OBJ) $(LIB_TARGET)
-	$(LINK_CMD) /OUT:$@ $^
+	$(LINK_CMD) $(FLAG_MACHINE) /OUT:$@ $^ 
 
 %.obj: %.c
 	$(CC_CMD) /c /utf-8 $<
