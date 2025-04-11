@@ -9,6 +9,13 @@ typedef struct {
   int (*free_func)(void *);
 } HashMap, *LPHashMap;
 
+typedef struct {
+  void *key;
+  void *value;
+  long key_size;
+  long value_size;
+} HashMapNode, *LPHashMapNode;
+
 __declspec(dllexport) int HashMap_init(LPHashMap lp_hm,
                                        int (*copy_func)(void *, void *),
                                        int (*compare_func)(void *, void *),
