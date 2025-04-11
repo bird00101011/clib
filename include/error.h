@@ -16,8 +16,7 @@
 #define TRUE 0
 #define FALSE -1
 
-__declspec(dllexport)
-long get_last_error();
+__declspec(dllexport) long get_last_error();
 
 void set_last_error(long n);
 
