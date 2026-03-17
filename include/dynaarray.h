@@ -2,20 +2,20 @@
 #define DYNAARRAY_H
 
 typedef struct {
-  void *eles;
+  void* eles;
   long eles_num;
   long ele_size;
   long capacity;
-  int (*copy_func)(void *, void *);
-  int (*compare_func)(void *, void *);
-  int (*free_func)(void *);
+  int (*copy_func)(void*, void*);
+  int (*compare_func)(void*, void*);
+  int (*free_func)(void*);
 } DynaArray, *LPDynaArray;
 
 __declspec(dllexport) int DynaArray_init(LPDynaArray lp_da, long capacity,
                                          long ele_size,
-                                         int (*copy_func)(void *, void *),
-                                         int (*compare_func)(void *, void *),
-                                         int (*free_func)(void *));
+                                         int (*copy_func)(void*, void*),
+                                         int (*compare_func)(void*, void*),
+                                         int (*free_func)(void*));
 
 __declspec(dllexport) int DynaArray_free(LPDynaArray lp_da);
 
@@ -23,27 +23,27 @@ __declspec(dllexport) int DynaArray_reallocate(LPDynaArray lp_da,
                                                long new_capacity);
 
 __declspec(dllexport) int DynaArray_insert(LPDynaArray lp_da, long pos,
-                                           void *ele);
+                                           void* ele);
 
 __declspec(dllexport) int DynaArray_del_by_pos(LPDynaArray lp_da, long pos);
 
-__declspec(dllexport) int DynaArray_del_by_ele(LPDynaArray lp_da, void *ele,
+__declspec(dllexport) int DynaArray_del_by_ele(LPDynaArray lp_da, void* ele,
                                                LPDynaArray lp_poses);
 
 __declspec(dllexport) int DynaArray_edit_by_pos(LPDynaArray lp_da, long pos,
-                                                void *ele);
+                                                void* ele);
 
 __declspec(dllexport) int DynaArray_edit_by_ele(LPDynaArray lp_da,
-                                                void *old_ele, void *new_ele,
+                                                void* old_ele, void* new_ele,
                                                 LPDynaArray lp_poses);
 
 __declspec(dllexport) int DynaArray_get_by_pos(LPDynaArray lp_da, long pos,
-                                               void *ele);
+                                               void* ele);
 
-__declspec(dllexport) void *DynaArray_get_addr_by_pos(LPDynaArray lp_da,
+__declspec(dllexport) void* DynaArray_get_addr_by_pos(LPDynaArray lp_da,
                                                       long pos);
 
-__declspec(dllexport) int DynaArray_get_pos_by_ele(LPDynaArray lp_da, void *ele,
+__declspec(dllexport) int DynaArray_get_pos_by_ele(LPDynaArray lp_da, void* ele,
                                                    LPDynaArray lp_poses);
 
 #endif

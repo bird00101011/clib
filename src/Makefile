@@ -31,7 +31,7 @@ $(TESTS_TARGET): $(TESTS_OBJ) $(LIB_TARGET)
 	$(CC_CMD) /c /utf-8 $<
 
 clean:
-	rm -f *.obj *.lib *.exp *.exe
+	powershell 'Remove-Item "*.obj", "*.exp", "*.lib","*.pdb","*.exe"'
 
 test:
 	./$(TESTS_TARGET)

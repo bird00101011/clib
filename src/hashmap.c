@@ -7,14 +7,20 @@
 #include <memory.h>
 #include <stdlib.h>
 
-int copy_func(void *, void *);
-int compare_func(void *, void *);
-int free_func(void *);
+int da_copy_func(void* dst, void* src) {
+  LPLinkedList d = (LPLinkedList)dst;
+  LPLinkedList s = (LPLinkedList)src;
+
+  return TRUE;
+}
+
+int da_compare_func(void* dst, void* src) { return TRUE; }
+int da_free_func(void* dst) { return TRUE; }
 
 __declspec(dllexport) int HashMap_init(LPHashMap lp_hm,
-                                       int (*copy_func)(void *, void *),
-                                       int (*compare_func)(void *, void *),
-                                       int (*free_func)(void *)) {
+                                       int (*copy_func)(void*, void*),
+                                       int (*compare_func)(void*, void*),
+                                       int (*free_func)(void*)) {
   assert(lp_hm != NULL_POINTER);
 
   lp_hm->lp_da_lls = malloc(sizeof(LPDynaArray));
@@ -24,10 +30,9 @@ __declspec(dllexport) int HashMap_init(LPHashMap lp_hm,
     return FALSE;
   }
 
-  char capacity = 16;
   char ll_size = sizeof(LinkedList);
-  if (DynaArray_init(lp_hm->lp_da_lls, capacity, ll_size, copy_func,
-                     compare_func, free_func) == FALSE) {
+  if (DynaArray_init(lp_hm->lp_da_lls, TABLE_SIZE, ll_size, da_copy_func,
+                     da_compare_func, da_free_func) == FALSE) {
     return FALSE;
   }
 
@@ -44,7 +49,7 @@ __declspec(dllexport) int HashMap_init(LPHashMap lp_hm,
   }
 
   char err = FALSE;
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < TABLE_SIZE; i++) {
     if (DynaArray_insert(lp_hm->lp_da_lls, lp_hm->lp_da_lls->eles_num, &ll) ==
         FALSE) {
       err = TRUE;
@@ -58,3 +63,47 @@ __declspec(dllexport) int HashMap_init(LPHashMap lp_hm,
 
   return TRUE;
 }
+
+__declspec(dllexport) unsigned long HashMap_gen_hashcode(void* key,
+                                                         long key_size) {
+  char* k = (char*)key;
+  unsigned long hash = 0;
+  for (long i = 0; i < key_size; i++) hash += (hash << 5) + k[i];
+
+  return hash;
+}
+
+__declspec(dllexport) int HashMap_put(LPHashMap lp_hm, LPHashMapNode lp_hmn) {
+  assert(lp_hm != NULL_POINTER && lp_hmn != NULL_POINTER &&
+         lp_hmn->key != NULL_POINTER && lp_hmn->value != NULL_POINTER);
+
+  if (lp_hmn->key_size <= 0 || lp_hmn->value_size <= 0) {
+    set_last_error(CLIB_PARAMS_WRONG);
+    return FALSE;
+  }
+
+  unsigned long hash = HashMap_gen_hashcode(lp_hmn->key, lp_hmn->key_size);
+  // 2 % 4 =2, 2 & (4 - 1) = 2
+  unsigned long index = hash & (lp_hm->lp_da_lls->capacity - 1);
+
+  LPLinkedList bucket =
+      (LPLinkedList)DynaArray_get_addr_by_pos(lp_hm->lp_da_lls, index);
+
+  if (bucket == NULL_POINTER) {
+    set_last_error(CLIB_NULL_POINTER_FAILED);
+    return FALSE;
+  }
+
+  if (bucket->eles_num == 0) {
+    LinkedList_insert(bucket, bucket->eles_num, lp_hmn->value);
+  }
+
+  return TRUE;
+}
+
+__declspec(dllexport) int HashMap_get(LPHashMap lp_hm, LPHashMapNode lpmn);
+
+__declspec(dllexport) int HashMap_del(LPHashMap lp_hm, void* key,
+                                      long key_size);
+
+__declspec(dllexport) int HashMap_free(LPHashMap lp_hm);

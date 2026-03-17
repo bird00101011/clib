@@ -6,3 +6,4 @@
 .ninja_log
 build/
 *.md
+*.exp
