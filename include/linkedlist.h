@@ -26,12 +26,12 @@ __declspec(dllexport) int LinkedList_init(LPLinkedList lp_ll,
 __declspec(dllexport) int LinkedList_free(LPLinkedList lp_ll);
 
 __declspec(dllexport) int LinkedList_insert(LPLinkedList lp_ll, long pos,
-                                            void* ele, long* ele_size);
+                                            void* ele, long ele_size);
 
 __declspec(dllexport) int LinkedList_del_by_pos(LPLinkedList lp_ll, long pos);
 
 __declspec(dllexport) int LinkedList_del_by_ele(LPLinkedList lp_ll, void* ele,
-                                                long* ele_size,
+                                                long ele_size,
                                                 LPDynaArray lp_poses);
 
 __declspec(dllexport) int LinkedList_get_by_pos(LPLinkedList lp_ll, long pos,

@@ -6,19 +6,14 @@
 #include <memory.h>
 #include <stdlib.h>
 
-__declspec(dllexport) int LinkedList_init(LPLinkedList lp_ll, long ele_size,
-                                          int (*copy_func)(void *, void *),
-                                          int (*compare_func)(void *, void *),
-                                          int (*free_func)(void *)) {
+__declspec(dllexport) int LinkedList_init(LPLinkedList lp_ll,
+                                          int (*copy_func)(void*, void*),
+                                          int (*compare_func)(void*, void*),
+                                          int (*free_func)(void*)) {
   assert(lp_ll != NULL_POINTER);
-  if (ele_size <= 0) {
-    set_last_error(CLIB_PARAMS_WRONG);
-    return FALSE;
-  }
 
   lp_ll->lp_tail = NULL_POINTER;
   lp_ll->lp_head = NULL_POINTER;
-  lp_ll->ele_size = ele_size;
   lp_ll->copy_func = copy_func;
   lp_ll->compare_func = compare_func;
   lp_ll->free_func = free_func;
@@ -50,16 +45,16 @@ __declspec(dllexport) int LinkedList_free(LPLinkedList lp_ll) {
 }
 
 __declspec(dllexport) int LinkedList_insert(LPLinkedList lp_ll, long pos,
-                                            void *ele) {
+                                            void* ele, long ele_size) {
   assert(lp_ll != NULL_POINTER && ele != NULL_POINTER);
-  if (pos < 0 || pos > lp_ll->eles_num) {
+  if (pos < 0 || pos > lp_ll->eles_num || ele_size <= 0) {
     set_last_error(CLIB_PARAMS_WRONG);
     return FALSE;
   }
 
   LPLinkedListNode lp_lln, lp_ll_nin, lp_llnn;
   char *src, *dst;
-  src = (char *)ele;
+  src = (char*)ele;
 
   lp_llnn = (LPLinkedListNode)malloc(sizeof(LinkedListNode));
   if (lp_llnn == NULL_POINTER) {
@@ -67,18 +62,19 @@ __declspec(dllexport) int LinkedList_insert(LPLinkedList lp_ll, long pos,
     return FALSE;
   }
 
-  lp_llnn->ele = malloc(lp_ll->ele_size);
-  dst = (char *)lp_llnn->ele;
-  long i;
-
+  lp_llnn->ele = malloc(ele_size);
   if (lp_llnn->ele == NULL_POINTER) {
     set_last_error(CLIB_MALLOC_FAILED);
     free(lp_llnn);
     return FALSE;
   }
 
+  lp_llnn->ele_size = ele_size;
+  dst = (char*)lp_llnn->ele;
+  long i;
+
   if (lp_ll->copy_func == NULL_POINTER) {
-    if (memcpy(dst, src, lp_ll->ele_size) == NULL_POINTER) {
+    if (memcpy(dst, src, ele_size) == NULL_POINTER) {
       set_last_error(CLIB_MEMCPY_FAILED);
       free(lp_llnn->ele);
       free(lp_llnn);
@@ -191,7 +187,8 @@ __declspec(dllexport) int LinkedList_del_by_pos(LPLinkedList lp_ll, long pos) {
   return TRUE;
 }
 
-__declspec(dllexport) int LinkedList_del_by_ele(LPLinkedList lp_ll, void *ele,
+__declspec(dllexport) int LinkedList_del_by_ele(LPLinkedList lp_ll, void* ele,
+                                                long ele_size,
                                                 LPDynaArray lp_poses) {
   assert(lp_ll != NULL_POINTER && ele != NULL_POINTER);
 
@@ -206,7 +203,7 @@ __declspec(dllexport) int LinkedList_del_by_ele(LPLinkedList lp_ll, void *ele,
     if (lp_ll->compare_func != NULL_POINTER) {
       if (lp_ll->compare_func(lp_lln->ele, ele) == TRUE) eq = TRUE;
     } else {
-      if (memcmp(lp_lln->ele, ele, lp_ll->ele_size) == 0) eq = TRUE;
+      if (memcmp(lp_lln->ele, ele, ele_size) == 0) eq = TRUE;
     }
 
     lp_ll_nin = lp_lln->next;
@@ -253,8 +250,9 @@ __declspec(dllexport) int LinkedList_del_by_ele(LPLinkedList lp_ll, void *ele,
 }
 
 __declspec(dllexport) int LinkedList_get_by_pos(LPLinkedList lp_ll, long pos,
-                                                void *ele) {
-  assert(lp_ll != NULL_POINTER && ele != NULL_POINTER);
+                                                void* ele, long* ele_size) {
+  assert(lp_ll != NULL_POINTER && ele != NULL_POINTER &&
+         ele_size != NULL_POINTER);
   if (pos < 0 || pos >= lp_ll->eles_num) {
     set_last_error(CLIB_PARAMS_WRONG);
     return FALSE;
@@ -275,7 +273,7 @@ __declspec(dllexport) int LinkedList_get_by_pos(LPLinkedList lp_ll, long pos,
       return FALSE;
     }
   } else {
-    if (memcpy((char *)ele, (char *)lp_lln->ele, lp_ll->ele_size) ==
+    if (memcpy((char*)ele, (char*)lp_lln->ele, lp_lln->ele_size) ==
         NULL_POINTER) {
       set_last_error(CLIB_MEMCPY_FAILED);
       return FALSE;
@@ -285,7 +283,7 @@ __declspec(dllexport) int LinkedList_get_by_pos(LPLinkedList lp_ll, long pos,
   return TRUE;
 }
 
-__declspec(dllexport) void *LinkedList_get_addr_by_pos(LPLinkedList lp_ll,
+__declspec(dllexport) void* LinkedList_get_addr_by_pos(LPLinkedList lp_ll,
                                                        long pos) {
   assert(lp_ll != NULL_POINTER);
   if (pos < 0 || pos >= lp_ll->eles_num) {
@@ -302,11 +300,11 @@ __declspec(dllexport) void *LinkedList_get_addr_by_pos(LPLinkedList lp_ll,
       lp_lln = lp_lln->prev;
   }
 
-  return (void *)lp_lln->ele;
+  return (void*)lp_lln->ele;
 }
 
 __declspec(dllexport) int LinkedList_get_pos_by_ele(LPLinkedList lp_ll,
-                                                    void *ele,
+                                                    void* ele, long ele_size,
                                                     LPDynaArray lp_poses) {
   assert(lp_ll != NULL_POINTER && ele != NULL_POINTER &&
          lp_poses != NULL_POINTER);
@@ -317,8 +315,7 @@ __declspec(dllexport) int LinkedList_get_pos_by_ele(LPLinkedList lp_ll,
     if (lp_ll->compare_func != NULL_POINTER)
       eq = lp_ll->compare_func(ele, lp_lln->ele);
     else {
-      if (memcmp((char *)ele, (char *)lp_lln->ele, lp_ll->ele_size) == 0)
-        eq = TRUE;
+      if (memcmp((char*)ele, (char*)lp_lln->ele, ele_size) == 0) eq = TRUE;
     }
     if (eq == TRUE) {
       if (DynaArray_insert(lp_poses, lp_poses->eles_num, &i) == FALSE)
@@ -332,7 +329,7 @@ __declspec(dllexport) int LinkedList_get_pos_by_ele(LPLinkedList lp_ll,
 }
 
 __declspec(dllexport) int LinkedList_edit_by_pos(LPLinkedList lp_ll, long pos,
-                                                 void *ele) {
+                                                 void* ele, long ele_size) {
   assert(lp_ll != NULL_POINTER && ele != NULL_POINTER);
 
   LPLinkedListNode lp_lln;
@@ -350,8 +347,7 @@ __declspec(dllexport) int LinkedList_edit_by_pos(LPLinkedList lp_ll, long pos,
       return FALSE;
     }
   } else {
-    if (memcpy((char *)lp_lln->ele, (char *)ele, lp_ll->ele_size) ==
-        NULL_POINTER) {
+    if (memcpy((char*)lp_lln->ele, (char*)ele, ele_size) == NULL_POINTER) {
       set_last_error(CLIB_MEMCPY_FAILED);
       return FALSE;
     }
@@ -360,11 +356,16 @@ __declspec(dllexport) int LinkedList_edit_by_pos(LPLinkedList lp_ll, long pos,
   return TRUE;
 }
 
-__declspec(dllexport) int LinkedList_edit_by_ele(LPLinkedList lp_ll,
-                                                 void *old_ele, void *new_ele,
-                                                 LPDynaArray lp_poses) {
+__declspec(dllexport) int LinkedList_edit_by_ele(
+    LPLinkedList lp_ll, void* old_ele, long old_ele_size, void* new_ele,
+    long new_ele_size, LPDynaArray lp_poses) {
   assert(lp_ll != NULL_POINTER && old_ele != NULL_POINTER &&
          new_ele != NULL_POINTER);
+
+  if (old_ele_size <= 0 || new_ele_size <= 0) {
+    set_last_error(CLIB_PARAMS_WRONG);
+    return FALSE;
+  }
 
   LPLinkedListNode lp_lln = lp_ll->lp_head;
   char eq = FALSE;
@@ -372,18 +373,26 @@ __declspec(dllexport) int LinkedList_edit_by_ele(LPLinkedList lp_ll,
     if (lp_ll->compare_func != NULL_POINTER)
       eq = lp_ll->compare_func(old_ele, lp_lln->ele);
     else {
-      if (memcmp((char *)old_ele, (char *)lp_lln->ele, lp_ll->ele_size) == 0)
+      if (old_ele_size == lp_lln->ele_size &&
+          memcmp((char*)old_ele, (char*)lp_lln->ele, lp_lln->ele_size) == 0)
         eq = TRUE;
     }
     if (eq == TRUE) {
+      void* tnele = malloc(new_ele_size);
+      if (tnele == NULL_POINTER) {
+        set_last_error(CLIB_MALLOC_FAILED);
+        return FALSE;
+      }
+      free(lp_lln->ele);
+      lp_lln->ele = tnele;
+
       if (lp_ll->copy_func != NULL_POINTER) {
         if (lp_ll->copy_func(lp_lln->ele, new_ele) == FALSE) {
           set_last_error(CLIB_CALLBACKFUNC_FAILED);
           return FALSE;
         }
       } else {
-        if (memcpy((char *)lp_lln->ele, (char *)new_ele, lp_ll->ele_size) ==
-            0) {
+        if (memcpy((char*)lp_lln->ele, (char*)new_ele, lp_ll->ele_size) == 0) {
           set_last_error(CLIB_MEMCPY_FAILED);
           return FALSE;
         }
